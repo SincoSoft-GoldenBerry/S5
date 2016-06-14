@@ -1092,6 +1092,18 @@ var Sinco = (function (exports) {
             }
 
             var _mostrarOpciones = function (data) {
+                if (!data) {
+                    data = { length: 0 };
+                }
+                else if (!(data instanceof Array)) {
+                    if (data.hasOwnProperty('d')) {
+                        data = data.d;
+                    }
+                    else {
+                        data = { length: 0 };
+                    }
+                }
+
                 _resultsContainer.styles('display', '');
                 _input._visible = true;
                 _resultsContainer.innerHTML = '';
@@ -1348,7 +1360,6 @@ var Sinco = (function (exports) {
         //Eventos
         {
             _input.addEvent(_config.event, function (e) {
-                console.log(_config.event.toUpperCase() + '!');
                 e = e || window.event;
                 if (e.keyCode != 13 && e.keyCode != 27 && e.keyCode != 38 && e.keyCode != 40)
                     _exec.call(this);
