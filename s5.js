@@ -915,12 +915,18 @@ var Sinco = (function (exports) {
                 return selected;
             }
 
-            this.setSelectedIndex = function (indice) {
+            this.setSelectedValue = function (value) {
                 _exec.call(_input);
-                if (indice < _datos.length) {
-                    _selectItem(_datos[indice]);
-                    _input.value = _datos[indice][_config.text];
-                    _ocultarItems();
+                if (value) {
+                    var item = _datos.filter(function (o) {
+                        return o[_config.value] == value;
+                    });
+                    if (item.length > 0) {
+                        item = item.shift();
+                        _selectItem(item);
+                        _input.value = item[_config.text];
+                        _ocultarItems();
+                    }
                 }
             }
 
