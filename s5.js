@@ -917,7 +917,7 @@ var Sinco = (function (exports) {
 
             this.setSelectedValue = function (value) {
                 _exec.call(_input);
-                if (value) {
+                if (value != null && typeof value != 'undefined') {
                     var item = _datos.filter(function (o) {
                         return o[_config.value] == value;
                     });
