@@ -712,15 +712,17 @@ var Sinco = (function (exports) {
 
     var addEvent = function (type, callback) {
         var _this = this;
-        if (_this.attachEvent) {
+
+        if (_this.addEventListener) {
+            _this.addEventListener(type, callback, false);
+        }
+        else if (_this.attachEvent) {
             _this['e' + type + callback] = callback;
             _this[type + callback] = function () {
                 _this['e' + type + callback](window.event);
             }
             _this.attachEvent('on' + type, _this[type + callback]);
         }
-        else
-            _this.addEventListener(type, callback, false);
         return _this;
     }
 
@@ -1763,7 +1765,6 @@ var Sinco = (function (exports) {
          * @description Función que realiza la carga de módulos de la página.
          */
         var funcion = function () {
-
             var scripsArray = [];
             var scripts = document.getElementsByTagName('script');
 
