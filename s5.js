@@ -874,7 +874,8 @@ var Sinco = (function (exports) {
             var _input = null,
                 _indexSelected = -1,
                 _datos = [],
-                _http;
+                _http,
+                _encontrado;
 
             window['autocompletes'] = (window['autocompletes'] || 16777272) - 1;
 
@@ -1028,10 +1029,18 @@ var Sinco = (function (exports) {
             }
 
             var _ubicar = function (indice) {
-                _selectItem(_datos[indice]);
-                var itemsHtml = _quitarClase();
-                if (!!itemsHtml)
-                    itemsHtml[indice].classList.add('hover');
+                if (!!_encontrado) {
+                    _selectItem(_datos[indice]);
+                    var itemsHtml = _quitarClase();
+                    if (!!itemsHtml)
+                        itemsHtml[indice].classList.add('hover');
+
+                    var _container = Sinco.get('autocomplete-results-' + _config.id);
+
+                    if (indice >= 0) {
+                        _container.scrollTop = itemsHtml[indice].offsetTop;
+                    }
+                }
             }
 
             var _exec = function () {
@@ -1124,6 +1133,12 @@ var Sinco = (function (exports) {
                     item = Sinco.createElem('div', { 'class': 'autocomplete-results-item' });
                     item.innerHTML = 'No se encontraron resultados';
                     _innerContainer.insert(item);
+                    selected = {
+                        value: '',
+                        text: '',
+                        props: {}
+                    };
+                    _encontrado = false;
                 }
                 else {
                     _datos = data.sort(function (a, b) {
@@ -1171,15 +1186,34 @@ var Sinco = (function (exports) {
                         item.dataInfo = o;
                         _innerContainer.insert(item);
                     });
+
+                    _encontrado = true;
+
+                    if (_config.event == 'keydown') {
+                        _navigate.call(_input);
+                    }
+                    _ubicar(0);
                 }
 
-                if (_config.event == 'keydown') {
-                    _navigate.call(_input);
-                }
+                _enmarcarResultados();
             }
 
             var _dimensionar = function (n) {
                 return (_config.dimensions.height * n) / 37;
+            }
+
+            var _enmarcarResultados = function () {
+                var _results = Sinco.get('autocomplete-results-' + _config.id);
+                var top = Sinco.get('autocomplete-container-' + _config.id).offsetTop + _results.offsetTop;
+                var max = window.innerHeight; //Máximo es 300px de los resultados
+
+                var maxHeight = max - top;
+                if (maxHeight >= 30 && maxHeight <= 300) {
+                    _results.styles('max-height', maxHeight + 'px');
+                }
+                else {
+                    _results.style.maxHeight = null;
+                }
             }
         }
 
@@ -1385,8 +1419,14 @@ var Sinco = (function (exports) {
             });
 
             if (_config.event != 'keydown') {
-                _input.addEvent('keydown', _navigate);
+                _input.addEvent('keydown', function (e) {
+                    _navigate(e, e.key == 'ArrowDown');
+                });
             }
+
+            Sinco.extend(window).addEvent('resize', function () {
+                _enmarcarResultados();
+            });
         }
 
         _input.placeholder = _config.placeholder || 'Seleccione una opción';
