@@ -1795,7 +1795,7 @@ var Sinco = (function (exports) {
             script.onload = callback;
 
             document.head.appendChild(script);
-            script.src = src;
+            script.src = src + (window['version-js'] ? '?v=' + window['version-js'] : '');
         };
 
         /**
