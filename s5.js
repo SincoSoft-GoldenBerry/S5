@@ -1204,15 +1204,17 @@ var Sinco = (function (exports) {
 
             var _enmarcarResultados = function () {
                 var _results = Sinco.get('autocomplete-results-' + _config.id);
-                var top = Sinco.get('autocomplete-container-' + _config.id).offsetTop + _results.offsetTop;
-                var max = window.innerHeight; //Máximo es 300px de los resultados
+                if (_results) {
+                    var top = Sinco.get('autocomplete-container-' + _config.id).offsetTop + _results.offsetTop;
+                    var max = window.innerHeight; //Máximo es 300px de los resultados
 
-                var maxHeight = max - top;
-                if (maxHeight >= 30 && maxHeight <= 300) {
-                    _results.styles('max-height', maxHeight + 'px');
-                }
-                else {
-                    _results.style.maxHeight = null;
+                    var maxHeight = max - top;
+                    if (maxHeight >= 30 && maxHeight <= 300) {
+                        _results.styles('max-height', maxHeight + 'px');
+                    }
+                    else {
+                        _results.style.maxHeight = null;
+                    }
                 }
             }
         }
@@ -1269,7 +1271,7 @@ var Sinco = (function (exports) {
                 }
 
                 var _searchContainer = Sinco.createElem('div', { 'class': 'autocomplete-button-search', 'id': 'autocomplete-button-search-' + _config.id }).addEvent('click', function () {
-                    _exec.call({ value: '_' });
+                    _exec.call({ value: _input.value });
                     _input.focus();
                     _resultsContainer.styles('display', '');
                 });
