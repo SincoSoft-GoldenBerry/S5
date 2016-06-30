@@ -670,7 +670,25 @@ var Sinco = (function (exports) {
             return this.getAttribute(nombre);
         else {
             this.setAttribute(nombre, valor);
+            dispatch.call(this, 'attribute', { name: nombre, value: valor });
             return this;
+        }
+    }
+
+    var on = function (eventName, listener) {
+        if (!this.listeners[eventName]) this.listeners[eventName] = [];
+        this.listeners[eventName].push(listener);
+    }
+
+    var off = function (eventName) {
+        this.listeners[eventName] = [];
+    }
+
+    var dispatch = function (eventName, values) {
+        if (this.listeners[eventName]) {
+            for (var i = 0; i < this.listeners[eventName].length; i++) {
+                this.listeners[eventName][i](this, values);
+            }
         }
     }
 
@@ -688,6 +706,8 @@ var Sinco = (function (exports) {
         else {
             this.insertBefore(e, this.firstChild);
         }
+
+        dispatch.call(this, 'insert');
         return this;
     }
 
@@ -744,6 +764,8 @@ var Sinco = (function (exports) {
         else
             return null;
     }
+
+    ////Objeto DragDrop
 
     var dragDrop = function (element, container, elementAttachEvent, initCallBack) {
         /// <summary>Da la opción de mover elementos dentro de un contenedor específico</summary>
@@ -860,6 +882,8 @@ var Sinco = (function (exports) {
             elementAttachEvent.addEvent('mouseup', function (event) { _dragDrop.stopMoving(); });
         }
     }
+
+    ////Objeto AutoCompletar
 
     var autocomplete = function (input, config) {
         /// <summary>Da la opción de convertir un input type text a control autocompletar</summary>
@@ -1458,6 +1482,451 @@ var Sinco = (function (exports) {
         return JSON.stringify(this.getSelected());
     }
 
+    ////Objeto Tour
+
+    var tour = function () {
+        var _steps = [];
+        var _index = 0;
+        var _container = {
+            element: null,
+            top: null,
+            bottom: null,
+            left: null,
+            right: null,
+            content: {
+                element: null,
+                title: null,
+                body: null,
+                buttonNext: null,
+                buttonPrev: null,
+                buttonFinish: null
+            },
+            recuadro: null
+        }
+
+        var _tourExtendProps = function (el, opt) {
+            for (var n in opt) {
+                if (el[n] !== null && typeof el[n] == 'object' && !(el[n] instanceof Array))
+                    _tourExtendProps(el[n], opt[n]);
+                else
+                    el[n] = opt[n];
+            }
+            return el;
+        }
+
+        var getTemplate = function () {
+            return {
+                target: '',
+                observerTarget: {
+                    element: null,
+                    event: ''
+                },
+                content: {
+                    width: 0,
+                    title: '',
+                    body: '',
+                    position: {
+                        top: 0,
+                        left: 0
+                    }
+                },
+                onShow: function (obj) { },
+                prevStep: null
+            }
+        }
+
+        var addStep = function (obj) {
+            var _obj = getTemplate();
+            _tourExtendProps(_obj, obj);
+
+            if (!obj) {
+                new SincoInitializationError('¡El paso no puede ser null o undefined!');
+            }
+            else {
+                _obj.index = _steps.length;
+                _obj.fromObserver = _steps[_steps.length - 1] && !!_steps[_steps.length - 1].observerTarget.element;
+                _steps.push(_obj);
+            }
+        }
+
+        if (arguments.length > 0) {
+            var _args = Array.prototype.slice.call(arguments);
+            _args.forEach(function (a) {
+                if (a instanceof Array) {
+                    a.forEach(function (b) {
+                        addStep(b);
+                    });
+                }
+                else {
+                    addStep(a);
+                }
+            });
+        }
+
+        var init = function () {
+            var body = Sinco.extend(document.body);
+            var head = Sinco.extend(document.head);
+
+            _container.top = Sinco.createElem('div', { 'class': 'tour-background' });
+            _container.bottom = Sinco.createElem('div', { 'class': 'tour-background' });
+            _container.left = Sinco.createElem('div', { 'class': 'tour-background' });
+            _container.right = Sinco.createElem('div', { 'class': 'tour-background' });
+            _container.content.element = Sinco.createElem('section', { 'id': 'tour-content' });
+            _container.content.title = Sinco.createElem('header', { 'id': 'tour-content-header' });
+            _container.content.body = Sinco.createElem('header', { 'id': 'tour-content-body' });
+            _container.content.buttonNext = Sinco.createElem('button', { 'class': 'tour-content-button', 'type': 'button' });
+            _container.content.buttonNext.addEvent('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                nextStep(++_index);
+            });
+
+            _container.content.buttonPrev = Sinco.createElem('button', { 'class': 'tour-content-button', 'type': 'button' });
+            _container.content.buttonPrev.addEvent('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+
+                if (_steps[_index].prevStep !== null) {
+                    _index = _steps[_index].prevStep;
+                }
+                else {
+                    _index--;
+                }
+
+                nextStep(_index);
+            });
+
+            _container.content.buttonFinish = Sinco.createElem('button', { 'class': 'tour-content-button left', 'type': 'button' });
+            _container.content.buttonFinish.innerHTML = 'Finalizar';
+            _container.content.buttonFinish.addEvent('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                finalizar();
+            });
+
+            _container.recuadro = {
+                top: Sinco.createElem('aside', { 'class': 'tour-frame top' }),
+                left: Sinco.createElem('aside', { 'class': 'tour-frame left' }),
+                right: Sinco.createElem('aside', { 'class': 'tour-frame right' }),
+                bottom: Sinco.createElem('aside', { 'class': 'tour-frame bottom' })
+            };
+
+            body.insert([
+                _container.top,
+                _container.bottom,
+                _container.left,
+                _container.right,
+                _container.recuadro.top,
+                _container.recuadro.right,
+                _container.recuadro.left,
+                _container.recuadro.bottom
+            ]);
+
+            _container.content.element.insert([
+                _container.content.title,
+                _container.content.body,
+                Sinco.createElem('footer').insert([
+                    _container.content.buttonFinish,
+                    _container.content.buttonPrev,
+                    _container.content.buttonNext
+                ])
+            ]);
+
+            body.insert(_container.content.element);
+
+            if (!Sinco.get('tour-styles')) {
+
+                var estilos = Sinco.createElem('style', { 'type': 'text/css', 'id': 'tour-styles' });
+                var estArr = [];
+                estArr.push('#tour-container {');
+                estArr.push('   position: absolute;');
+                estArr.push('   top: 0;');
+                estArr.push('   left: 0;');
+                estArr.push('   right: 0;');
+                estArr.push('   bottom: 0;');
+                estArr.push('   z-index: 99;');
+                estArr.push('}');
+                estArr.push('.tour-background {');
+                estArr.push('   z-index: 98;');
+                estArr.push('   position: absolute;');
+                estArr.push('   background-color: rgba(68, 68, 68, 0.8);');
+                estArr.push('}');
+                estArr.push('.tour-frame {');
+                estArr.push('   position: absolute;');
+                estArr.push('   border: 1px solid #378fa9;');
+                estArr.push('   z-index: 99;');
+                estArr.push('}');
+                estArr.push('.tour-frame.top, .tour-frame.bottom {');
+                estArr.push('   height: 0;');
+                estArr.push('}');
+                estArr.push('.tour-frame.left, .tour-frame.right {');
+                estArr.push('   width: 0;');
+                estArr.push('}');
+                estArr.push('#tour-content.modal {');
+                estArr.push('   margin-left: calc(50% - 150px);');
+                estArr.push('   top: 100px;');
+                estArr.push('}');
+                estArr.push('#tour-content {');
+                estArr.push('   position: absolute;');
+                estArr.push('   z-index: 99;');
+                estArr.push('   background-color: #FFF;');
+                estArr.push('   padding: 2px;');
+                estArr.push('   display: flex;');
+                estArr.push('   flex-flow: column;');
+                estArr.push('   font-size: 14px;');
+                estArr.push('   border: 1px solid rgba(68, 68, 68, 0.6);');
+                estArr.push('   font-family: Roboto;');
+                estArr.push('   color: #1B344C;');
+                estArr.push('   -webkit-box-shadow: 0px 0px 15px 0px rgba(50, 50, 50, 1);');
+                estArr.push('   -moz-box-shadow:    0px 0px 15px 0px rgba(50, 50, 50, 1);');
+                estArr.push('   box-shadow:         0px 0px 15px 0px rgba(50, 50, 50, 1);');
+                estArr.push('}');
+                estArr.push('#tour-content-header {');
+                estArr.push('   border-bottom: 1px solid silver;');
+                estArr.push('   padding: 7px;');
+                estArr.push('   background-color: #EAEAEA;');
+                estArr.push('   color: #565656;');
+                estArr.push('   border-radius: 2px;');
+                estArr.push('   text-align: center;');
+                estArr.push('}');
+                estArr.push('#tour-content-body {');
+                estArr.push('   padding: 5px;');
+                estArr.push('   font-size: 0.9em;');
+                estArr.push('}');
+                estArr.push('#tour-content > footer {');
+                estArr.push('   text-align: right;');
+                estArr.push('   padding: 5px;');
+                estArr.push('}');
+                estArr.push('.tour-content-button {');
+                estArr.push('   border: 1px solid #BBB7B7;');
+                estArr.push('   background-color: #EEE;');
+                estArr.push('   color: #525252;');
+                estArr.push('   padding: 3px 5px;');
+                estArr.push('   cursor: pointer;');
+                estArr.push('   font-family: Antipasto;');
+                estArr.push('   border-radius: 2px;');
+                estArr.push('   letter-spacing: 1px;');
+                estArr.push('   margin-left: 5px;');
+                estArr.push('   font-size: 12px;');
+                estArr.push('}');
+
+                estilos.innerHTML = estArr.join('');
+                head.insert(estilos);
+            }
+        }
+
+        var finalizar = function () {
+            _index = 0;
+            _container.top.delete();
+            _container.bottom.delete();
+            _container.left.delete();
+            _container.right.delete();
+            _container.content.element.delete();
+            _container.recuadro.top.delete();
+            _container.recuadro.bottom.delete();
+            _container.recuadro.left.delete();
+            _container.recuadro.right.delete();
+        }
+
+        var nextStep = function (i) {
+            var step = _steps[i];
+            if (step) {
+                mostrarPaso(step);
+            }
+        }
+
+        var mostrarPaso = function (step) {
+            if (!step.target || ( typeof step.target == 'string' && step.target.split(' ').join('') === '' )) {
+                mostrarDialogo(step);
+            }
+            else {
+                mostrarFondo(step);
+
+                var callBack = function () {
+                    mostrarFondo(step);
+                }
+
+                Sinco.extend(window).removeEvent('resize', callBack);
+                Sinco.extend(window).addEvent('resize', callBack);
+            }
+            _container.content.title.innerHTML = step.content.title;
+            _container.content.body.innerHTML = step.content.body;
+
+            if (step.index == 0) {
+                _container.content.buttonNext.innerHTML = 'Empezar';
+
+                _container.content.buttonNext.removeAttribute('style');
+                _container.content.buttonPrev.styles('display', 'none');
+                _container.content.buttonFinish.styles('display', 'none');
+            }
+            else if (_steps.length > _index + 1) {
+                _container.content.buttonNext.innerHTML = 'Siguiente';
+                _container.content.buttonPrev.innerHTML = 'Anterior';
+
+                _container.content.buttonNext.removeAttribute('style');
+                _container.content.buttonPrev.removeAttribute('style');
+                _container.content.buttonFinish.removeAttribute('style');
+            }
+            else {
+                _container.content.buttonNext.styles('display', 'none');
+                _container.content.buttonFinish.removeAttribute('style');
+            }
+
+            _container.content.element.styles('width', step.content.width);
+
+            if (step.onShow) {
+                step.onShow({
+                    step: step,
+                    container: _container
+                });
+            }
+
+            if (step.observerTarget.element) {
+                if (typeof step.observerTarget.event == 'string' && step.observerTarget.event !== '') {
+                    step.observerTarget.element.on(step.observerTarget.event, function (elem, values) {
+                        elem.off(step.observerTarget.event);
+                        nextStep(++_index);
+                    });
+                }
+                else if (typeof step.observerTarget.event == 'object') {
+                    step.observerTarget.element.on(step.observerTarget.event.name, function (elem, values) {
+                        if (step.observerTarget.event.validator(elem, values)) {
+                            elem.off(step.observerTarget.event);
+                            nextStep(++_index);
+                        }
+                    });
+                }
+                _container.content.buttonNext.styles('display', 'none');
+            }
+        }
+
+        var mostrarDialogo = function (step) {
+            _container.content.element.classList.add('modal');
+            _container.content.element.removeAttribute('style');
+            _container.top.removeAttribute('style');
+            _container.bottom.removeAttribute('style');
+            _container.left.removeAttribute('style');
+            _container.right.removeAttribute('style');
+            _container.recuadro.top.removeAttribute('style');
+            _container.recuadro.bottom.removeAttribute('style');
+            _container.recuadro.left.removeAttribute('style');
+            _container.recuadro.right.removeAttribute('style');
+
+            _container.top.styles('top', '0');
+            _container.top.styles('left', '0');
+            _container.top.styles('right', '0');
+            _container.top.styles('bottom', '0');
+        }
+
+        var mostrarFondo = function (step) {
+            _container.content.element.classList.remove('modal');
+
+            var target = typeof step.target != 'string' ? step.target.getBoundingClientRect() : step.target.split(',').reduce(function (total, actual, i) {
+                var el = Sinco.get(actual.split(' ').join('')).getBoundingClientRect();
+
+                if (el.height != 0 && el.width != 0) {
+                    if (total.top == 0 && total.left == 0 && total.height == 0 && total.width == 0) {
+                        total.top = el.top;
+                        total.left = el.left;
+                        total.height = el.height;
+                        total.width = el.width;
+                    }
+
+                    if (total.top > el.top) {
+                        total.top = el.top;
+                    }
+                    else {
+                        total.max.top = el.top;
+                    }
+
+                    if (total.left > el.left) {
+                        total.left = el.left;
+                    }
+                    else {
+                        total.max.left = el.left;
+                    }
+
+                    if (total.max.left <= el.left) {
+                        total.width = (total.max.left - total.left) + el.width;
+                    }
+
+                    if (total.max.top <= el.top) {
+                        total.height = (total.max.top - total.top) + el.height;
+                    }
+                }
+                return total;
+            },
+            {
+                top: 0,
+                left: 0,
+                width: 0,
+                height: 0,
+                max: {
+                    top: 0,
+                    left: 0
+                }
+            });
+            _container.top.styles('top', '0');
+            _container.top.styles('height', target.top + 'px');
+            _container.top.styles('width', target.width + 'px');
+            _container.top.styles('left', target.left + 'px');
+            _container.top.styles('right', '0');
+
+            _container.bottom.styles('top', (target.top + target.height) + 'px');
+            _container.bottom.styles('width', target.width + 'px');
+            _container.bottom.styles('left', target.left + 'px');
+            _container.bottom.styles('bottom', '0');
+
+            _container.left.styles('top', '0');
+            _container.left.styles('width', target.left + 'px');
+            _container.left.styles('left', '0');
+            _container.left.styles('bottom', '0');
+
+            _container.right.styles('top', '0');
+            _container.right.styles('right', '0');
+            _container.right.styles('left', (target.left + target.width) + 'px');
+            _container.right.styles('bottom', '0');
+
+            _container.recuadro.top.styles('top', target.top + 'px');
+            _container.recuadro.top.styles('width', (target.width) + 'px');
+            _container.recuadro.top.styles('left', target.left + 'px');
+
+            _container.recuadro.bottom.styles('left', target.left + 'px');
+            _container.recuadro.bottom.styles('width', (target.width) + 'px');
+            _container.recuadro.bottom.styles('top', (target.top + target.height - 2) + 'px');
+
+            _container.recuadro.left.styles('left', target.left + 'px');
+            _container.recuadro.left.styles('height', (target.height - 2) + 'px');
+            _container.recuadro.left.styles('top', target.top + 'px');
+
+            _container.recuadro.right.styles('left', (target.left + target.width) + 'px');
+            _container.recuadro.right.styles('height', (target.height - 2) + 'px');
+            _container.recuadro.right.styles('top', target.top + 'px');
+
+            _container.content.element.styles('top', (target.top + step.content.position.top) + 'px');
+            _container.content.element.styles('left', (target.left + step.content.position.left) + 'px');
+        }
+
+        this.addStep = addStep;
+
+        this.setTargetToStep = function (target, index) {
+            if (_steps[index]) {
+                _steps[index].target = target;
+            }
+        }
+
+        this.launch = function () {
+            init();
+
+            if (!!_steps.length) {
+                nextStep(_index);
+            }
+        }
+    }
+
     var addStyles = function (e, p) {
         if (e instanceof Sinco.constructor) {
             for (var key in p)
@@ -1847,6 +2316,10 @@ var Sinco = (function (exports) {
     return {
         extend: extend,
         get: get,
+        on: on,
+        off: off,
+        dispatch, dispatch,
+        listeners: {},
         createElem: createElem,
         attribute: attribute,
         insert: insert,
@@ -1859,6 +2332,7 @@ var Sinco = (function (exports) {
             encrypt: encrypt,
             dragDrop: dragDrop,
             autocomplete: autocomplete,
+            Tour: tour,
             addStyles: addStyles,
             parseXml: parseXml,
             onClickValidations: validacionesOnClick
