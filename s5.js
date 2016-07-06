@@ -2081,7 +2081,8 @@ var Sinco = (function (exports) {
                 body: null,
                 buttonNext: null,
                 buttonPrev: null,
-                buttonFinish: null
+                buttonFinish: null,
+                buttonExit: null
             },
             recuadro: null
         }
@@ -2177,6 +2178,7 @@ var Sinco = (function (exports) {
             });
 
             _container.content.buttonPrev = Sinco.createElem('button', { 'class': 'tour-content-button', 'type': 'button' });
+            _container.content.buttonPrev.innerHTML = 'Anterior';
             _container.content.buttonPrev.addEvent('click', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -2196,13 +2198,23 @@ var Sinco = (function (exports) {
                 nextStep(_index);
             });
 
+            _container.content.buttonExit = Sinco.createElem('button', { 'class': 'tour-content-button next', 'type': 'button' });
+            _container.content.buttonExit.innerHTML = 'Salir';
+            _container.content.buttonExit.addEvent('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                finalizar(_this);
+            });
+
             _container.content.buttonFinish = Sinco.createElem('button', { 'class': 'tour-content-button left', 'type': 'button' });
             _container.content.buttonFinish.innerHTML = 'Terminar guía';
             _container.content.buttonFinish.addEvent('click', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
                 e.stopImmediatePropagation();
-                finalizar(_this);
+                _index = _steps.length - 1;
+                nextStep(_index);
             });
 
             _container.recuadro = {
@@ -2230,7 +2242,8 @@ var Sinco = (function (exports) {
                 Sinco.createElem('footer').insert([
                     _container.content.buttonFinish,
                     _container.content.buttonPrev,
-                    _container.content.buttonNext
+                    _container.content.buttonNext,
+                    _container.content.buttonExit
                 ])
             ]);
 
@@ -2265,6 +2278,7 @@ var Sinco = (function (exports) {
                 estArr.push('   left: 0;');
                 estArr.push('   right: 0;');
                 estArr.push('   z-index: 90;');
+                estArr.push('   background-color: rgba(255, 255, 255, 0.01);');
                 estArr.push('}');
 
                 estArr.push('#tour-content-header-icon {');
@@ -2385,7 +2399,6 @@ var Sinco = (function (exports) {
                 estArr.push('}');
 
                 estArr.push('#tour-content.modal {');
-                estArr.push('   margin-left: calc(50% - 200px);');
                 estArr.push('   top: 100px;');
                 estArr.push('}');
                 estArr.push('#tour-content > footer {');
@@ -2400,6 +2413,7 @@ var Sinco = (function (exports) {
 
         var finalizar = function (_this) {
             _index = 0;
+            _container.blockDiv.delete();
             _container.top.delete();
             _container.bottom.delete();
             _container.left.delete();
@@ -2419,6 +2433,17 @@ var Sinco = (function (exports) {
             var step = _steps[i];
             if (step) {
                 mostrarPaso(step);
+            }
+            if (i == _steps.length - 1) {
+                _container.content.buttonExit.removeAttribute('style');
+                _container.content.buttonPrev.removeAttribute('style');
+                _container.content.buttonNext.styles('display', 'none');
+                _container.content.buttonFinish.styles('display', 'none');
+            }
+            else {
+                _container.content.buttonExit.styles('display', 'none');
+                _container.content.buttonNext.removeAttribute('style');
+                _container.content.buttonFinish.removeAttribute('style');
             }
         }
 
@@ -2464,7 +2489,6 @@ var Sinco = (function (exports) {
             }
             else if (_steps.length > _index + 1) {
                 _container.content.buttonNext.innerHTML = 'Siguiente';
-                _container.content.buttonPrev.innerHTML = 'Anterior';
 
                 _container.content.buttonNext.removeAttribute('disabled');
                 _container.content.buttonPrev.removeAttribute('style');
@@ -2525,7 +2549,9 @@ var Sinco = (function (exports) {
 
         var mostrarDialogo = function (step) {
             _container.content.element.classList.add('modal');
+            _container.content.element.classList.remove('mobile');
             _container.content.element.removeAttribute('style');
+            _container.content.element.styles('margin-left', 'calc(50% - ' + ((parseInt( step.content.width.replaceAll('px', '').replaceAll('%', '') ) / 2) + 12) + 'px)');
             _container.top.removeAttribute('style');
             _container.bottom.removeAttribute('style');
             _container.left.removeAttribute('style');
@@ -2542,39 +2568,43 @@ var Sinco = (function (exports) {
         }
 
         var mostrarFondo = function (step) {
+            _container.content.element.removeAttribute('style');
             _container.content.element.classList.remove('modal');
 
             var target = typeof step.target != 'string' ? step.target.getBoundingClientRect() : step.target.split(',').reduce(function (total, actual, i) {
-                var el = Sinco.get(actual.split(' ').join('')).getBoundingClientRect();
+                var el = Sinco.get(actual.split(' ').join(''));
+                if (el && el.getBoundingClientRect) {
+                    el = el.getBoundingClientRect();
 
-                if (el.height != 0 && el.width != 0) {
-                    if (total.top == 0 && total.left == 0 && total.height == 0 && total.width == 0) {
-                        total.top = el.top;
-                        total.left = el.left;
-                        total.height = el.height;
-                        total.width = el.width;
-                    }
+                    if (el.height != 0 && el.width != 0) {
+                        if (total.top == 0 && total.left == 0 && total.height == 0 && total.width == 0) {
+                            total.top = el.top;
+                            total.left = el.left;
+                            total.height = el.height;
+                            total.width = el.width;
+                        }
 
-                    if (total.top > el.top) {
-                        total.top = el.top;
-                    }
-                    else {
-                        total.max.top = el.top;
-                    }
+                        if (total.top > el.top) {
+                            total.top = el.top;
+                        }
+                        else {
+                            total.max.top = el.top;
+                        }
 
-                    if (total.left > el.left) {
-                        total.left = el.left;
-                    }
-                    else {
-                        total.max.left = el.left;
-                    }
+                        if (total.left > el.left) {
+                            total.left = el.left;
+                        }
+                        else {
+                            total.max.left = el.left;
+                        }
 
-                    if (total.max.left <= el.left) {
-                        total.width = (total.max.left - total.left) + el.width;
-                    }
+                        if (total.max.left <= el.left) {
+                            total.width = (total.max.left - total.left) + el.width;
+                        }
 
-                    if (total.max.top <= el.top) {
-                        total.height = (total.max.top - total.top) + el.height;
+                        if (total.max.top <= el.top) {
+                            total.height = (total.max.top - total.top) + el.height;
+                        }
                     }
                 }
                 return total;
