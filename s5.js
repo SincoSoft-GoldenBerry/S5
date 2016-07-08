@@ -2449,7 +2449,7 @@ var Sinco = (function (exports) {
                 estArr.push('   box-shadow:         3px 0px 10px 0px #378fa9;');
                 estArr.push('}');
 
-                estArr.push('#tour-content.modal {');
+                estArr.push('#tour-content.modal-tour {');
                 estArr.push('   top: 100px;');
                 estArr.push('}');
                 estArr.push('#tour-content > footer {');
@@ -2497,6 +2497,10 @@ var Sinco = (function (exports) {
                 _container.content.buttonExit.styles('display', 'none');
                 _container.content.buttonNext.removeAttribute('style');
                 _container.content.buttonFinish.removeAttribute('style');
+            }
+
+            if (_steps.length == 1) {
+                _container.content.buttonPrev.styles('display', 'none');
             }
         }
 
@@ -2606,7 +2610,7 @@ var Sinco = (function (exports) {
         }
 
         var mostrarDialogo = function (step) {
-            _container.content.element.classList.add('modal');
+            _container.content.element.classList.add('modal-tour');
             _container.content.element.classList.remove('mobile');
             _container.content.element.removeAttribute('style');
             _container.content.element.styles('margin-left', 'calc(50% - ' + ((parseInt( step.content.width.replaceAll('px', '').replaceAll('%', '') ) / 2) + 12) + 'px)');
@@ -2627,7 +2631,7 @@ var Sinco = (function (exports) {
 
         var mostrarFondo = function (step) {
             _container.content.element.removeAttribute('style');
-            _container.content.element.classList.remove('modal');
+            _container.content.element.classList.remove('modal-tour');
 
             var target = typeof step.target != 'string' ? step.target.getBoundingClientRect() : step.target.split(',').reduce(function (total, actual, i) {
                 var el = Sinco.get(actual.split(' ').join(''));
