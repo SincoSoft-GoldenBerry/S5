@@ -1872,7 +1872,7 @@ var Sinco = (function (exports) {
                 }
 
                 var _searchContainer = Sinco.createElem('div', { 'class': 'autocomplete-button-search', 'id': 'autocomplete-button-search-' + _config.id }).addEvent('click', function () {
-                    _exec.call({ value: _input.value });
+                    _exec.call({ value: '_'/*_input.value*/ });
                     _input.focus();
                     _resultsContainer.styles('display', '');
                 });
@@ -2062,6 +2062,7 @@ var Sinco = (function (exports) {
     ////Objeto Tour
 
     var tour = function () {
+        var finalizable = true;
         var _steps = [];
         var _index = 0;
         var _container = {
@@ -2146,8 +2147,11 @@ var Sinco = (function (exports) {
                         addStep(b);
                     });
                 }
-                else {
+                else if (a instanceof Object && a.content) {
                     addStep(a);
+                }
+                else if (typeof a == 'boolean') {
+                    finalizable = a;
                 }
             });
         }
@@ -2236,16 +2240,29 @@ var Sinco = (function (exports) {
                 _container.blockDiv
             ]);
 
-            _container.content.element.insert([
-                _container.content.title.element,
-                _container.content.body,
-                Sinco.createElem('footer').insert([
-                    _container.content.buttonFinish,
-                    _container.content.buttonPrev,
-                    _container.content.buttonNext,
-                    _container.content.buttonExit
-                ])
-            ]);
+            if (finalizable === true) {
+                _container.content.element.insert([
+                    _container.content.title.element,
+                    _container.content.body,
+                    Sinco.createElem('footer').insert([
+                        _container.content.buttonFinish,
+                        _container.content.buttonPrev,
+                        _container.content.buttonNext,
+                        _container.content.buttonExit
+                    ])
+                ]);
+            }
+            else {
+                _container.content.element.insert([
+                    _container.content.title.element,
+                    _container.content.body,
+                    Sinco.createElem('footer').insert([
+                        _container.content.buttonPrev,
+                        _container.content.buttonNext,
+                        _container.content.buttonExit
+                    ])
+                ]);
+            }
 
             body.insert(_container.content.element);
 
@@ -2456,95 +2473,100 @@ var Sinco = (function (exports) {
 
                 var callBack = function () {
                     mostrarFondo(step);
+                    configuraciones();
                 }
 
                 Sinco.extend(window).removeEvent('resize', callBack);
                 Sinco.extend(window).addEvent('resize', callBack);
             }
 
-            _container.content.title.text.innerHTML = step.content.title;
-            _container.content.title.icon.innerHTML = '';
-            _container.content.body.innerHTML = '';
+            var configuraciones = function () {
+                _container.content.title.text.innerHTML = step.content.title;
+                _container.content.title.icon.innerHTML = '';
+                _container.content.body.innerHTML = '';
 
-            if (step.observerTarget.element) {
-                _container.content.title.icon.insert(Sinco.iconos.Lab(22, '#000'));
-            }
-            else {
-                _container.content.title.icon.insert(Sinco.iconos.Info(22, '#000'));
-            }
+                if (step.observerTarget.element) {
+                    _container.content.title.icon.insert(Sinco.iconos.Lab(22, '#000'));
+                }
+                else {
+                    _container.content.title.icon.insert(Sinco.iconos.Info(22, '#000'));
+                }
 
-            if (typeof step.content.body == 'string') {
-                _container.content.body.innerHTML = step.content.body;
-            }
-            else if (typeof step.content.body == 'function') {
-                _container.content.body.insert(step.content.body());
-            }
+                if (typeof step.content.body == 'string') {
+                    _container.content.body.innerHTML = step.content.body;
+                }
+                else if (typeof step.content.body == 'function') {
+                    _container.content.body.insert(step.content.body());
+                }
 
-            if (step.index == 0) {
-                _container.content.buttonNext.innerHTML = 'Empezar';
+                if (step.index == 0) {
+                    _container.content.buttonNext.innerHTML = 'Empezar';
 
-                _container.content.buttonNext.removeAttribute('disabled');
-                _container.content.buttonPrev.styles('display', 'none');
-                _container.content.buttonFinish.styles('display', 'none');
-            }
-            else if (_steps.length > _index + 1) {
-                _container.content.buttonNext.innerHTML = 'Siguiente';
+                    _container.content.buttonNext.removeAttribute('disabled');
+                    _container.content.buttonPrev.styles('display', 'none');
+                    _container.content.buttonFinish.styles('display', 'none');
+                }
+                else if (_steps.length > _index + 1) {
+                    _container.content.buttonNext.innerHTML = 'Siguiente';
 
-                _container.content.buttonNext.removeAttribute('disabled');
-                _container.content.buttonPrev.removeAttribute('style');
-                _container.content.buttonFinish.removeAttribute('style');
-            }
-            else {
-                _container.content.buttonNext.attribute('disabled', 'disabled');
-                _container.content.buttonFinish.removeAttribute('style');
-            }
+                    _container.content.buttonNext.removeAttribute('disabled');
+                    _container.content.buttonPrev.removeAttribute('style');
+                    _container.content.buttonFinish.removeAttribute('style');
+                }
+                else {
+                    _container.content.buttonNext.attribute('disabled', 'disabled');
+                    _container.content.buttonFinish.removeAttribute('style');
+                }
 
-            _container.content.element.styles('width', step.content.width);
+                _container.content.element.styles('width', step.content.width);
 
-            if (step.onShow) {
-                step.onShow({
-                    step: step,
-                    container: _container
-                });
-            }
-
-            if (step.observerTarget.element) {
-                _container.blockDiv.styles('display', 'none');
-
-                if (typeof step.observerTarget.event == 'string' && step.observerTarget.event !== '') {
-                    step.observerTarget.element.on(step.observerTarget.event, function (elem, values) {
-                        elem.off(step.observerTarget.event);
-                        step.hasNext = true;
-                        nextStep(++_index);
+                if (step.onShow) {
+                    step.onShow({
+                        step: step,
+                        container: _container
                     });
                 }
-                else if (typeof step.observerTarget.event == 'object') {
-                    step.observerTarget.element.on(step.observerTarget.event.name, function (elem, values) {
-                        if (!step.hasNext) {
-                            var _callee = arguments.callee;
-                            setTimeout(function () {
-                                if (!step.hasNext) {
-                                    if (step.observerTarget.event.validator(elem, values)) {
-                                        elem.off(step.observerTarget.event.name);
-                                        step.hasNext = true;
-                                        nextStep(++_index);
+
+                if (step.observerTarget.element) {
+                    _container.blockDiv.styles('display', 'none');
+
+                    if (typeof step.observerTarget.event == 'string' && step.observerTarget.event !== '') {
+                        step.observerTarget.element.on(step.observerTarget.event, function (elem, values) {
+                            elem.off(step.observerTarget.event);
+                            step.hasNext = true;
+                            nextStep(++_index);
+                        });
+                    }
+                    else if (typeof step.observerTarget.event == 'object') {
+                        step.observerTarget.element.on(step.observerTarget.event.name, function (elem, values) {
+                            if (!step.hasNext) {
+                                var _callee = arguments.callee;
+                                setTimeout(function () {
+                                    if (!step.hasNext) {
+                                        if (step.observerTarget.event.validator(elem, values)) {
+                                            elem.off(step.observerTarget.event.name);
+                                            step.hasNext = true;
+                                            nextStep(++_index);
+                                        }
+                                        else {
+                                            _callee(elem, values);
+                                        }
                                     }
-                                    else {
-                                        _callee(elem, values);
-                                    }
-                                }
-                            }, 1);
-                        }
-                    });
+                                }, 1);
+                            }
+                        });
+                    }
+                    _container.content.buttonNext.attribute('disabled', 'disabled');
                 }
-                _container.content.buttonNext.attribute('disabled', 'disabled');
+                else {
+                    _container.blockDiv.removeAttribute('style');
+                }
+                if (_steps[_index - 1]) {
+                    _steps[_index - 1].hasNext = true;
+                }
             }
-            else {
-                _container.blockDiv.removeAttribute('style');
-            }
-            if (_steps[_index - 1]) {
-                _steps[_index - 1].hasNext = true;
-            }
+
+            configuraciones();
         }
 
         var mostrarDialogo = function (step) {
