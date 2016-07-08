@@ -2413,7 +2413,7 @@ var Sinco = (function (exports) {
 
                 estArr.push('.tour-background {');
                 estArr.push('   z-index: 98;');
-                estArr.push('   position: absolute;');
+                estArr.push('   position: fixed;');
                 estArr.push('   background-color: rgba(68, 68, 68, 0.8);');
                 estArr.push('}');
                 estArr.push('.tour-frame {');
