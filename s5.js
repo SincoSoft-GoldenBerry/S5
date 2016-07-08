@@ -2085,7 +2085,9 @@ var Sinco = (function (exports) {
                 buttonFinish: null,
                 buttonExit: null
             },
-            recuadro: null
+            recuadro: null,
+            progressbar: null,
+            progressbartext: null
         }
 
         var _tourExtendProps = function (el, opt) {
@@ -2221,6 +2223,9 @@ var Sinco = (function (exports) {
                 nextStep(_index);
             });
 
+            _container.progressbar = Sinco.createElem('div', { 'class': 'tour-progressbar' });
+            _container.progressbartext = Sinco.createElem('div', { 'class': 'tour-progressbar-text' });
+
             _container.recuadro = {
                 top: Sinco.createElem('aside', { 'class': 'tour-frame top' }),
                 left: Sinco.createElem('aside', { 'class': 'tour-frame left' }),
@@ -2243,6 +2248,8 @@ var Sinco = (function (exports) {
             if (finalizable === true) {
                 _container.content.element.insert([
                     _container.content.title.element,
+                    Sinco.createElem('aside', { 'class': 'tour-progressbar-container' }).insert(_container.progressbar),
+                    _container.progressbartext,
                     _container.content.body,
                     Sinco.createElem('footer').insert([
                         _container.content.buttonFinish,
@@ -2255,6 +2262,8 @@ var Sinco = (function (exports) {
             else {
                 _container.content.element.insert([
                     _container.content.title.element,
+                    Sinco.createElem('aside', { 'class': 'tour-progressbar-container' }).insert(_container.progressbar),
+                    _container.progressbartext,
                     _container.content.body,
                     Sinco.createElem('footer').insert([
                         _container.content.buttonPrev,
@@ -2270,6 +2279,32 @@ var Sinco = (function (exports) {
 
                 var estilos = Sinco.createElem('style', { 'type': 'text/css', 'id': 'tour-styles' });
                 var estArr = [];
+
+                estArr.push('.tour-progressbar-container {');
+                estArr.push('   padding: 0 8px;');
+                estArr.push('   position: relative;');
+                estArr.push('   height: 4px;');
+                estArr.push('   background-color: #D8D8D8;');
+                estArr.push('   border-radius: 2px;');
+                estArr.push('   border: 1px solid #C3C2C2;');
+                estArr.push('}');
+
+                estArr.push('.tour-progressbar {');
+                estArr.push('   position: absolute;');
+                estArr.push('   left: 0;');
+                estArr.push('   bottom: 0;');
+                estArr.push('   top: 0;');
+                estArr.push('   background-color: #1B344C;');
+                estArr.push('   border-radius: 5px;');
+                estArr.push('   border: 1px solid #1B344C;');
+                estArr.push('}');
+
+                estArr.push('.tour-progressbar-text {');
+                estArr.push('   font-size: 0.5em;');
+                estArr.push('   text-align: right;');
+                estArr.push('   font-family: Verdana;');
+                estArr.push('   font-weight: bold;');
+                estArr.push('}');
 
                 estArr.push('#tour-content {');
                 estArr.push('   position: absolute;');
@@ -2305,7 +2340,6 @@ var Sinco = (function (exports) {
                 estArr.push('}');
 
                 estArr.push('#tour-content-header {');
-                estArr.push('   border-bottom: 1px solid silver;');
                 estArr.push('   padding: 7px;');
                 estArr.push('   color: rgba(0, 0, 0, 0.87);');
                 estArr.push('   border-radius: 2px;');
@@ -2450,6 +2484,8 @@ var Sinco = (function (exports) {
             var step = _steps[i];
             if (step) {
                 mostrarPaso(step);
+                _container.progressbar.styles('width', (((i + 1) / _steps.length) * 100) + '%');
+                _container.progressbartext.innerHTML = (i + 1) + ' de ' + _steps.length;
             }
             if (i == _steps.length - 1) {
                 _container.content.buttonExit.removeAttribute('style');
