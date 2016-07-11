@@ -1850,6 +1850,7 @@ var Sinco = (function (exports) {
                 _container.insert(_input);
                 _parent.insert(_container, _inputIndex);
 
+                _input.styles('-ms-flex', '1 1 auto');
                 _input.styles('flex', '1 1 auto');
                 if (_config.icon !== '')
                     _input.styles('padding-left', '47px');
@@ -1890,10 +1891,12 @@ var Sinco = (function (exports) {
 
                 _stylesArray.push('#autocomplete-container-' + _config.id + ' {');
                 _stylesArray.push('    position: relative;');
+                _stylesArray.push('    display: -ms-flexbox;');
                 _stylesArray.push('    display: flex;');
                 _stylesArray.push('}');
 
                 _stylesArray.push('#autocomplete-container-' + _config.id + ' > input {');
+                _stylesArray.push('    -ms-flex: 1 1 auto;');
                 _stylesArray.push('    flex: 1 1 auto;');
                 /*_stylesArray.push('    padding-left: ' + (_config.dimensions.width + _config.dimensions.left) + 'px;');*/
                 _stylesArray.push('}');
@@ -1904,8 +1907,11 @@ var Sinco = (function (exports) {
                 _stylesArray.push('    bottom: ' + _config.dimensions.bottom + 'px;');
                 _stylesArray.push('    right: ' + _config.dimensions.left + 'px;');
                 _stylesArray.push('    position: absolute;');
+                _stylesArray.push('    display: -ms-flexbox;');
                 _stylesArray.push('    display: flex;');
+                _stylesArray.push('    -ms-flex-align: center;');
                 _stylesArray.push('    align-items: center;');
+                _stylesArray.push('    -ms-flex-pack: center;');
                 _stylesArray.push('    justify-content: center;');
                 _stylesArray.push('    width: ' + _dimensionar(18) + 'px;');
                 _stylesArray.push('    cursor: pointer;');
@@ -1947,14 +1953,21 @@ var Sinco = (function (exports) {
 
                 if (_config.extended.north.title !== '') {
                     _stylesArray.push('    .autocomplete-results-item.autocomplete-results-item-layout {');
+                    _stylesArray.push('        display: -ms-flexbox;');
                     _stylesArray.push('        display: flex;');
+                    _stylesArray.push('        -ms-flex-flow: column nowrap;');
+                    _stylesArray.push('        -webkit-flex-flow: column nowrap;');
                     _stylesArray.push('        flex-flow: column nowrap;');
                     _stylesArray.push('        border-top: 1px silver solid;');
                     _stylesArray.push('    }');
 
                     _stylesArray.push('    .autocomplete-results-item.autocomplete-results-item-layout > header {');
+                    _stylesArray.push('        display: -ms-flexbox;');
                     _stylesArray.push('        display: flex;');
+                    _stylesArray.push('        -ms-flex-flow: row nowrap;');
+                    _stylesArray.push('        -webkit-flex-flow: row nowrap;');
                     _stylesArray.push('        flex-flow: row nowrap;');
+                    _stylesArray.push('        -ms-flex-pack: justify;');
                     _stylesArray.push('        justify-content: space-between;');
                     _stylesArray.push('        font-weight: bold;');
                     _stylesArray.push('        font-size: 14px;');
@@ -1984,8 +1997,11 @@ var Sinco = (function (exports) {
                     _stylesArray.push('    left: ' + (_config.dimensions.left + 1) + 'px;');
                     _stylesArray.push('    width: ' + _config.dimensions.height + 'px;');
                     _stylesArray.push('    border-right: 1px solid silver;');
+                    _stylesArray.push('    display: -ms-flexbox;');
                     _stylesArray.push('    display: flex;');
+                    _stylesArray.push('    -ms-flex-pack: center;');
                     _stylesArray.push('    justify-content: center;');
+                    _stylesArray.push('    -ms-flex-align: center !important;');
                     _stylesArray.push('    align-items: center !important;');
                     _stylesArray.push('    background-color: #E6E6E6;');
                     _stylesArray.push('    cursor: pointer;');
@@ -2174,7 +2190,7 @@ var Sinco = (function (exports) {
                 _container.content.title.icon,
                 _container.content.title.text
             ]);
-            _container.content.body = Sinco.createElem('header', { 'id': 'tour-content-body' });
+            _container.content.body = Sinco.createElem('section', { 'id': 'tour-content-body' });
             _container.content.buttonNext = Sinco.createElem('button', { 'class': 'tour-content-button next', 'type': 'button' });
             _container.content.buttonNext.addEvent('click', function (e) {
                 e.preventDefault();
@@ -2312,7 +2328,10 @@ var Sinco = (function (exports) {
                 estArr.push('   background-color: #FFF;');
                 estArr.push('   padding: 12px;');
                 estArr.push('   min-width: 320px;');
+                estArr.push('   display: -ms-flexbox;');
                 estArr.push('   display: flex;');
+                estArr.push('   -ms-flex-flow: column;');
+                estArr.push('   -webkit-flex-flow: column;');
                 estArr.push('   flex-flow: column;');
                 estArr.push('   font-size: 20px;');
                 estArr.push('   border: 1px solid rgba(68, 68, 68, 0.6);');
@@ -2335,7 +2354,9 @@ var Sinco = (function (exports) {
 
                 estArr.push('#tour-content-header-icon {');
                 estArr.push('   margin-right: 5px;');
+                estArr.push('   display: -ms-flexbox;');
                 estArr.push('   display: flex;');
+                estArr.push('    -ms-flex-align: center;');
                 estArr.push('   align-items: center;');
                 estArr.push('}');
 
@@ -2344,7 +2365,9 @@ var Sinco = (function (exports) {
                 estArr.push('   color: rgba(0, 0, 0, 0.87);');
                 estArr.push('   border-radius: 2px;');
                 estArr.push('   font-weight: bold;');
+                estArr.push('   display: -ms-flexbox;');
                 estArr.push('   display: flex;');
+                estArr.push('    -ms-flex-align: center;');
                 estArr.push('   align-items: center;');
                 estArr.push('}');
 
@@ -2483,44 +2506,22 @@ var Sinco = (function (exports) {
         var nextStep = function (i) {
             var step = _steps[i];
             if (step) {
-                mostrarPaso(step);
+                mostrarPaso();
                 _container.progressbar.styles('width', (((i + 1) / _steps.length) * 100) + '%');
                 _container.progressbartext.innerHTML = (i + 1) + ' de ' + _steps.length;
             }
-            if (i == _steps.length - 1) {
-                _container.content.buttonExit.removeAttribute('style');
-                _container.content.buttonPrev.removeAttribute('style');
-                _container.content.buttonNext.styles('display', 'none');
-                _container.content.buttonFinish.styles('display', 'none');
-            }
-            else {
-                _container.content.buttonExit.styles('display', 'none');
-                _container.content.buttonNext.removeAttribute('style');
-                _container.content.buttonFinish.removeAttribute('style');
-            }
-
-            if (_steps.length == 1) {
-                _container.content.buttonPrev.styles('display', 'none');
-            }
         }
 
-        var mostrarPaso = function (step) {
-            if (!step.target || ( typeof step.target == 'string' && step.target.split(' ').join('') === '' )) {
-                mostrarDialogo(step);
-            }
-            else {
-                mostrarFondo(step);
+        var mostrarPaso = function () {
+            var callBack = function () {
+                var step = _steps[_index];
 
-                var callBack = function () {
-                    mostrarFondo(step);
-                    configuraciones();
+                if (!step.target || (typeof step.target == 'string' && step.target.split(' ').join('') === '')) {
+                    mostrarDialogo(step);
                 }
-
-                Sinco.extend(window).removeEvent('resize', callBack);
-                Sinco.extend(window).addEvent('resize', callBack);
-            }
-
-            var configuraciones = function () {
+                else {
+                    mostrarFondo(step);
+                }
                 _container.content.title.text.innerHTML = step.content.title;
                 _container.content.title.icon.innerHTML = '';
                 _container.content.body.innerHTML = '';
@@ -2604,9 +2605,28 @@ var Sinco = (function (exports) {
                 if (_steps[_index - 1]) {
                     _steps[_index - 1].hasNext = true;
                 }
+
+                if (_index == _steps.length - 1) {
+                    _container.content.buttonExit.removeAttribute('style');
+                    _container.content.buttonPrev.removeAttribute('style');
+                    _container.content.buttonNext.styles('display', 'none');
+                    _container.content.buttonFinish.styles('display', 'none');
+                }
+                else {
+                    _container.content.buttonExit.styles('display', 'none');
+                    _container.content.buttonNext.removeAttribute('style');
+                    _container.content.buttonFinish.removeAttribute('style');
+                }
+
+                if (_steps.length == 1) {
+                    _container.content.buttonPrev.styles('display', 'none');
+                }
             }
 
-            configuraciones();
+            callBack();
+
+            Sinco.extend(window).removeEvent('resize', callBack);
+            Sinco.extend(window).addEvent('resize', callBack);
         }
 
         var mostrarDialogo = function (step) {
