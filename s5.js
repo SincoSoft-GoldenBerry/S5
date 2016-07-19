@@ -365,49 +365,50 @@ var Sinco = (function (exports) {
 
         document.addEventListener('click', function (event) {
             var target = event.target || event.srcElement;
+            if (target.nodeName.toLowerCase() !== 'body') {
+                var encontrado,
+                    excepcionEncontrada;
 
-            var encontrado,
-                excepcionEncontrada;
-
-            var validarClick = function (obj, target) {
-                encontrado = false;
-                excepcionEncontrada = false;
-                if (!!target && target.nodeName.toLowerCase() !== 'html') {
-                    while (target.nodeName.toLowerCase() !== 'body') {
-                        if (!excepcionEncontrada) {
-                            for (var i = 0; i < obj.excepciones.length; i++) {
-                                if (target.classList && obj.excepciones[i].startsWith('.') && target.classList.contains( obj.excepciones[i].replace('.', '') )) {
-                                    excepcionEncontrada = true;
-                                    break;
-                                }
-                                else if (target.id == obj.excepciones[i]) {
-                                    excepcionEncontrada = true;
-                                    break;
+                var validarClick = function (obj, target) {
+                    encontrado = false;
+                    excepcionEncontrada = false;
+                    if (!!target && target.nodeName.toLowerCase() !== 'html') {
+                        while (target.nodeName.toLowerCase() !== 'body') {
+                            if (!excepcionEncontrada) {
+                                for (var i = 0; i < obj.excepciones.length; i++) {
+                                    if (target.classList && obj.excepciones[i].startsWith('.') && target.classList.contains(obj.excepciones[i].replace('.', ''))) {
+                                        excepcionEncontrada = true;
+                                        break;
+                                    }
+                                    else if (target.id == obj.excepciones[i]) {
+                                        excepcionEncontrada = true;
+                                        break;
+                                    }
                                 }
                             }
-                        }
 
-                        if ((obj.target instanceof Array && obj.target.indexOf(target.id) >= 0) || target.id == obj.target) {
-                            encontrado = true;
-                            break;
+                            if ((obj.target instanceof Array && obj.target.indexOf(target.id) >= 0) || target.id == obj.target) {
+                                encontrado = true;
+                                break;
+                            }
+                            target = target.parentNode;
                         }
-                        target = target.parentNode;
+                    }
+
+                    if (!obj.iguales && !encontrado && !excepcionEncontrada) {
+                        obj.funcion();
+                    }
+                    else if (obj.iguales && encontrado && !excepcionEncontrada) {
+                        obj.funcion();
                     }
                 }
 
-                if (!obj.iguales && !encontrado && !excepcionEncontrada) {
-                    obj.funcion();
-                }
-                else if (obj.iguales && encontrado && !excepcionEncontrada) {
-                    obj.funcion();
-                }
+                configuracion.forEach(function (obj) {
+                    (function (target) {
+                        validarClick(obj, target);
+                    }(target));
+                });
             }
-
-            configuracion.forEach(function (obj) {
-                (function (target) {
-                    validarClick(obj, target);
-                }(target));
-            });
 
         }, true);
     }

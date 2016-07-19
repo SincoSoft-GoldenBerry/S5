@@ -1,4 +1,4 @@
-(function(Sinco){
+(function (Sinco) {
 
     var dragDrop = function (element, container, elementAttachEvent, initCallBack) {
         /// <summary>Da la opción de mover elementos dentro de un contenedor específico</summary>

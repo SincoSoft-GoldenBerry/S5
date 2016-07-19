@@ -1,4 +1,4 @@
-(function(Sinco){
+(function (Sinco) {
 
     var autocomplete = function (input, config) {
         /// <summary>Da la opción de convertir un input type text a control autocompletar</summary>

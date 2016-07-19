@@ -1,4 +1,4 @@
-(function(Sinco){
+(function (Sinco) {
 
     var tour = function () {
         var finalizable = true;
@@ -71,7 +71,7 @@
             _tourExtendProps(_obj, obj);
 
             if (!obj) {
-                new SincoInitializationError('¡El paso no puede ser null o undefined!');
+                throw new SincoInitializationError('¡El paso no puede ser null o undefined!');
             }
             else {
                 _obj.index = _steps.length;
@@ -247,7 +247,7 @@
 
                 estArr.push('#tour-content {');
                 estArr.push('   position: absolute;');
-                estArr.push('   z-index: 99;');
+                estArr.push('   z-index: 16777271;');
                 estArr.push('   background-color: #FFF;');
                 estArr.push('   padding: 12px;');
                 estArr.push('   min-width: 320px;');
@@ -271,7 +271,7 @@
                 estArr.push('   bottom: 0;');
                 estArr.push('   left: 0;');
                 estArr.push('   right: 0;');
-                estArr.push('   z-index: 90;');
+                estArr.push('   z-index: 16777260;');
                 estArr.push('   background-color: rgba(255, 255, 255, 0.01);');
                 estArr.push('}');
 
@@ -346,7 +346,7 @@
                 estArr.push('   left: 0;');
                 estArr.push('   right: 0;');
                 estArr.push('   bottom: 0;');
-                estArr.push('   z-index: 99;');
+                estArr.push('   z-index: 16777271;');
                 estArr.push('}');
 
                 estArr.push('#tour-content.mobile {');
@@ -358,14 +358,14 @@
                 estArr.push('}');
 
                 estArr.push('.tour-background {');
-                estArr.push('   z-index: 98;');
+                estArr.push('   z-index: 16777270;');
                 estArr.push('   position: fixed;');
                 estArr.push('   background-color: rgba(68, 68, 68, 0.8);');
                 estArr.push('}');
                 estArr.push('.tour-frame {');
                 estArr.push('   position: absolute;');
                 estArr.push('   border: 1px solid #378fa9;');
-                estArr.push('   z-index: 99;');
+                estArr.push('   z-index: 16777271;');
                 estArr.push('}');
                 estArr.push('.tour-frame.top, .tour-frame.bottom {');
                 estArr.push('   height: 0;');
@@ -556,7 +556,7 @@
             _container.content.element.classList.add('modal-tour');
             _container.content.element.classList.remove('mobile');
             _container.content.element.removeAttribute('style');
-            _container.content.element.styles('margin-left', 'calc(50% - ' + ((parseInt( step.content.width.replaceAll('px', '').replaceAll('%', '') ) / 2) + 12) + 'px)');
+            _container.content.element.styles('margin-left', 'calc(50% - ' + ((parseInt(step.content.width.replaceAll('px', '').replaceAll('%', '')) / 2) + 12) + 'px)');
             _container.top.removeAttribute('style');
             _container.bottom.removeAttribute('style');
             _container.left.removeAttribute('style');
