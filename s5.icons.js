@@ -741,6 +741,55 @@
 
             return Sinco.extend(_svg);
         },
+        Modulo: function (dim, text, bgColor, textColor) {
+            dim = dim || 500;
+            bgColor = bgColor || { top: '#21629E', bottom: '#4F91C3' };
+
+            var _ui = (Math.random() * 100000000000000).toString().split('.').join('-').split(',').join('-');//new Date().getTime();
+
+            var _svg = ce('svg');
+            _svg.attr('width', dim);
+            _svg.attr('height', dim);
+
+            _svg.attr('viewBox', '0 0 500 500');
+
+            var _rect = ce('rect');
+            _rect.attr('y', 178.9);
+            _rect.attr('width', 500);
+            _rect.attr('height', 320.34);
+            _rect.style.fill = bgColor.bottom;
+            _svg.appendChild(_rect);
+
+            _rect = ce('rect');
+            _rect.attr('y', 0.76);
+            _rect.attr('width', 500);
+            _rect.attr('height', 170);
+            _rect.style.fill = bgColor.top;
+            _svg.appendChild(_rect);
+
+            var _text = ce('text');
+            _text.style.fill = '#fff';
+            _text.style.fontSize = '120px';
+            _text.style.fontFamily = 'Antipasto';
+            _text.attr('x', 250);
+            _text.attr('y', 120);
+            _text.attr('text-anchor', 'middle');
+            _text.attr('textLength', 330);
+            _text.appendChild(document.createTextNode('SINCO'));
+            _svg.appendChild(_text);
+
+            _text = ce('text');
+            _text.style.fill = '#fff';
+            _text.style.fontSize = (text.length > 3 ? 167 : 238.94) + 'px';
+            _text.style.fontFamily = 'Antipasto';
+            _text.attr('x', 250);
+            _text.attr('y', text.length > 3 ? 400 : 422.82001);
+            _text.attr('text-anchor', 'middle');
+            _text.appendChild(document.createTextNode(text));
+            _svg.appendChild(_text);
+
+            return Sinco.extend(_svg);
+        },
         LogoSinco: function (dim, bgColor) {
             bgColor = bgColor || { top: '#3871A7', left: '#014172', right: '#21629D', bottom: '#4F90C2' };
 
