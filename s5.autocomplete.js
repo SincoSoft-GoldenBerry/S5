@@ -61,17 +61,23 @@
             }
 
             this.setSelectedValue = function (value) {
-                _exec.call(_input);
                 if (value != null && typeof value != 'undefined') {
                     var item = _datos.filter(function (o) {
                         return o[_config.value] == value;
                     });
                     if (item.length > 0) {
                         item = item.shift();
-                        _selectItem(item);
-                        _input.value = item[_config.text];
-                        _ocultarItems();
                     }
+                    else {
+                        item = _datos[0];
+                    }
+                    _selectItem(item);
+                    _input.value = item[_config.text];
+                    _exec.call(_input);
+                    _ocultarItems();
+                }
+                else {
+                    _exec.call(_input);
                 }
             }
 
@@ -92,8 +98,8 @@
             }
 
             this.setDataSource = function (dataSource) {
-                _config.dataSource = dataSource;
-                _datos = dataSource;
+                _ordenarDatos(dataSource);
+                _config.dataSource = _datos;
             }
         }
 
@@ -250,6 +256,14 @@
                 _input._visible = false;
             }
 
+            var _ordenarDatos = function (data) {
+                _datos = data.sort(function (a, b) {
+                    if (a[_config.text] < b[_config.text]) return -1;
+                    if (a[_config.text] > b[_config.text]) return 1;
+                    return 0;
+                });
+            }
+
             var _mostrarOpciones = function (data) {
                 if (!data) {
                     data = { length: 0 };
@@ -283,11 +297,7 @@
                     _encontrado = false;
                 }
                 else {
-                    _datos = data.sort(function (a, b) {
-                        if (a[_config.text] < b[_config.text]) return -1;
-                        if (a[_config.text] > b[_config.text]) return 1;
-                        return 0;
-                    });
+                    _ordenarDatos(data);
 
                     _datos.forEach(function (o) {
                         item = Sinco.createElem('div', { 'class': 'autocomplete-results-item' }).addEvent('mouseover', function () {

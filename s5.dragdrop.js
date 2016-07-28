@@ -19,6 +19,7 @@
             /// <param name="divid" type="Object">Objeto o Id del objeto a mover</param>
 
             _element = typeof (element) === 'string' ? Sinco.get(element) : Sinco.extend(element);
+            _element.style.position = 'absolute';
         };
 
         this.setContainer = function (container) {
