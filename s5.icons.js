@@ -742,8 +742,11 @@
             return Sinco.extend(_svg);
         },
         Modulo: function (dim, text, bgColor, textColor) {
+            text = text || '';
             dim = dim || 500;
             bgColor = bgColor || { top: '#21629E', bottom: '#4F91C3' };
+            bgColor.top = bgColor.top || '#21629E';
+            bgColor.bottom = bgColor.bottom || '#4F91C3';
 
             var _ui = (Math.random() * 100000000000000).toString().split('.').join('-').split(',').join('-');//new Date().getTime();
 

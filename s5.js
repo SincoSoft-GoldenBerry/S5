@@ -66,6 +66,80 @@
         }
         return this;
     };
+
+    if (!Array.prototype.every) {
+        Array.prototype.every = function (callbackfn, thisArg) {
+            'use strict';
+            var T, k;
+
+            if (this == null) {
+                throw new TypeError('this is null or not defined');
+            }
+
+            var O = Object(this);
+
+            var len = O.length >>> 0;
+
+            if (typeof callbackfn !== 'function') {
+                throw new TypeError();
+            }
+
+            if (arguments.length > 1) {
+                T = thisArg;
+            }
+
+            k = 0;
+
+            while (k < len) {
+                var kValue;
+
+                if (k in O) {
+                    kValue = O[k];
+
+                    var testResult = callbackfn.call(T, kValue, k, O);
+
+                    if (!testResult) {
+                        return false;
+                    }
+                }
+                k++;
+            }
+            return true;
+        };
+    }
+
+    if (!Array.prototype.indexOf) {
+        Array.prototype.indexOf = function (searchElement /*, fromIndex */) {
+            "use strict";
+            if (this == null) {
+                throw new TypeError();
+            }
+            var t = Object(this);
+            var len = t.length >>> 0;
+            if (len === 0) {
+                return -1;
+            }
+            var n = 0;
+            if (arguments.length > 1) {
+                n = Number(arguments[1]);
+                if (n != n) {
+                    n = 0;
+                } else if (n != 0 && n != Infinity && n != -Infinity) {
+                    n = (n > 0 || -1) * Math.floor(Math.abs(n));
+                }
+            }
+            if (n >= len) {
+                return -1;
+            }
+            var k = n >= 0 ? n : Math.max(len - Math.abs(n), 0);
+            for (; k < len; k++) {
+                if (k in t && t[k] === searchElement) {
+                    return k;
+                }
+            }
+            return -1;
+        }
+    }
 }
 
 //Opciones de String
@@ -440,8 +514,9 @@ var Sinco = (function (exports) {
     var extend = function (el, opt) {
         if (!el) return null;
         opt = opt || this;
-        for (var n in opt)
+        for (var n in opt) {
             el[n] = opt[n];
+        }
 
         el.listeners = el.listeners || {};
         return el;
@@ -628,6 +703,7 @@ var Sinco = (function (exports) {
 
     var Request = function (method, url, functions, data, contentType, includeAccept) {
         includeAccept = typeof includeAccept == 'boolean' ? includeAccept : true;
+        functions = functions || {};
         functions.Ok = functions.Ok || function () { };
         functions.BadRequest = functions.BadRequest || function () { };
         functions.Unauthorized = functions.Unauthorized || function () { };
@@ -856,8 +932,7 @@ var Sinco = (function (exports) {
          * @description Función que realiza la carga de submódulos en los módulos.
          */
         var unroll = function () {
-            Object.keys(modules)
-                .map(function (name) {
+            Sinco.map(Object.keys(modules), function (name) {
                     return modules[name];
                 })
                 .concat(modules)
@@ -908,13 +983,12 @@ var Sinco = (function (exports) {
          */
         require.loadScript = function (src, callback) {
             var script = document.createElement('script');
-
             script.onload = callback;
-            script.onerror = function() {
-                Sinco.extend(script).delete();
+            script.onerror = function () {
+                Sinco.extend(script)['delete']();
             }
 
-            document.head.appendChild(script);
+            document.getElementsByTagName('head')[0].appendChild(script);
             script.src = src + (window['version-js'] ? '?v=' + window['version-js'] : '');
         };
 
@@ -924,7 +998,7 @@ var Sinco = (function (exports) {
     var initialize = function (plugins) {
         var url = window.location.href.split('/');
         url.pop();
-        var src = Array.prototype.slice.call(document.getElementsByTagName('script')).pop().src.replaceAll(url.join('/'), '').split('/');
+        var src = Sinco.map(document.getElementsByTagName('script'), function (s) { return s; }).pop().src.replaceAll(url.join('/'), '').split('/');
         src.shift();
         src.pop();
         src = src.join('/');
@@ -978,7 +1052,7 @@ var Sinco = (function (exports) {
         createElem: createElem,
         attribute: attribute,
         insert: insert,
-        delete: _delete,
+        'delete': _delete,
         styles: styles,
         addEvent: addEvent,
         removeEvent: removeEvent,

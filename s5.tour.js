@@ -512,8 +512,11 @@
                                             step.hasNext = true;
                                             nextStep(++_index);
                                         }
-                                        else {
+                                        else if (!elem.stop) {
                                             _callee(elem, values);
+                                        }
+                                        else if (elem.stop) {
+                                            elem.stop = false;
                                         }
                                     }
                                 }, 1);
