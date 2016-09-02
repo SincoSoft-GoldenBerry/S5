@@ -664,7 +664,12 @@ var Sinco = (function (exports) {
     }
 
     var map = function (obj, iterator, callback) {
-        return (callback ? mapAsync(eachParallel) : mapSync)(obj, iterator, callback);
+        if (Array.prototype.map && obj && obj.length) {
+            return Array.prototype.map.call(obj, iterator);
+        }
+        else {
+            return (callback ? mapAsync(eachParallel) : mapSync)(obj, iterator, callback);
+        }
     }
 
     var filter = function (obj, iterator, callback) {
@@ -778,7 +783,19 @@ var Sinco = (function (exports) {
             if (contentType.toUpperCase() == 'DEFAULT') {
                 var params = [];
                 for (var attr in data) {
-                    params.push(String.format('{0}={1}', attr, encodeURIComponent(data[attr])));
+                    if (data[attr] instanceof Array) {
+                        if (!!data[attr].length) {
+                            data[attr].forEach(function (d) {
+                                params.push(String.format('{0}={1}', attr, encodeURIComponent(d)));
+                            });
+                        }
+                        else {
+                            params.push(String.format('{0}={1}', attr, ''));
+                        }
+                    }
+                    else {
+                        params.push(String.format('{0}={1}', attr, encodeURIComponent(data[attr])));
+                    }
                 }
                 http.send(params.join('&'));
             }
