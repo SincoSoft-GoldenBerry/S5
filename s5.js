@@ -140,6 +140,20 @@
             return -1;
         }
     }
+
+    if (!Array.prototype.unique) {
+        Array.prototype.unique = function () {
+            var u = {}, a = [];
+            for (var i = 0, l = this.length; i < l; ++i) {
+                if (u.hasOwnProperty(this[i])) {
+                    continue;
+                }
+                a.push(this[i]);
+                u[this[i]] = 1;
+            }
+            return a;
+        }
+    }
 }
 
 //Opciones de String
@@ -489,19 +503,30 @@ var Sinco = (function (exports) {
 
     var get = function (id) {
         if (id.lastIndexOf('.') > -1) {
-            var classes = id.split(' ').join('').split('.').clean('');
-            var elems = document.body.getElementsByTagName('*');
 
-            return Sinco.filter(elems, function (elem) {
-                return elem.classList && classes.filter(function (cl) {
-                    return elem.classList.contains(cl);
-                }).length == classes.length;
-            })
-                        .map(function (elem) {
-                            elem = Sinco.extend(elem);
-                            elem.listeners = {};
-                            return elem;
-                        });
+            if (document.querySelectorAll) {
+                return Sinco.map(document.querySelectorAll(id), function (elem) {
+                    elem = Sinco.extend(elem);
+                    elem.listeners = {};
+                    return elem;
+                });
+            }
+            else {
+                var classes = id.split(' ').join('').split('.').clean('');
+                var elems = document.body.getElementsByTagName('*');
+
+                var filtrado = Sinco.filter(elems, function (elem) {
+                    return elem.classList && classes.filter(function (cl) {
+                        return elem.classList.contains(cl);
+                    }).length == classes.length;
+                }).unique();
+
+                return filtrado.map(function (elem) {
+                    elem = Sinco.extend(elem);
+                    elem.listeners = {};
+                    return elem;
+                });
+            }
         }
         else {
             var el = Sinco.extend(document.getElementById(id));
