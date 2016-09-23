@@ -827,6 +827,108 @@
             _svg.appendChild(_path);
 
             return Sinco.extend(_svg);
+        },
+        Clip: function (dim, bgColor) {
+            dim = dim || 25;
+            bgColor = bgColor || '#1B344C';
+
+            var _svg = ce('svg');
+            _svg.attr('width', dim);
+            _svg.attr('height', (dim * 47) / 25);
+
+            _svg.attr('viewBox', '0 0 25 47');
+
+            var _path = ce('path');
+            _path.attr('d', 'm20.66669,11.5l0,23c0,4.42 -3.58,8 -8,8s-8,-3.58 -8,-8l0,-25c0,-2.76 2.24,-5 5,-5s5,2.24 5,5l0,21c0,1.1 -0.89,2 -2,2c-1.11,0 -2,-0.9 -2,-2l0,-19l-3,0l0,19c0,2.76 2.24,5 5,5s5,-2.24 5,-5l0,-21c0,-4.42 -3.58,-8 -8,-8s-8,3.58 -8,8l0,25c0,6.08 4.93,11 11,11s11,-4.92 11,-11l0,-23l-3,0z');
+            _path.style.strokeWidth = 0;
+            _path.style.fill = bgColor;
+            _svg.appendChild(_path);
+
+            return Sinco.extend(_svg);
+        },
+        Circulo: function (dim, bgColor) {
+            dim = dim || 20;
+            bgColor = bgColor || '#1B344C';
+
+            var _svg = ce('svg');
+            _svg.attr('width', dim);
+            _svg.attr('height', dim);
+
+            _svg.attr('viewBox', '0 0 20 20');
+
+            var _circle = ce('circle');
+            _circle.attr('cx', 10);
+            _circle.attr('cy', 10);
+            _circle.attr('r', 8);
+            _circle.style.strokeWidth = 3;
+            _circle.style.stroke = bgColor;
+            _circle.style.fill = 'none';
+            _svg.appendChild(_circle);
+
+            return Sinco.extend(_svg);
+        },
+        Pin: function (dim, bgColor, tilt) {
+            dim = dim || 220;
+            bgColor = bgColor || '#1B344C';
+
+            var _svg = ce('svg');
+            _svg.attr('width', dim);
+            _svg.attr('height', dim);
+            _svg.attr('viewBox', '0 0 220 220');
+
+            var _g = ce('g');
+            _g.attr('fill', 'none');
+            _g.attr('fill-rule', 'evenodd');
+            _g.attr('stroke', 'none');
+            _g.attr('stroke-width', 2);
+            if (!!tilt) {
+                _g.attr('transform', 'rotate(90 110,110)');
+            }
+
+            var _line = ce('line');
+            _line.attr('y2', 136.00003);
+            _line.attr('x2', 187.55814);
+            _line.attr('y1', 136.00003);
+            _line.attr('x1', 32.49999);
+            _line.style.strokeWidth = 20;
+            _line.style.stroke = bgColor;
+            _line.style.fill = 'none';
+            _g.appendChild(_line);
+
+            _line = ce('line');
+            _line.attr('y2', 176.99998);
+            _line.attr('x2', 150.55811);
+            _line.attr('y1', 176.99998);
+            _line.attr('x1', 69.50004);
+            _line.style.strokeWidth = 20;
+            _line.style.stroke = bgColor;
+            _line.style.fill = 'none';
+            _line.attr('transform', 'rotate(90 109.02906799316405,177.49995422363284)');
+            _g.appendChild(_line);
+
+            var _rect = ce('rect');
+            _rect.attr('x', 67.49999);
+            _rect.attr('y', 16.99983);
+            _rect.attr('width', 84.00002);
+            _rect.attr('height', 118.00019);
+            _rect.style.stroke = bgColor;
+            _rect.style.strokeWidth = 20;
+            _rect.style.fill = 'none';
+            _g.appendChild(_rect);
+
+            var _rect = ce('rect');
+            _rect.attr('x', 122.49987);
+            _rect.attr('y', 17.9998);
+            _rect.attr('width', 30.00013);
+            _rect.attr('height', 117.00022);
+            _rect.style.stroke = bgColor;
+            _rect.style.strokeWidth = 6;
+            _rect.style.fill = bgColor;
+            _g.appendChild(_rect);
+
+            _svg.appendChild(_g);
+
+            return Sinco.extend(_svg);
         }
     };
 
