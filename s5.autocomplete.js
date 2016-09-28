@@ -179,6 +179,7 @@
             var _ubicar = function (indice) {
                 if (!!_encontrado) {
                     _selectItem(_datos[indice]);
+                    _indexSelected = indice;
                     var itemsHtml = _quitarClase();
                     if (!!itemsHtml)
                         itemsHtml[indice].classList.add('hover');
