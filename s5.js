@@ -614,8 +614,10 @@ var Sinco = (function (exports) {
     var _delete = function (ele) {
         var _this = ele || this;
         var _r = Sinco.extend(_this.cloneNode());
-        if (!_this.remove)
-            _this.parentElement.removeChild(_this);
+        if (!_this.remove) {
+            if (_this.parentElement)
+                _this.parentElement.removeChild(_this);
+        }
         else
             _this.remove();
         return _r;
@@ -634,9 +636,11 @@ var Sinco = (function (exports) {
         var _this = this;
 
         if (_this.addEventListener) {
+            _this['_' + type] = callback;
             _this.addEventListener(type, callback, false);
         }
         else if (_this.attachEvent) {
+            _this['_' + type] = callback;
             _this['e' + type + callback] = callback;
             _this[type + callback] = function () {
                 _this['e' + type + callback](window.event);
