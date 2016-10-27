@@ -507,7 +507,7 @@ var Sinco = (function (exports) {
             if (document.querySelectorAll) {
                 return Sinco.map(document.querySelectorAll(id), function (elem) {
                     elem = Sinco.extend(elem);
-                    elem.listeners = {};
+                    elem.listeners = elem.listeners || {};
                     return elem;
                 });
             }
@@ -523,7 +523,7 @@ var Sinco = (function (exports) {
 
                 return filtrado.map(function (elem) {
                     elem = Sinco.extend(elem);
-                    elem.listeners = {};
+                    elem.listeners = elem.listeners || {};
                     return elem;
                 });
             }
@@ -1056,7 +1056,7 @@ var Sinco = (function (exports) {
             modulos.dependencies.forEach(function (dependency) {
                 if (pending.indexOf(dependency) == -1) {
                     require.loadScript(src + '/' + dependency + '.js', function () {
-                        pending.splice(pending.indexOf(dependency), 1);
+                        //pending.splice(pending.indexOf(dependency), 1);
                     });
 
                     pending.push(dependency);

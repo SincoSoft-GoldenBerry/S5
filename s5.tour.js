@@ -429,6 +429,9 @@
         var nextStep = function (i) {
             var step = _steps[i];
             if (step) {
+                if (step.target && typeof step.target === 'function') {
+                    step.target = step.target();
+                }
                 mostrarPaso();
                 _container.progressbar.styles('width', (((i + 1) / _steps.length) * 100) + '%');
                 _container.progressbartext.innerHTML = (i + 1) + ' de ' + _steps.length;
