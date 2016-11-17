@@ -251,7 +251,9 @@ var Sinco = (function (exports) {
     //Propiedades de ventana
     exports['isIE'] = navigator.appName == 'Microsoft Internet Exporer' ||
                       !!(navigator.userAgent.match(/Trident/) ||
-                      navigator.userAgent.match(/rv 11/) || navigator.userAgent.match(/Edge/));
+                      navigator.userAgent.match(/rv 11/));
+
+
     exports['versionIE'] = (function () {
         var rv = -1;
         if (exports['isIE']) {
@@ -278,6 +280,35 @@ var Sinco = (function (exports) {
     }
     SincoInitializationError.prototype = Error.prototype;
     window['SincoInitializationError'] = SincoInitializationError;
+
+    var fileToBase64 = function (file, callback) {
+        if (file) {
+            if (FileReader) {
+                if (file instanceof File) {
+                    var FR = new FileReader();
+                    FR.name = file.name;
+                    FR.size = file.size;
+                    FR.onload = function (e) {
+                        var archivo = {
+                            'name': this.name,
+                            'src': e.target.result.split(',').pop(),
+                            'kilobytes': this.size
+                        };
+                        if (callback) {
+                            callback(archivo);
+                        }
+                    }
+                    FR.readAsDataURL(file);
+                }
+                else {
+                    throw new SincoInitializationError('¡El primer parámetro debe ser de tipo "File"!');
+                }
+            }
+            else {
+                throw new SincoInitializationError('¡El navegador no soporta esta funcionalidad!');
+            }
+        }
+    }
 
     var fallback = function (name, fallback) {
         var nativeFn = Array.prototype[name];
@@ -1117,6 +1148,7 @@ var Sinco = (function (exports) {
         Request: Request,
         QueryString: QueryString,
         script: script(),
-        initialize: initialize
+        initialize: initialize,
+        fileToBase64: fileToBase64
     };
 })(window);
