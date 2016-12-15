@@ -13,19 +13,24 @@
             labelSize: null,
             displayValue: true,
             displayUnit: '%',
-            drawShadow: false
+            drawShadow: false,
+            dimension: 50
         },
         radConst = Math.PI / 180,
         fullCircle = 2 * Math.PI;
 
-    var circularProgress = function (element, options) {
-        this.element = element;
+    var circularProgress = function (options, target) {
+        this.element = Sinco.createElem('canvas');
         var _new = {};
         Sinco.extend(_new, defaults);
         Sinco.extend(_new, options);
         this.options = _new;
         this._defaults = defaults;
         this._name = name;
+
+        this.element.attribute('width', _new.dimension);
+        this.element.attribute('height', _new.dimension);
+
         this.init();
 
         var _this = this;
@@ -41,6 +46,17 @@
             ctx.clearRect(0, 0, _this.points.width, _this.points.width);
             _this.init();
         }
+
+        if (target){
+            if (typeof target == 'string'){
+                Sinco.get(target).insert(this.element);
+            }
+            else{
+                Sinco.extend(target).insert(this.element);
+            }
+        }
+
+        return this.element;
     }
 
     circularProgress.prototype = {
