@@ -1,5 +1,5 @@
 (function (Sinco) {
-	var name = 'circularProgress',
+    var name = 'circularProgress',
         defaults = {
             percentage: 100,
             circleColor: '#F2AC29',
@@ -10,11 +10,18 @@
             ringColorOver: '#F90',
             ringBackground: '#CCC',
             labelColor: '#FFF',
-            labelSize: null,
+            labelSize: 55,
             displayValue: true,
             displayUnit: '%',
             drawShadow: false,
-            dimension: 50
+            dimension: 50,
+            label: '',
+            size: 'medium'
+        },
+        SIZE = {
+            'medium': 0.7,
+            'small': 0.4,
+            'big': 0.85
         },
         radConst = Math.PI / 180,
         fullCircle = 2 * Math.PI;
@@ -61,8 +68,8 @@
     }
 
     circularProgress.prototype = {
-    	init: function (color){
-			if(this.checkCanvas()) {
+        init: function (color){
+            if(this.checkCanvas()) {
                 this.context = this.element.getContext('2d');
                 this.percentage = this.options.percentage * 3.6;
                 this.points = this.getPoints();
@@ -84,8 +91,8 @@
                     this.drawText();
                 }
             }
-    	},
-    	checkCanvas: function () {
+        },
+        checkCanvas: function () {
             return !!(this.element.getContext && this.element.getContext('2d'));
         },
         drawInternalCircle: function (color) {
@@ -147,25 +154,79 @@
             };
         },
         drawText: function () {
-            var fontPx;
+            var fontPx,
+                y;
             this.context.textAlign = 'center';
             this.context.fillStyle = this.options.labelColor;
             this.context.textBaseline = 'bottom';
             if(this.options.displayValue) {
-                fontPx = this.points.width / 3.5;
-                var fontLabel = this.options.labelSize || (this.points.width / 3.5);
                 if (this.options.label && this.options.label.length > 0) {
-                    this.context.font = 'bold ' + fontLabel + 'px helvetica';
-                    this.context.fillText(this.options.label, this.points.x, (this.points.x + this.linesAndRadiuses.internalRadius / 25) - (this.options.labelSize ? 20 : 0));
+                    fontPx = (55 * this.options.dimension) / 200;
+                    fontPx = (this.options.labelSize / 55) * fontPx;
+                    fontPx = (SIZE[this.options.size] * fontPx) / 0.7;
+
+                    y = (120 * this.options.dimension) / 200;
+                    switch(this.options.size){
+                        case 'small':
+                            y -= (10 * this.options.dimension) / 200;
+                            break;
+                        case 'big':
+                            y += (3 * this.options.dimension) / 200;
+                            break;
+                    }
+
                     this.context.font = 'bold ' + fontPx + 'px helvetica';
-                    this.context.fillText(this.options.percentage + this.options.displayUnit, this.points.x, this.points.x + this.linesAndRadiuses.internalRadius / 1.5);
-                } else {
-                    this.context.fillText(this.options.percentage + this.options.displayUnit, this.points.x, this.points.x + this.linesAndRadiuses.internalRadius / 2.3);
+                    this.context.fillText(this.options.label, this.points.x, y);
+
+                    fontPx = (25 * this.options.dimension) / 200;
+                    fontPx = (SIZE[this.options.size] * fontPx) / 0.7;
+
+                    y = (146 * this.options.dimension) / 200;
+                    switch(this.options.size){
+                        case 'small':
+                            y -= (20 * this.options.dimension) / 200;
+                            break;
+                        case 'big':
+                            y += (3 * this.options.dimension) / 200;
+                            break;
+                    }
+
+                    this.context.font = 'bold ' + fontPx + 'px helvetica';
+                    this.context.fillText(this.options.percentage + this.options.displayUnit, this.points.x, y);
+                } 
+                else {
+                    fontPx = (50 * this.options.dimension) / 200;
+                    fontPx = (SIZE[this.options.size] * fontPx) / 0.7;
+                    y = (129.5 * this.options.dimension) / 200;
+                    switch(this.options.size){
+                        case 'small':
+                            y -= (14 * this.options.dimension) / 200;
+                            break;
+                        case 'big':
+                            y += (5 * this.options.dimension) / 200;
+                            break;
+                    }
+
+                    this.context.font = 'bold ' + fontPx + 'px helvetica';
+                    this.context.fillText(this.options.percentage + this.options.displayUnit, this.points.x, y);
                 }
-            } else {
-                fontPx = this.options.labelSize || (this.points.width / 2.5);
+            } 
+            else if (this.options.label && this.options.label.length > 0) {
+                fontPx = (50 * this.options.dimension) / 200;
+                fontPx = (SIZE[this.options.size] * fontPx) / 0.7;
+                y = (129.5 * this.options.dimension) / 200;
+                switch(this.options.size){
+                    case 'small':
+                        y -= (14 * this.options.dimension) / 200;
+                        break;
+                    case 'big':
+                        y += (5 * this.options.dimension) / 200;
+                        break;
+                }
+
                 this.context.font = 'bold ' + fontPx + 'px helvetica';
-                this.context.fillText(this.options.label, this.points.x, this.points.x + this.linesAndRadiuses.internalRadius / 1.8);
+
+                this.context.fillText(this.options.label, this.points.x, y);
             }
         },
         getPoints: function () {
@@ -183,7 +244,7 @@
                 shadowRadius = this.points.x - shadowLine / 2,
                 externalRadius = shadowRadius,
                 internalLine = this.points.width / 35,
-                internalRadius = externalRadius * 0.8;
+                internalRadius = externalRadius * SIZE[this.options.size];
             return {
                 shadowLine: shadowLine,
                 shadowRadius: shadowRadius,
