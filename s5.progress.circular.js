@@ -33,7 +33,8 @@
 
         this.init();
 
-        var _this = this;
+        var _this = this,
+            element = this.element;
 
         element.onmousemove = function (e) {
             var ctx = element.getContext('2d');
