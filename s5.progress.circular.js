@@ -161,6 +161,10 @@
             this.context.textBaseline = 'middle';
             y = this.options.dimension / 2;
 
+            fontPx = (50 * this.options.dimension) / 200;
+            fontPx = (this.options.labelSize / 55) * fontPx;
+            fontPx = (SIZE[this.options.size] * fontPx) / 0.7;
+
             if(this.options.displayValue) {
                 if (this.options.label && this.options.label.length > 0) {
                     fontPx = (55 * this.options.dimension) / 200;
@@ -174,17 +178,11 @@
                     this.context.fillText(this.options.percentage + this.options.displayUnit, this.points.x, y + (fontPx / 2));
                 } 
                 else {
-                    fontPx = (50 * this.options.dimension) / 200;
-                    fontPx = (SIZE[this.options.size] * fontPx) / 0.7;
-
                     this.context.font = 'bold ' + fontPx + 'px helvetica';
                     this.context.fillText(this.options.percentage + this.options.displayUnit, this.points.x, y);
                 }
             } 
             else if (this.options.label && this.options.label.length > 0) {
-                fontPx = (50 * this.options.dimension) / 200;
-                fontPx = (SIZE[this.options.size] * fontPx) / 0.7;
-
                 this.context.font = 'bold ' + fontPx + 'px helvetica';
                 this.context.fillText(this.options.label, this.points.x, y);
             }
