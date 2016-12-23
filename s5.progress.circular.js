@@ -158,54 +158,24 @@
                 y;
             this.context.textAlign = 'center';
             this.context.fillStyle = this.options.labelColor;
-            this.context.textBaseline = 'bottom';
+            this.context.textBaseline = 'middle';
+            y = this.options.dimension / 2;
+
             if(this.options.displayValue) {
                 if (this.options.label && this.options.label.length > 0) {
                     fontPx = (55 * this.options.dimension) / 200;
                     fontPx = (this.options.labelSize / 55) * fontPx;
                     fontPx = (SIZE[this.options.size] * fontPx) / 0.7;
 
-                    y = (120 * this.options.dimension) / 200;
-                    switch(this.options.size){
-                        case 'small':
-                            y -= (10 * this.options.dimension) / 200;
-                            break;
-                        case 'big':
-                            y += (3 * this.options.dimension) / 200;
-                            break;
-                    }
+                    this.context.font = 'bold ' + fontPx + 'px helvetica';
+                    this.context.fillText(this.options.label, this.points.x, y - (fontPx / 2));
 
                     this.context.font = 'bold ' + fontPx + 'px helvetica';
-                    this.context.fillText(this.options.label, this.points.x, y);
-
-                    fontPx = (25 * this.options.dimension) / 200;
-                    fontPx = (SIZE[this.options.size] * fontPx) / 0.7;
-
-                    y = (146 * this.options.dimension) / 200;
-                    switch(this.options.size){
-                        case 'small':
-                            y -= (20 * this.options.dimension) / 200;
-                            break;
-                        case 'big':
-                            y += (3 * this.options.dimension) / 200;
-                            break;
-                    }
-
-                    this.context.font = 'bold ' + fontPx + 'px helvetica';
-                    this.context.fillText(this.options.percentage + this.options.displayUnit, this.points.x, y);
+                    this.context.fillText(this.options.percentage + this.options.displayUnit, this.points.x, y + (fontPx / 2));
                 } 
                 else {
                     fontPx = (50 * this.options.dimension) / 200;
                     fontPx = (SIZE[this.options.size] * fontPx) / 0.7;
-                    y = (129.5 * this.options.dimension) / 200;
-                    switch(this.options.size){
-                        case 'small':
-                            y -= (14 * this.options.dimension) / 200;
-                            break;
-                        case 'big':
-                            y += (5 * this.options.dimension) / 200;
-                            break;
-                    }
 
                     this.context.font = 'bold ' + fontPx + 'px helvetica';
                     this.context.fillText(this.options.percentage + this.options.displayUnit, this.points.x, y);
@@ -214,18 +184,8 @@
             else if (this.options.label && this.options.label.length > 0) {
                 fontPx = (50 * this.options.dimension) / 200;
                 fontPx = (SIZE[this.options.size] * fontPx) / 0.7;
-                y = (129.5 * this.options.dimension) / 200;
-                switch(this.options.size){
-                    case 'small':
-                        y -= (14 * this.options.dimension) / 200;
-                        break;
-                    case 'big':
-                        y += (5 * this.options.dimension) / 200;
-                        break;
-                }
 
                 this.context.font = 'bold ' + fontPx + 'px helvetica';
-
                 this.context.fillText(this.options.label, this.points.x, y);
             }
         },
