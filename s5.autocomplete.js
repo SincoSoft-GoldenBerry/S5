@@ -24,6 +24,7 @@
             var _config = {
                 value: 'value',
                 text: 'text',
+                viewalldata: false,
                 data: {
                     props: {},
                     search: ''
@@ -234,9 +235,15 @@
                         text: item[_config.text],
                         props: {}
                     };
-
-                    for (var i in _config.data.props) {
-                        datoSeleccionado.props[i] = item[_config.data.props[i]];
+                    if (!!_config.viewalldata){
+                        for (var i in item) {
+                            datoSeleccionado.props[i] = item[i];
+                        }
+                    }
+                    else{
+                        for (var i in _config.data.props) {
+                            datoSeleccionado.props[i] = item[_config.data.props[i]];
+                        }
                     }
 
                     _autocompleteExtendProps(selected, datoSeleccionado);
