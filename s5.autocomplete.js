@@ -102,6 +102,10 @@
                 _ordenarDatos(dataSource);
                 _config.dataSource = _datos;
             }
+
+            this.setServiceUrl = function(url) {
+                _config.service.url = url;
+            }
         }
 
         //Funciones privadas
