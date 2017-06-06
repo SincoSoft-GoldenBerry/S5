@@ -105,6 +105,7 @@
 
             this.setServiceUrl = function(url) {
                 _config.service.url = url;
+                _config.service._url = url;
             }
         }
 
@@ -148,7 +149,7 @@
                     }
                 }
                 else if ((e.keyCode == 9 || e.keyCode == 13) && _input._visible && _indexSelected >= 0) {
-                    _clickItem.call(Sinco.get('.autocomplete-results-item')[_indexSelected]);
+                    _clickItem.call(Sinco.get('.autocomplete-results-item-' + _config.id)[_indexSelected]);
                 }
                 else if (e.keyCode == 38 && _input._visible) {
                     _indexSelected--;
@@ -298,7 +299,7 @@
                 var item;
 
                 if (data.length == 0) {
-                    item = Sinco.createElem('div', { 'class': 'autocomplete-results-item' });
+                    item = Sinco.createElem('div', { 'class': 'autocomplete-results-item-' + _config.id });
                     item.innerHTML = 'No se encontraron resultados';
                     _innerContainer.insert(item);
                     selected = {
@@ -312,7 +313,7 @@
                     _ordenarDatos(data);
 
                     _datos.forEach(function (o) {
-                        item = Sinco.createElem('div', { 'class': 'autocomplete-results-item' }).addEvent('mouseover', function () {
+                        item = Sinco.createElem('div', { 'class': 'autocomplete-results-item-' + _config.id }).addEvent('mouseover', function () {
                             _quitarClase();
                         }).addEvent('click', _clickItem);
 
