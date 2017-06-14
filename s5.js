@@ -797,6 +797,8 @@ var Sinco = (function (exports) {
                                 functions.Ok(http.responseText);
                                 break;
                             case 'JSON':
+                                functions.Ok(JSON.tryParse(http.responseText));
+                                break;
                             case 'DEFAULT':
                                 functions.Ok(JSON.tryParse(http.responseText));
                                 break;
@@ -804,6 +806,25 @@ var Sinco = (function (exports) {
                                 functions.Ok(parseXml(http.responseText));
                                 break;
                         }
+                        break;                        
+                    case 201:
+                        switch (contentType.toUpperCase()) {
+                            case 'TEXT':
+                                functions.Created(http.responseText);
+                                break;
+                            case 'JSON':
+                                functions.Created(JSON.tryParse(http.responseText));
+                                break;
+                            case 'DEFAULT':
+                                functions.Created(JSON.tryParse(http.responseText));
+                                break;
+                            case 'XML':
+                                functions.Created(parseXml(http.responseText));
+                                break;
+                        }
+                        break;
+                    case 204:
+                        functions.NoContent(http.responseText);
                         break;
                     case 302:
                         functions.Moved(http.responseText);
@@ -1120,6 +1141,32 @@ var Sinco = (function (exports) {
         }
     }
 
+    var watch = function (obj, prop, callback) {
+        var oldValue = obj[prop]
+          , newValue = oldValue
+          , getter = function () { return newValue; }
+          , setter = function (value) {
+              oldValue = newValue;
+              newValue = value;
+              callback.call(obj, prop, oldValue, newValue);
+          };
+        if (delete obj[prop]) {
+            if (Object.defineProperty) {
+                Object.defineProperty(obj, prop, {
+                    get: getter,
+                    set: setter,
+                    enumerable: true,
+                    configurable: true
+                });
+            } else if (Object.prototype.__defineGetter__ && Object.prototype.__defineSetter__) {
+                Object.prototype.__defineGetter__(obj, prop, getter);
+                Object.prototype.__defineSetter__(obj, prop, setter);
+            }
+        }
+        return this;
+    };
+
+
     return {
         extend: extend,
         get: get,
@@ -1149,6 +1196,7 @@ var Sinco = (function (exports) {
         QueryString: QueryString,
         script: script(),
         initialize: initialize,
-        fileToBase64: fileToBase64
+        fileToBase64: fileToBase64,
+        watch: watch
     };
 })(window);

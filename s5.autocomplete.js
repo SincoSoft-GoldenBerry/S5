@@ -61,9 +61,9 @@
                 return selected;
             }
 
-            this.setSelectedValue = function (value) {
+            this.setSelectedValue = function (value, itemDatos) {
                 if (value != null && typeof value != 'undefined') {
-                    var item = _datos.filter(function (o) {
+                    var item = (itemDatos || _datos).filter(function (o) {
                         return o[_config.value] == value;
                     });
                     if (item.length > 0) {
@@ -101,11 +101,28 @@
             this.setDataSource = function (dataSource) {
                 _ordenarDatos(dataSource);
                 _config.dataSource = _datos;
+                if (_datos && !_datos.length) {
+                    selected = {
+                        value: '',
+                        text: '',
+                        props: {}
+                    };
+                    _input.value = '';
+                }
             }
 
-            this.setServiceUrl = function(url) {
-                _config.service.url = url;
+            this.setServiceUrl = function (url) {
                 _config.service._url = url;
+                _config.service.url = url;
+            }
+
+            this.restart = function () {
+                selected = {
+                    value: '',
+                    text: '',
+                    props: {}
+                };
+                _input.value = '';
             }
         }
 
@@ -498,6 +515,7 @@
                 _stylesArray.push('    max-height: 300px;');
                 _stylesArray.push('    overflow-x: hidden;');
                 _stylesArray.push('    overflow-y: auto;');
+                _stylesArray.push('    font-size: .75rem;');
 
                 /*if (!!_config.icon) {
                     _stylesArray.push('    left: 1px;');
@@ -516,16 +534,17 @@
                 _stylesArray.push('    }');
 
                 if (_config.extended.north.title !== '') {
-                    _stylesArray.push('    .autocomplete-results-item.autocomplete-results-item-layout {');
+                    _stylesArray.push('    .autocomplete-results-item-' + _config.id + '.autocomplete-results-item-layout {');
                     _stylesArray.push('        display: -ms-flexbox;');
                     _stylesArray.push('        display: flex;');
                     _stylesArray.push('        -ms-flex-flow: column nowrap;');
                     _stylesArray.push('        -webkit-flex-flow: column nowrap;');
                     _stylesArray.push('        flex-flow: column nowrap;');
                     _stylesArray.push('        border-top: 1px silver solid;');
+                    _stylesArray.push('        font-size: .75rem;');
                     _stylesArray.push('    }');
 
-                    _stylesArray.push('    .autocomplete-results-item.autocomplete-results-item-layout > header {');
+                    _stylesArray.push('    .autocomplete-results-item-' + _config.id + '.autocomplete-results-item-layout > header {');
                     _stylesArray.push('        display: -ms-flexbox;');
                     _stylesArray.push('        display: flex;');
                     _stylesArray.push('        -ms-flex-flow: row nowrap;');
@@ -534,15 +553,15 @@
                     _stylesArray.push('        -ms-flex-pack: justify;');
                     _stylesArray.push('        justify-content: space-between;');
                     _stylesArray.push('        font-weight: bold;');
-                    _stylesArray.push('        font-size: 14px;');
+                    _stylesArray.push('        font-size: .75rem;');
                     _stylesArray.push('    }');
 
-                    _stylesArray.push('    .autocomplete-results-item.autocomplete-results-item-layout > header > aside {');
+                    _stylesArray.push('    .autocomplete-results-item-' + _config.id + '.autocomplete-results-item-layout > header > aside {');
                     _stylesArray.push('        margin-right: 10px;');
                     _stylesArray.push('    }');
 
-                    _stylesArray.push('    .autocomplete-results-item.autocomplete-results-item-layout > section {');
-                    _stylesArray.push('        font-size: 13px;');
+                    _stylesArray.push('    .autocomplete-results-item-' + _config.id + '.autocomplete-results-item-layout > section {');
+                    _stylesArray.push('        font-size: .75rem;');
                     _stylesArray.push('        padding: 3px 0 2px 5px;');
                     _stylesArray.push('    }');
                 }
