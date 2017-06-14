@@ -603,20 +603,30 @@
 
         //Eventos
         {
+            var onempty = function() {
+                selected = {
+                    value: '',
+                    text: '',
+                    props: {}
+                };
+                if (!!_config.onselected) {
+                    _config.onselected(selected);
+                }
+            }
+
             _input.addEvent(_config.event, function (e) {
                 e = e || window.event;
                 if (e.keyCode != 13 && e.keyCode != 27 && e.keyCode != 38 && e.keyCode != 40){
                     _exec.call(this);
                 }
                 else if (e.keyCode == 13 && _input.value.split(' ').join('') == ''){
-                    selected = {
-                        value: '',
-                        text: '',
-                        props: {}
-                    };
-                    if (!!_config.onselected) {
-                        _config.onselected(selected);
-                    }
+                    onempty();
+                }
+            });
+
+            _input.addEvent('blur', function(e) {
+                if (_input.value.split(' ').join('') == '') {
+                    onempty();
                 }
             });
 
