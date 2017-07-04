@@ -441,10 +441,10 @@
                 _config.dimensions = {
                     width: _input.offsetWidth,
                     height: _input.offsetHeight,
-                    left: parseInt(style.marginLeft.split('px').join('')),
-                    top: parseInt(style.marginTop.split('px').join('')),
-                    right: parseInt(style.marginRight.split('px').join('')),
-                    bottom: parseInt(style.marginBottom.split('px').join(''))
+                    left: parseInt(style.marginLeft == 'auto' ? '0' : style.marginLeft.split('px').join('')),
+                    top: parseInt(style.marginTop == 'auto' ? '0' : style.marginTop.split('px').join('')),
+                    right: parseInt(style.marginRight == 'auto' ? '0' : style.marginRight.split('px').join('')),
+                    bottom: parseInt(style.marginBottom == 'auto' ? '0' : style.marginBottom.split('px').join(''))
                 };
 
                 if (!!_config.icon) {
