@@ -276,6 +276,7 @@ var Sinco = (function (exports) {
                       !!(navigator.userAgent.match(/Trident/) ||
                       navigator.userAgent.match(/rv 11/));
 
+    exports['isFirefox'] = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 
     exports['versionIE'] = (function () {
         var rv = -1;
