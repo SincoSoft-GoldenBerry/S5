@@ -654,7 +654,12 @@ var Sinco = (function (exports) {
             this.appendChild(e);
         }
         else if (typeof opc === 'number') {
-            this.insertBefore(e, this.childNodes[opc] || this.firstChild);
+            if (this.childNodes[opc]){
+                this.insertBefore(e, this.childNodes[opc]);
+            }
+            else{
+                this.appendChild(e);
+            }
         }
         else {
             this.insertBefore(e, this.firstChild);
