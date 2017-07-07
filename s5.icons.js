@@ -1033,6 +1033,28 @@
             _svg.appendChild(_g);
 
             return Sinco.extend(_svg);
+        },
+        Mas: function (dim, bgColor) {
+            dim = dim || 200;
+
+            var _svg = ce('svg');
+            _svg.attr('width', dim);
+            _svg.attr('height', dim);
+
+            _svg.attr('viewBox', '0 0 200 200');
+
+            var _g = ce('g');
+
+            var _path = ce('path');
+
+            _path.attr('d', 'm4.375,7.5l0,2l3,0l0,3l2,0l0,-3l3,0l0,-2l-3,0l0,-3l-2,0l0,3l-3,0zm4,9c-4.41828,0 -8,-3.58172 -8,-8c0,-4.41828 3.58172,-8 8,-8c4.41828,0 8,3.58172 8,8c0,4.41828 -3.58172,8 -8,8zm0,0');
+            _path.style.strokeWidth = 0;
+            _path.style.fill = bgColor || '#1B344C';
+            _g.appendChild(_path);
+
+            _svg.appendChild(_g);
+
+            return Sinco.extend(_svg);
         }
     };
 
