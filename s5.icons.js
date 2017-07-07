@@ -1099,6 +1099,64 @@
             _svg.appendChild(_g);
 
             return Sinco.extend(_svg);
+        },
+        SobreEnviando: function (dim, bgColor) {
+            dim = dim || 20;
+
+            var _svg = ce('svg');
+            _svg.attr('width', dim);
+            _svg.attr('height', dim / 2);
+
+            _svg.attr('viewBox', '0 0 20 10');
+
+            var _g = ce('g');
+
+            var _path = ce('path');
+
+            _path.attr('d', 'm13.58275,9.14673c0.18565,-0.2449 0.29625,-0.553 0.29625,-0.8848l0,-6.43455c0,-0.0632 -0.00395,-0.12245 -0.01185,-0.1817l-4.15935,2.99015l3.87495,4.5109z');
+            _path.style.strokeWidth = 0;
+            _path.style.fill = bgColor || '#1B344C';
+            _g.appendChild(_path);
+
+            _path = ce('path');
+            _path.attr('d', 'm8.31345,5.16118l5.44705,-3.91445c-0.22515,-0.52535 -0.7505,-0.89665 -1.3588,-0.89665l-10.7993,0c-0.4108,0 -0.77815,0.1659 -1.04675,0.4345l4.45165,3.6656c0,0 0,0 0,0s0,0 0,0l0.7663,0.62805c0.7268,0.6004 1.77355,0.63595 2.53985,0.08295z');
+            _path.style.strokeWidth = 0;
+            _path.style.fill = bgColor;
+            _g.appendChild(_path);
+
+            _path = ce('path');
+            _path.attr('d', 'm9.38785,4.86888l-0.84925,0.6083c-0.43055,0.31205 -0.9401,0.4661 -1.4457,0.4661c-0.5609,0 -1.11785,-0.1896 -1.5721,-0.56485l-0.6162,-0.50955l-4.0132,4.68865c0.2133,0.1185 0.45425,0.18565 0.71495,0.18565l10.79535,0c0.34365,0 0.65965,-0.1185 0.91245,-0.316l-3.9263,-4.5583z');
+            _path.style.strokeWidth = 0;
+            _path.style.fill = bgColor;
+            _g.appendChild(_path);
+
+            _path = ce('path');
+            _path.attr('d', 'm0.5754,9.32843l4.02505,-4.70445l-4.27785,-3.52735c-0.12245,0.21725 -0.1975,0.4661 -0.1975,0.7347l0,6.43455c0,0.41475 0.1738,0.79395 0.4503,1.06255z');
+            _path.style.strokeWidth = 0;
+            _path.style.fill = bgColor;
+            _g.appendChild(_path);
+
+            _path = ce('path');
+            _path.attr('d', 'm19.5986,5.94723l-5.3562,0l0,-0.54905l5.3562,0c0.1501,0 0.2765,0.12245 0.2765,0.2765l0,0c0,0.1501 -0.12245,0.27255 -0.2765,0.27255z');
+            _path.style.strokeWidth = 0;
+            _path.style.fill = bgColor;
+            _g.appendChild(_path);
+
+            _path = ce('path');
+            _path.attr('d', 'm18.89155,7.09668l-4.64915,0l0,-0.54905l4.64915,0c0.1501,0 0.2765,0.12245 0.2765,0.2765l0,0c-0.00395,0.1501 -0.1264,0.27255 -0.2765,0.27255z');
+            _path.style.strokeWidth = 0;
+            _path.style.fill = bgColor;
+            _g.appendChild(_path);
+
+            _path = ce('path');
+            _path.attr('d', 'm18.15685,8.24613l-3.9105,0l0,-0.553l3.9105,0c0.1501,0 0.2765,0.12245 0.2765,0.2765l0,0c-0.00395,0.1501 -0.1264,0.2765 -0.2765,0.2765z');
+            _path.style.strokeWidth = 0;
+            _path.style.fill = bgColor;
+            _g.appendChild(_path);
+
+            _svg.appendChild(_g);
+
+            return Sinco.extend(_svg);
         }
     };
 
