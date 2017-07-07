@@ -1074,6 +1074,26 @@
             _path.style.fill = bgColor || '#1B344C';
             _g.appendChild(_path);
 
+            var _line = ce('line');
+            _line.attr('y2', 18.87491);
+            _line.attr('x2', 17.48726);
+            _line.attr('y1', 18.87491);
+            _line.attr('x1', 2.34383);
+            _line.style.strokeWidth = 1.5;
+            _line.style.stroke = bgColor;
+            _line.style.fill = 'none';
+            _g.appendChild(_line);
+
+            _line = ce('line');
+            _line.attr('y2', 0.56259);
+            _line.attr('x2', 16.17477);
+            _line.attr('y1', 0.56259);
+            _line.attr('x1', 4.6563);
+            _line.style.strokeWidth = 0.4;
+            _line.style.stroke = bgColor;
+            _line.style.fill = 'none';
+            _g.appendChild(_line);
+
             _svg.appendChild(_g);
 
             return Sinco.extend(_svg);
