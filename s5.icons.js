@@ -1055,6 +1055,50 @@
             _svg.appendChild(_g);
 
             return Sinco.extend(_svg);
+        },
+        Guardar: function (dim, bgColor) {
+            dim = dim || 20;
+
+            var _svg = ce('svg');
+            _svg.attr('width', dim);
+            _svg.attr('height', dim);
+
+            _svg.attr('viewBox', '0 0 20 20');
+
+            var _g = ce('g');
+
+            var _path = ce('path');
+
+            _path.attr('d', 'm0.75,0.37498l0,19.25l2.1875,0l0,-10.9375l14.4375,0l0,10.9375l1.75,0l0,-17.5l-1.75,-1.75l-1.75,0l0,7l-10.28125,0l0,-7l-4.59375,0zm10.28125,1.09375l0,5.03125l2.84375,0l0,-5.03125l-2.84375,0zm-7.04375,8.26875l0,1.05l10.5,0l0,-1.05l-10.5,0zm0,2.1l0,1.05l5.25,0l0,-1.05l-5.25,0zm0,2.0125l0,1.05l8.4,0l0,-1.05l-8.4,0zm0,2.1l0,1.05l6.3,0l0,-1.05l-6.3,0z');
+            _path.style.strokeWidth = 0;
+            _path.style.fill = bgColor || '#1B344C';
+            _g.appendChild(_path);
+
+            _svg.appendChild(_g);
+
+            return Sinco.extend(_svg);
+        },
+        OkCircular: function (dim, bgColor) {
+            dim = dim || 24;
+
+            var _svg = ce('svg');
+            _svg.attr('width', dim);
+            _svg.attr('height', dim);
+
+            _svg.attr('viewBox', '0 0 24 24');
+
+            var _g = ce('g');
+
+            var _path = ce('path');
+
+            _path.attr('d', 'm12,0c-6.627,0 -12,5.373 -12,12c0,6.628 5.373,12 12,12c6.627,0 12,-5.372 12,-12c0,-6.627 -5.373,-12 -12,-12zm7.754,9.561l-8.607,8.607c-0.176,0.177 -0.462,0.177 -0.637,0l-1.272,-1.285c-0.175,-0.176 -0.462,-0.464 -0.636,-0.642l-2.96,-3.112c-0.087,-0.087 -0.133,-0.21 -0.133,-0.327c0,-0.115 0.046,-0.227 0.133,-0.314l1.297,-1.169c0.088,-0.09 0.205,-0.134 0.321,-0.134c0.114,0.001 0.228,0.046 0.315,0.134l2.936,2.995c0.175,0.178 0.461,0.178 0.637,0l6.699,-6.681c0.176,-0.177 0.461,-0.177 0.636,0l1.272,1.285c0.175,0.176 0.175,0.466 -0.001,0.643z');
+            _path.style.strokeWidth = 0;
+            _path.style.fill = bgColor || '#1B344C';
+            _g.appendChild(_path);
+
+            _svg.appendChild(_g);
+
+            return Sinco.extend(_svg);
         }
     };
 
