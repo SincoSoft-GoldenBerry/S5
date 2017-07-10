@@ -1177,6 +1177,118 @@
             _svg.appendChild(_g);
 
             return Sinco.extend(_svg);
+        },
+        ListaNoNumerada: function (dim, bgColor) {
+            dim = dim || 100;
+            bgColor = bgColor || '#1B344C';
+
+            var _svg = ce('svg');
+            _svg.attr('width', dim);
+            _svg.attr('height', (dim * 94) / 100);
+
+            _svg.attr('viewBox', '0 0 100 94');
+
+            var _circle = ce('circle');
+            _circle.attr('cx', 10.87933);
+            _circle.attr('cy', 47.0004);
+            _circle.attr('r', 10.059);
+            _circle.style.fill = bgColor;
+            _svg.appendChild(_circle);
+
+            _circle = ce('circle');
+            _circle.attr('cx', 10.87933);
+            _circle.attr('cy', 83.0904);
+            _circle.attr('r', 10.059);
+            _circle.style.fill = bgColor;
+            _svg.appendChild(_circle);
+            
+            _circle = ce('circle');
+            _circle.attr('cx', 10.87933);
+            _circle.attr('cy', 10.9104);
+            _circle.attr('r', 10.059);
+            _circle.style.fill = bgColor;
+            _svg.appendChild(_circle);
+
+            var _line = ce('line');
+            _line.attr('y2', 10.9104);
+            _line.attr('x2', 99.18333);
+            _line.attr('y1', 10.9104);
+            _line.attr('x1', 34.68233);
+            _line.style.strokeWidth = 14.3337;
+            _line.style.stroke = bgColor;
+            _line.style.strokeMiterlimit = 10;
+            _line.style.fill = 'none';
+            _svg.appendChild(_line);
+
+            _line = ce('line');
+            _line.attr('y2', 47.0004);
+            _line.attr('x2', 99.18333);
+            _line.attr('y1', 47.0004);
+            _line.attr('x1', 34.68233);
+            _line.style.strokeWidth = 14.3337;
+            _line.style.stroke = bgColor;
+            _line.style.strokeMiterlimit = 10;
+            _line.style.fill = 'none';
+            _svg.appendChild(_line);
+
+            _line = ce('line');
+            _line.attr('y2', 83.0904);
+            _line.attr('x2', 99.18333);
+            _line.attr('y1', 83.0904);
+            _line.attr('x1', 34.68233);
+            _line.style.strokeWidth = 14.3337;
+            _line.style.stroke = bgColor;
+            _line.style.strokeMiterlimit = 10;
+            _line.style.fill = 'none';
+            _svg.appendChild(_line);
+
+            _svg = Sinco.extend(_svg);
+            return _svg;
+        },
+        FlechaGps: function (dim, bgColor, tilt) {
+            dim = dim || 20;
+            var path = 'm21.96059,{0}c-0.26208,-0.26253 -0.6571,-0.33571 -0.9964,-0.18867l-22.66541,9.88455c-0.34713,0.1513 -0.56288,0.50402 -0.53849,0.8827c0.02417,0.37779 0.28222,0.70075 0.64614,0.80706l9.41656,2.75151l2.75151,9.41678c0.10631,0.36459 0.42904,0.62264 0.80728,0.64703c0.01925,0.00179 0.03827,0.00179 0.05752,0.00179c0.3563,0 0.68128,-0.21016 0.82519,-0.54005l9.88522,-22.66541c0.14794,-0.33997 0.07319,-0.73566 -0.18912,-0.9973z';
+
+            var _svg = ce('svg');
+            _svg.attr('width', dim);
+            _svg.attr('height', (dim * 25) / 20);
+
+            _svg.attr('viewBox', '0 0 20 25');
+
+            var _path = ce('path');
+
+            _path.style.strokeWidth = 0;
+            _path.style.fill = bgColor || '#1B344C';
+            if (!!tilt) {
+                _path.attr('d', String.format(path, '-3.98375'));
+                _path.attr('transform', 'rotate(135 9.991591453552246,7.985882759094239)');
+            }
+            else{
+                _path.attr('d', String.format(path, '5.01624'));
+                _path.attr('transform', 'rotate(-45 9.991593360900874,16.98587608337402)');
+            }
+            
+            _svg.appendChild(_path);
+
+            return Sinco.extend(_svg);
+        },
+        Abrir: function(dim, bgColor) {
+            dim = dim || 20;
+
+            var _svg = ce('svg');
+            _svg.attr('width', dim);
+            _svg.attr('height', dim);
+
+            _svg.attr('viewBox', '0 0 20 20');
+
+            var _path = ce('path');
+
+            _path.attr('d', 'm17.62496,17.68746l-15.31246,0l0,-15.31246l7.65623,0l0,-2.18749l-7.65623,0c-1.20859,0 -2.18749,0.9789 -2.18749,2.18749l0,15.31246c0,1.20859 0.9789,2.18749 2.18749,2.18749l15.31246,0c1.20859,0 2.18749,-0.9789 2.18749,-2.18749l0,-7.65623l-2.18749,0l0,7.65623zm-5.46874,-17.49996l0,2.18749l3.92108,0l-10.75154,10.75154l1.54765,1.54765l10.75154,-10.75154l0,3.92108l2.18749,0l0,-7.65623l-7.65623,0z');
+            _path.style.strokeWidth = 0;
+            _path.style.fill = bgColor || '#1B344C';
+            _svg.appendChild(_path);
+
+            return Sinco.extend(_svg);
         }
     };
 
