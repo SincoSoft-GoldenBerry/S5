@@ -298,7 +298,7 @@
                 if (!data) {
                     data = { length: 0 };
                 }
-                else if (!(data instanceof Array)) {
+                else if (!(Array.isArray(data))) {
                     if (data.hasOwnProperty('d')) {
                         data = data.d;
                     }
