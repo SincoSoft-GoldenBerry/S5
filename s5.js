@@ -1130,25 +1130,35 @@ var Sinco = (function (exports) {
         src.pop();
         src = src.join('/');
 
-        var modulos;
+        var modulos, version;
+
+        var getVersion = function () {
+            var splitted=document.querySelector('script[src*="s5.js"]').src.split('=');
+            if(splitted.length>1){
+                version = splitted.pop();
+            }
+        }
 
         var addOnModule = function () {
             plugins = null;
-            modulos.dependencies.forEach(function (dependency) {
-                if (pending.indexOf(dependency) == -1) {
-                    require.loadScript(src + '/' + dependency + '.js', function () {
-                        //pending.splice(pending.indexOf(dependency), 1);
-                    });
+            if (modulos && modulos.dependencies){
+                modulos.dependencies.forEach(function (dependency) {
+                    if (pending.indexOf(dependency) == -1) {
+                        require.loadScript(src + '/' + dependency + '.js', function () {
+                            //pending.splice(pending.indexOf(dependency), 1);
+                        });
 
-                    pending.push(dependency);
-                }
-            });
+                        pending.push(dependency);
+                    }
+                });
+            }
         }
 
         if (plugins) {
             var sum = 0;
+            getVersion();
             plugins.forEach(function (script) {
-                require.loadScript(Sinco.script.path + '/s5.' + script + '.js', function () {
+                require.loadScript(Sinco.script.path + '/s5.' + script + '.js' + (version ? '?v=' + version : ''), function () {
                     sum++;
                     if (sum == plugins.length) {
                         addOnModule();

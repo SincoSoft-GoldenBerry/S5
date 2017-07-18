@@ -239,13 +239,13 @@
 
                     if (_config.service.method == 'GET') {
                         _config.service._url = _config.service._url || _config.service.url;
-                        _http = Request(_config.service.method, _config.service._url.split('[' + _config.data.search + ']').join(texto), funciones);
+                        _http = Sinco.Request(_config.service.method, _config.service._url.split('[' + _config.data.search + ']').join(texto), funciones);
                     }
                     else {
                         _config._param = _config._param || {};
                         _config._param[_config.data.search] = texto;
 
-                        _http = Request(_config.service.method, _config.service.url, funciones, _config._param);
+                        _http = Sinco.Request(_config.service.method, _config.service.url, funciones, _config._param);
                     }
                 }
             }
