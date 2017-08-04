@@ -452,16 +452,18 @@
                     icon.insert(Sinco.iconos[_config.icon](_dimensionar(14), '#5A5A5A'));
                     _container.insert(icon);
                 }
+				
+				var _resultsContainer = Sinco.createElem('div', { 'class': 'autocomplete-results', 'id': 'autocomplete-results-' + _config.id, 'style': 'display: none;' });
 
                 var _searchContainer = Sinco.createElem('div', { 'class': 'autocomplete-button-search', 'id': 'autocomplete-button-search-' + _config.id }).addEvent('click', function () {
                     _exec.call({ value: '_'/*_input.value*/ });
                     _input.focus();
-                    _resultsContainer.styles('display', '');
+					setTimeout(function(){
+						_resultsContainer.styles('display', '');
+					}, 1);
                 });
                 _searchContainer.insert(Sinco.iconos.Triangulo(_dimensionar(6), '#5A5A5A'));
                 _container.insert(_searchContainer);
-
-                var _resultsContainer = Sinco.createElem('div', { 'class': 'autocomplete-results', 'id': 'autocomplete-results-' + _config.id, 'style': 'display: none;' });
                 _container.insert(_resultsContainer);
             }
 
@@ -633,7 +635,7 @@
             Array.prototype.map.call(document.querySelectorAll('input, select, button, a'), function (_) {
                 Sinco.extend(_).addEvent('focus', function () {
                     Sinco.map(Sinco.get('.autocomplete-container'), function (elem) {
-                        if (elem.id.indexOf(_config.id) < 0) {
+                        if (!elem.id.endsWith(_config.id)) {
                             Sinco.get(elem.idResults).styles('display', 'none');
                             Sinco.get(elem.idInput)._visible = false;
                         }
