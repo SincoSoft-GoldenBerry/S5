@@ -935,17 +935,44 @@ var Sinco = (function (exports) {
     }
 
     var script = function () {
+
+        var extractHostname = function (url) {
+            var hostname;
+
+            if (url.indexOf("://") > -1) {
+                hostname = url.split('/')[2];
+            }
+            else {
+                hostname = url.split('/')[0];
+            }
+
+            hostname = hostname.split(':')[0];
+            hostname = hostname.split('?')[0];
+
+            return hostname;
+        }
+
         var _url = window.location.href.split('/');
         _url.pop();
+
         var _s = document.getElementsByTagName('script');
-        var _src = _s[_s.length - 1].src.replaceAll(_url.join('/'), '').split('/');
+        var _src = _s[_s.length - 1].src;
+
+        var _domain = extractHostname(_src);
+        var _urlOriginal = _src;
+
+        _src = _src.replaceAll(_url.join('/'), '').split('/');
         _s = _src.pop();
         _src.shift();
         return {
             name: _s.split('.').shift(),
             url: _s,
-            path: _src.join('/')
+            path: _src.join('/'),
+            originalUrl: _urlOriginal.split(_s).join(''),
+            host: _domain,
+            locationHost: extractHostname(window.location.href)
         };
+
     }
 
     var QueryString = {
@@ -1170,7 +1197,16 @@ var Sinco = (function (exports) {
             var sum = 0;
             getVersion();
             plugins.forEach(function (script) {
-                require.loadScript(Sinco.script.path + '/s5.' + script + '.js' + (version ? '?v=' + version : ''), function () {
+                var _url = 's5.' + script + '.js' + (version ? '?v=' + version : '');
+
+                if (Sinco.script.locationHost != Sinco.script.host){
+                    _url = Sinco.script.urlOriginal + _url;
+                }
+                else{
+                    _url = Sinco.script.path + '/' + _url;
+                }
+
+                require.loadScript(_url, function () {
                     sum++;
                     if (sum == plugins.length) {
                         addOnModule();
