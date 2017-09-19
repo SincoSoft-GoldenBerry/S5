@@ -1200,7 +1200,7 @@ var Sinco = (function (exports) {
                 var _url = 's5.' + script + '.js' + (version ? '?v=' + version : '');
 
                 if (Sinco.script.locationHost != Sinco.script.host){
-                    _url = Sinco.script.urlOriginal + _url;
+                    _url = Sinco.script.originalUrl + _url;
                 }
                 else{
                     _url = Sinco.script.path + '/' + _url;
