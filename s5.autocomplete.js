@@ -40,6 +40,7 @@
                 dataSource: undefined,
                 icon: '',
                 placeholder: undefined,
+                orderby: undefined,
                 event: 'keyup',
                 service: {
                     method: 'GET',
@@ -287,9 +288,10 @@
             }
 
             var _ordenarDatos = function (data) {
+                var by = _config.orderby || _config.text;
                 _datos = data.sort(function (a, b) {
-                    if (a[_config.text].toLowerCase() < b[_config.text].toLowerCase()) return -1;
-                    if (a[_config.text].toLowerCase() > b[_config.text].toLowerCase()) return 1;
+                    if (a[by].toLowerCase() < b[by].toLowerCase()) return -1;
+                    if (a[by].toLowerCase() > b[by].toLowerCase()) return 1;
                     return 0;
                 });
             }

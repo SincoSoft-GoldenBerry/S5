@@ -1743,6 +1743,99 @@
             _svg.appendChild(_poly);
 
             return Sinco.extend(_svg);
+        },
+        Servidor: function (dim, active, bgColor) {
+            dim = dim || 32;
+
+            var _svg = ce('svg');
+            _svg.attr('width', dim);
+            _svg.attr('height', dim);
+
+            _svg.attr('viewBox', '0 0 32 32');
+
+            var _path = ce('path');
+
+            _path.attr('d', 'M30,10V2H2v8h2v2H2v8h2v2H2v8h28v-8h-2v-2h2v-8h-2v-2H30z M4,6h4v2H4V6z M4,16h4v2H4V16z M8,28H4v-2h4V28z M26,22H6v-2h20   V22z M26,12H6v-2h20V12z');
+            _path.style.strokeWidth = 0;
+            _path.style.fill = bgColor || '#1B344C';
+            _svg.appendChild(_path);
+
+            if (!active) {
+                var _circle = ce('circle');
+                _circle.attr('cx', 24);
+                _circle.attr('cy', 24.4);
+                _circle.attr('r', 7.68);
+                _circle.style.strokeWidth = 0;
+                _circle.style.fill = 'red';
+                _svg.appendChild(_circle);
+            }
+
+            return Sinco.extend(_svg);
+        },
+        BaseDatos: function (dim, active, bgColor) {
+            dim = dim || 32;
+
+            var _svg = ce('svg');
+            _svg.attr('width', dim);
+            _svg.attr('height', dim);
+
+            _svg.attr('viewBox', '0 0 32 32');
+
+            var _path = ce('path');
+
+            _path.attr('d', 'M29.998,4.999c0.027-0.272-0.205-1.715-2.102-2.851C26.012,0.997,22.598,0.004,16.001,0   C9.402,0.004,5.988,0.997,4.103,2.148C2.207,3.283,1.975,4.726,2.002,4.999l0,0v22.74c-0.035,0.353,0.305,1.628,2.176,2.525   C6.045,31.19,9.416,31.994,16,32c6.582-0.006,9.955-0.81,11.82-1.736c1.873-0.897,2.213-2.173,2.178-2.525V4.999L29.998,4.999z    M27.777,27.907C27.15,28.552,24.43,30.019,16,30c-6.414,0.007-9.541-0.821-10.925-1.524c-0.694-0.35-0.987-0.648-1.075-0.78   c-0.018-0.027,0.009-0.047,0.002-0.062L4,7.783C4.036,7.806,4.064,7.83,4.103,7.852C5.988,9.001,9.402,9.993,16.001,10   c6.597-0.006,10.011-0.999,11.896-2.147C27.934,7.83,27.963,7.805,28,7.783v19.853C27.98,27.678,27.924,27.765,27.777,27.907z');
+            _path.style.strokeWidth = 0;
+            _path.style.fill = bgColor || '#1B344C';
+            _path.style.stroke = bgColor || '#1B344C';
+            _svg.appendChild(_path);
+
+            if (!active) {
+                var _circle = ce('circle');
+                _circle.attr('cx', 24);
+                _circle.attr('cy', 24.4);
+                _circle.attr('r', 7.68);
+                _circle.style.strokeWidth = 0;
+                _circle.style.fill = 'red';
+                _svg.appendChild(_circle);
+            }
+
+            return Sinco.extend(_svg);
+        },
+        Menos: function (dim, bgColor) {
+            dim = dim || 512;
+
+            var _svg = ce('svg');
+            _svg.attr('width', dim);
+            _svg.attr('height', dim);
+
+            _svg.attr('viewBox', '0 0 512 512');
+
+            var _path = ce('path');
+
+            _path.attr('d', 'M417.4,224H94.6C77.7,224,64,238.3,64,256c0,17.7,13.7,32,30.6,32h322.8c16.9,0,30.6-14.3,30.6-32  C448,238.3,434.3,224,417.4,224z');
+            _path.style.strokeWidth = 0;
+            _path.style.fill = bgColor || '#1B344C';
+            _svg.appendChild(_path);
+
+            return Sinco.extend(_svg);
+        },
+        Plus: function (dim, bgColor) {
+            dim = dim || 24;
+
+            var _svg = ce('svg');
+            _svg.attr('width', dim);
+            _svg.attr('height', dim);
+
+            _svg.attr('viewBox', '0 0 24 24');
+
+            var _path = ce('path');
+
+            _path.attr('d', 'M22.5,14H14v8.5c0,0.276-0.224,0.5-0.5,0.5h-4C9.224,23,9,22.776,9,22.5V14H0.5  C0.224,14,0,13.776,0,13.5v-4C0,9.224,0.224,9,0.5,9H9V0.5C9,0.224,9.224,0,9.5,0h4C13.776,0,14,0.224,14,0.5V9h8.5  C22.776,9,23,9.224,23,9.5v4C23,13.776,22.776,14,22.5,14z');
+            _path.style.strokeWidth = 0;
+            _path.style.fill = bgColor || '#1B344C';
+            _svg.appendChild(_path);
+
+            return Sinco.extend(_svg);
         }
     };
 
