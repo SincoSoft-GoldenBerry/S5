@@ -1,0 +1,29 @@
+{
+  "name": "s5",
+  "version": "1.0.0",
+  "description": "¡El mejor framework Javascript, basado en Vanilla Js!",
+  "main": "s5.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SincoSoft-GoldenBerry/S5.git"
+  },
+  "keywords": [
+    "JavaScript",
+    "JS",
+    "VanilaJS",
+    "s5",
+    "autocomplete",
+    "icons",
+    "Sinco",
+    "SincoSoft"
+  ],
+  "author": "SincoSoft-GoldenBerry",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SincoSoft-GoldenBerry/S5/issues"
+  },
+  "homepage": "https://github.com/SincoSoft-GoldenBerry/S5#readme"
+}
