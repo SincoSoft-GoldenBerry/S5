@@ -574,6 +574,7 @@ var Sinco = (function (exports) {
     }
 
     var get = function (id) {
+        id = id.toString();
         if (id.lastIndexOf('.') > -1) {
 
             if (document.querySelectorAll) {
