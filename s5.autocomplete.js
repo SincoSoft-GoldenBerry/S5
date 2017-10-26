@@ -167,6 +167,15 @@
                         _input.value = selected.text;
                     }
                 }
+                else if ((e.keyCode == 9 || e.keyCode == 13) && (_indexSelected < 0 || _input.value.split(' ').join('') == '') && !_config.selectFirst) {
+                    _ocultarItems();
+                    selected = {
+                        value: '',
+                        text: '',
+                        props: {}
+                    };
+                    _indexSelected = -1;
+                }
                 else if ((e.keyCode == 9 || e.keyCode == 13) && _input._visible && _indexSelected >= 0) {
                     _clickItem.call(Sinco.get('.autocomplete-results-item-' + _config.id)[_indexSelected]);
                 }
