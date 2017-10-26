@@ -167,14 +167,14 @@
                         _input.value = selected.text;
                     }
                 }
-                else if ((e.keyCode == 9 || e.keyCode == 13) && (_indexSelected < 0 || _input.value.split(' ').join('') == '') && !_config.selectFirst) {
+                else if ((e.keyCode == 9 || e.keyCode == 13) && _input._visible && _indexSelected < 0) {
                     _ocultarItems();
+                    _indexSelected = -1;
                     selected = {
                         value: '',
                         text: '',
                         props: {}
                     };
-                    _indexSelected = -1;
                 }
                 else if ((e.keyCode == 9 || e.keyCode == 13) && _input._visible && _indexSelected >= 0) {
                     _clickItem.call(Sinco.get('.autocomplete-results-item-' + _config.id)[_indexSelected]);
@@ -195,6 +195,15 @@
                             _indexSelected = 0;
                         _indexSelected >= 0 && _ubicar(_indexSelected);
                     }
+                }
+                else if ((e.keyCode == 8 || e.keyCode == 46) && _input._visible){
+                    _ocultarItems();
+                    _indexSelected = -1;
+                    selected = {
+                        value: '',
+                        text: '',
+                        props: {}
+                    };
                 }
             }
 
