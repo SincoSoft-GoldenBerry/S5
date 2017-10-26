@@ -41,6 +41,7 @@
                 icon: '',
                 placeholder: undefined,
                 orderby: undefined,
+                selectFirst: true,
                 event: 'keyup',
                 service: {
                     method: 'GET',
@@ -376,7 +377,8 @@
                     if (_config.event == 'keydown') {
                         _navigate.call(_input);
                     }
-                    _ubicar(0);
+                    if (!!_config.selectFirst)
+                        _ubicar(0);
                 }
 
                 _enmarcarResultados();
