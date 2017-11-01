@@ -1,6 +1,6 @@
 {
   "name": "s5",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "¡El mejor framework Javascript, basado en Vanilla Js!",
   "main": "s5.js",
   "scripts": {

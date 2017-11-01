@@ -1328,7 +1328,7 @@
 
             return Sinco.extend(_svg);
         },
-        Plus: function(dim, bgColor) {
+        PlusLite: function(dim, bgColor) {
             dim = dim || 50;
 
             var _svg = ce('svg');
