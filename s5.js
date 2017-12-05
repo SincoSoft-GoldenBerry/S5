@@ -147,7 +147,7 @@
     }
 
     if (!Array.prototype.find) {
-        Array.prototype.find = function(predicate) {
+        Array.prototype.find = function (predicate) {
             if (this == null) {
                 throw new TypeError('Array.prototype.find called on null or undefined');
             }
@@ -193,7 +193,7 @@
     }
 
     if (!String.prototype.endsWith) {
-        String.prototype.endsWith = function(searchString, position) {
+        String.prototype.endsWith = function (searchString, position) {
             var subjectString = this.toString();
             if (typeof position !== 'number' || !isFinite(position) || Math.floor(position) !== position || position > subjectString.length) {
                 position = subjectString.length;
@@ -235,18 +235,47 @@
         if (typeof CryptoJS === 'undefined') {
             throw new SincoInitializationError('¡Falta la referencia de AES.js!');
         }
-        var key = CryptoJS.enc.Utf8.parse(String.concat(String.fromCharCode(53), String.fromCharCode(49), String.fromCharCode(110),
-                                          String.fromCharCode(99), String.fromCharCode(48), String.fromCharCode(115), String.fromCharCode(111),
-                                          String.fromCharCode(102), String.fromCharCode(116), String.fromCharCode(95), String.fromCharCode(53),
-                                          String.fromCharCode(46), String.fromCharCode(65), String.fromCharCode(46), String.fromCharCode(53),
-                                          String.fromCharCode(46))); //Mismo KEY usado en C#
-        var iv = CryptoJS.enc.Utf8.parse(String.concat(String.fromCharCode(95), String.fromCharCode(84), String.fromCharCode(49),
-                                         String.fromCharCode(99), String.fromCharCode(115), String.fromCharCode(124), String.fromCharCode(70),
-                                         String.fromCharCode(111), String.fromCharCode(110), String.fromCharCode(42), String.fromCharCode(53),
-                                         String.fromCharCode(111), String.fromCharCode(95), String.fromCharCode(83), String.fromCharCode(52),
-                                         String.fromCharCode(53))); //Mismo IV usado en C#
 
-        var text = (typeof (this) == 'function') ? arguments[0] : this;
+        var text = '';
+        var key = CryptoJS.enc.Utf8.parse(String.concat(String.fromCharCode(53), String.fromCharCode(49), String.fromCharCode(110),
+            String.fromCharCode(99), String.fromCharCode(48), String.fromCharCode(115), String.fromCharCode(111),
+            String.fromCharCode(102), String.fromCharCode(116), String.fromCharCode(95), String.fromCharCode(53),
+            String.fromCharCode(46), String.fromCharCode(65), String.fromCharCode(46), String.fromCharCode(53),
+            String.fromCharCode(46))); //Mismo KEY usado en C#
+
+
+        var setKey = function (k) {
+            var _k = [];
+            for (var i = 0; i < k.length; i += 4) {
+                if (k[i + 1]) {
+                    _k.push(k[i] + k[i + 1]);
+                }
+            }
+            k = new Uint8Array(_k);
+            var r = String.fromCharCode.apply(String, k);
+            key = CryptoJS.enc.Utf8.parse(r);
+        }
+
+        if (typeof (this) == 'function') {
+            text = arguments[0];
+            if (arguments[1]) {
+                setKey(arguments[1]);
+            }
+        }
+        else {
+            text = this;
+            if (arguments[0]) {
+                setKey(arguments[0]);
+            }
+        }
+
+
+        var iv = CryptoJS.enc.Utf8.parse(String.concat(String.fromCharCode(95), String.fromCharCode(84), String.fromCharCode(49),
+            String.fromCharCode(99), String.fromCharCode(115), String.fromCharCode(124), String.fromCharCode(70),
+            String.fromCharCode(111), String.fromCharCode(110), String.fromCharCode(42), String.fromCharCode(53),
+            String.fromCharCode(111), String.fromCharCode(95), String.fromCharCode(83), String.fromCharCode(52),
+            String.fromCharCode(53))); //Mismo IV usado en C#
+
 
         var valorIterar = Math.floor((Math.random() * 9) + 1);
 
@@ -254,12 +283,12 @@
             var textoCrypto;
 
             textoCrypto = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(text), key,
-                            {
-                                keySize: 16,
-                                iv: iv,
-                                mode: CryptoJS.mode.CBC,
-                                padding: CryptoJS.pad.Pkcs7
-                            });
+                {
+                    keySize: 16,
+                    iv: iv,
+                    mode: CryptoJS.mode.CBC,
+                    padding: CryptoJS.pad.Pkcs7
+                });
             if (final > 0) {
                 return iterar(final - 1, textoCrypto, key, iv);
             } else {
@@ -290,8 +319,8 @@ var Sinco = (function (exports) {
 
     //Propiedades de ventana
     exports['isIE'] = navigator.appName == 'Microsoft Internet Exporer' ||
-                      !!(navigator.userAgent.match(/Trident/) ||
-                      navigator.userAgent.match(/rv 11/));
+        !!(navigator.userAgent.match(/Trident/) ||
+            navigator.userAgent.match(/rv 11/));
 
     exports['isFirefox'] = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 
@@ -307,7 +336,7 @@ var Sinco = (function (exports) {
         return rv;
     })();
     exports['isMobile'] = navigator.isMobile ||
-                          /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
 
     /**
      * @name SincoInitializationError
@@ -672,10 +701,10 @@ var Sinco = (function (exports) {
             this.appendChild(e);
         }
         else if (typeof opc === 'number') {
-            if (this.childNodes[opc]){
+            if (this.childNodes[opc]) {
                 this.insertBefore(e, this.childNodes[opc]);
             }
-            else{
+            else {
                 this.appendChild(e);
             }
         }
@@ -834,7 +863,7 @@ var Sinco = (function (exports) {
         }
 
         http.setRequestHeader('Content-type', types.hasOwnProperty(contentType.toUpperCase()) ? types[contentType.toUpperCase()] : contentType);
-
+        var alerta;
         http.onreadystatechange = function () {
             if (http.readyState == 4) {
                 switch (http.status) {
@@ -853,7 +882,7 @@ var Sinco = (function (exports) {
                                 functions.Ok(parseXml(http.responseText));
                                 break;
                         }
-                        break;                        
+                        break;
                     case 201:
                         switch (contentType.toUpperCase()) {
                             case 'TEXT':
@@ -894,7 +923,10 @@ var Sinco = (function (exports) {
                         break;
                     case 412:
                         console.log('Posiblemente la sesión no se comparte entre el marco y el módulo');
-                        alert('No existe Sesión');
+                        if (!alerta) {
+                            alerta = true;
+                            alert('No existe Sesión');
+                        }
                         window.location.href = 'login.aspx';
                         break;
                     case 500:
@@ -978,7 +1010,6 @@ var Sinco = (function (exports) {
             host: _domain,
             locationHost: extractHostname(window.location.href)
         };
-
     }
 
     var QueryString = {
@@ -1031,10 +1062,10 @@ var Sinco = (function (exports) {
             var dependencies, module;
             if (typeof _dependencies === 'function')
                 module = _dependencies,
-                dependencies = require.extractDependencies(module);
+                    dependencies = require.extractDependencies(module);
             else
                 dependencies = _dependencies,
-                module = _module;
+                    module = _module;
 
             if (!dependencies || !dependencies.length) {
                 loaded.push(name);
@@ -1077,10 +1108,10 @@ var Sinco = (function (exports) {
             var dependencies, callback;
             if (typeof _dependencies === 'function')
                 callback = _dependencies,
-                dependencies = require.extractDependencies(callback);
+                    dependencies = require.extractDependencies(callback);
             else
                 dependencies = _dependencies,
-                callback = _callback;
+                    callback = _callback;
 
             var module = {
                 callback: callback,
@@ -1105,8 +1136,8 @@ var Sinco = (function (exports) {
          */
         var unroll = function () {
             Sinco.map(Object.keys(modules), function (name) {
-                    return modules[name];
-                })
+                return modules[name];
+            })
                 .concat(modules)
                 .forEach(function (module) {
                     if (!module.loaded && module.dependencies.every(function (depn) {
@@ -1116,9 +1147,9 @@ var Sinco = (function (exports) {
                         loaded.push(module.name);
                         module.loaded = true;
                         module.module = module.callback.apply(null, module.dependencies
-                                                                    .map(function (depn) {
-                                                                        return modules[depn].module;
-                                                                    }));
+                            .map(function (depn) {
+                                return modules[depn].module;
+                            }));
 
                         unroll();
                     }
@@ -1178,15 +1209,15 @@ var Sinco = (function (exports) {
         var modulos, version;
 
         var getVersion = function () {
-            var splitted=document.querySelector('script[src*="s5.js"]').src.split('=');
-            if(splitted.length>1){
+            var splitted = document.querySelector('script[src*="s5.js"]').src.split('=');
+            if (splitted.length > 1) {
                 version = splitted.pop();
             }
         }
 
         var addOnModule = function () {
             plugins = null;
-            if (modulos && modulos.dependencies){
+            if (modulos && modulos.dependencies) {
                 modulos.dependencies.forEach(function (dependency) {
                     if (pending.indexOf(dependency) == -1) {
                         require.loadScript(src + '/' + dependency + '.js', function () {
@@ -1205,10 +1236,10 @@ var Sinco = (function (exports) {
             plugins.forEach(function (script) {
                 var _url = 's5.' + script + '.js' + (version ? '?v=' + version : '');
 
-                if (Sinco.script.locationHost != Sinco.script.host){
+                if (Sinco.script.locationHost != Sinco.script.host) {
                     _url = Sinco.script.originalUrl + _url;
                 }
-                else{
+                else {
                     _url = Sinco.script.path + '/' + _url;
                 }
 

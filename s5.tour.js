@@ -554,8 +554,8 @@
 
             callBack();
 
-            Sinco.extend(window).removeEvent('resize', callBack);
-            Sinco.extend(window).addEvent('resize', callBack);
+            Sinco.removeEvent.call(window, 'resize', callBack);
+            Sinco.addEvent.call(window, 'resize', callBack);
         }
 
         var mostrarDialogo = function (step) {

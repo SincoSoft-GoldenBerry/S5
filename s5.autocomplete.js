@@ -65,18 +65,25 @@
 
             this.setSelectedValue = function (value, itemDatos) {
                 if (value != null && typeof value != 'undefined') {
-                    var item = (itemDatos || _datos).filter(function (o) {
-                        return o[_config.value] == value;
+                    value = value.toString().toLowerCase();
+                    var indice = -1;
+                    var b;
+                    var item = (itemDatos || _datos).find(function (o, i) {
+                        b = o[_config.value].toString().toLowerCase() == value;
+                        if (b) {
+                            indice = i;
+                        }
+                        return b;
                     });
-                    if (item.length > 0) {
-                        item = item.shift();
-                    }
-                    else {
+                    if (!item) {
                         item = _datos[0];
+                        indice = 0;
                     }
+
                     _selectItem(item);
+                    _indexSelected = indice;
                     _input.value = item[_config.text];
-                    _exec.call(_input);
+                    //_exec.call(_input);
                     _ocultarItems();
                 }
                 else {
@@ -196,7 +203,7 @@
                         _indexSelected >= 0 && _ubicar(_indexSelected);
                     }
                 }
-                else if ((e.keyCode == 8 || e.keyCode == 46) && _input._visible){
+                else if ((e.keyCode == 8 || e.keyCode == 46) && _input._visible) {
                     _ocultarItems();
                     _indexSelected = -1;
                     selected = {
@@ -249,9 +256,9 @@
                 if (!!_config.dataSource) {
                     _mostrarOpciones(
                         texto == '_' ? _config.dataSource :
-                        _config.dataSource.filter(function (o) {
-                            return o[_config.text].toLowerCase().indexOf(texto.toLowerCase()) >= 0 || o[_config.value].toString().indexOf(texto) >= 0;
-                        })
+                            _config.dataSource.filter(function (o) {
+                                return o[_config.text].toLowerCase().indexOf(texto.toLowerCase()) >= 0 || o[_config.value].toString().indexOf(texto) >= 0;
+                            })
                     );
                 }
                 else {
@@ -278,12 +285,12 @@
                         text: item[_config.text],
                         props: {}
                     };
-                    if (!!_config.viewalldata){
+                    if (!!_config.viewalldata) {
                         for (var i in item) {
                             datoSeleccionado.props[i] = item[i];
                         }
                     }
-                    else{
+                    else {
                         for (var i in _config.data.props) {
                             datoSeleccionado.props[i] = item[_config.data.props[i]];
                         }
@@ -294,11 +301,13 @@
             }
 
             var _clickItem = function () {
-                _input.value = this.dataInfo[_config.text];
-                _ocultarItems();
-                _selectItem(this.dataInfo);
-                if (!!_config.onselected) {
-                    _config.onselected(selected);
+                if (this.dataInfo) {
+                    _input.value = this.dataInfo[_config.text];
+                    _ocultarItems();
+                    _selectItem(this.dataInfo);
+                    if (!!_config.onselected) {
+                        _config.onselected(selected);
+                    }
                 }
             }
 
@@ -475,15 +484,15 @@
                     icon.insert(Sinco.iconos[_config.icon](_dimensionar(14), '#5A5A5A'));
                     _container.insert(icon);
                 }
-				
-				var _resultsContainer = Sinco.createElem('div', { 'class': 'autocomplete-results', 'id': 'autocomplete-results-' + _config.id, 'style': 'display: none;' });
+
+                var _resultsContainer = Sinco.createElem('div', { 'class': 'autocomplete-results', 'id': 'autocomplete-results-' + _config.id, 'style': 'display: none;' });
 
                 var _searchContainer = Sinco.createElem('div', { 'class': 'autocomplete-button-search', 'id': 'autocomplete-button-search-' + _config.id }).addEvent('click', function () {
                     _exec.call({ value: '_'/*_input.value*/ });
                     _input.focus();
-					setTimeout(function(){
-						_resultsContainer.styles('display', '');
-					}, 1);
+                    setTimeout(function () {
+                        _resultsContainer.styles('display', '');
+                    }, 1);
                 });
                 _searchContainer.insert(Sinco.iconos.Triangulo(_dimensionar(6), '#5A5A5A'));
                 _container.insert(_searchContainer);
@@ -628,7 +637,7 @@
 
         //Eventos
         {
-            var onempty = function() {
+            var onempty = function () {
                 selected = {
                     value: '',
                     text: '',
@@ -641,15 +650,15 @@
 
             _input.addEvent(_config.event, function (e) {
                 e = e || window.event;
-                if (e.keyCode != 13 && e.keyCode != 27 && e.keyCode != 38 && e.keyCode != 40){
+                if (e.keyCode != 13 && e.keyCode != 27 && e.keyCode != 38 && e.keyCode != 40) {
                     _exec.call(this);
                 }
-                else if (e.keyCode == 13 && _input.value.split(' ').join('') == ''){
+                else if (e.keyCode == 13 && _input.value.split(' ').join('') == '') {
                     onempty();
                 }
             });
 
-            _input.addEvent('blur', function(e) {
+            _input.addEvent('blur', function (e) {
                 if (_input.value.split(' ').join('') == '') {
                     onempty();
                 }
@@ -672,7 +681,7 @@
                 });
             }
 
-            Sinco.extend(window).addEvent('resize', function () {
+            Sinco.addEvent.call(window, 'resize', function () {
                 _enmarcarResultados();
             });
         }

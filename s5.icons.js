@@ -1201,7 +1201,7 @@
             _circle.attr('r', 10.059);
             _circle.style.fill = bgColor;
             _svg.appendChild(_circle);
-            
+
             _circle = ce('circle');
             _circle.attr('cx', 10.87933);
             _circle.attr('cy', 10.9104);
@@ -1263,16 +1263,16 @@
                 _path.attr('d', String.format(path, '-3.98375'));
                 _path.attr('transform', 'rotate(135 9.991591453552246,7.985882759094239)');
             }
-            else{
+            else {
                 _path.attr('d', String.format(path, '5.01624'));
                 _path.attr('transform', 'rotate(-45 9.991593360900874,16.98587608337402)');
             }
-            
+
             _svg.appendChild(_path);
 
             return Sinco.extend(_svg);
         },
-        Abrir: function(dim, bgColor) {
+        Abrir: function (dim, bgColor) {
             dim = dim || 20;
 
             var _svg = ce('svg');
