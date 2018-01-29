@@ -1890,6 +1890,85 @@
             _svg.appendChild(_path);
 
             return Sinco.extend(_svg);
+        },
+        Pintura: function (dim, bgColor) {
+            dim = dim || 30;
+
+            var _svg = ce('svg');
+            _svg.attr('width', dim);
+            _svg.attr('height', dim);
+
+            _svg.attr('viewBox', '0 0 30 30');
+
+            var _path = ce('path');
+
+            _path.attr('d', 'm7.09606,2.98252l2.46894,4.48774l-9.43999,9.45437l12.29918,11.95038l10.16579,-9.95865l3.63055,-0.76601l-17.13273,-17.15956l-1.99173,1.99173zm12.26974,13.94211l-13.71019,0l6.85547,-6.8551l6.85472,6.8551z');
+            _path.style.strokeWidth = 0;
+            _path.style.fill = bgColor || '#1B344C';
+            _svg.appendChild(_path);
+
+            _path = ce('path');
+
+            _path.attr('d', 'm26.22052,18.15035c0,0 -3.78018,4.11908 -3.78005,6.1748c0,2.05571 1.69247,3.72223 3.77999,3.72211c2.08808,0.00012 3.78055,-1.66633 3.78049,-3.72211c0.00006,-2.05571 -3.78043,-6.1748 -3.78043,-6.1748z');
+            _path.style.strokeWidth = 0;
+            _path.style.fill = bgColor || '#1B344C';
+            _svg.appendChild(_path);
+
+            return Sinco.extend(_svg);
+        },
+        MenuVertical: function (dim, bgColor) {
+            dim = dim || 10;
+            bgColor = bgColor || '#1B344C';
+
+            var _svg = ce('svg');
+            _svg.attr('width', (dim * 10) / 40);
+            _svg.attr('height', dim);
+
+            _svg.attr('viewBox', '0 0 10 40');
+
+            var _circle = ce('circle');
+            _circle.attr('cx', 5);
+            _circle.attr('cy', 20.0626);
+            _circle.attr('r', 4.5);
+            _circle.style.strokeWidth = 0;
+            _circle.style.fill = bgColor;
+            _svg.appendChild(_circle);
+
+            _circle = ce('circle');
+            _circle.attr('cx', 5);
+            _circle.attr('cy', 5.18751);
+            _circle.attr('r', 4.5);
+            _circle.style.strokeWidth = 0;
+            _circle.style.fill = bgColor;
+            _svg.appendChild(_circle);
+
+            _circle = ce('circle');
+            _circle.attr('cx', 5);
+            _circle.attr('cy', 34.93768);
+            _circle.attr('r', 4.5);
+            _circle.style.strokeWidth = 0;
+            _circle.style.fill = bgColor;
+            _svg.appendChild(_circle);
+
+            return Sinco.extend(_svg);
+        },
+        Microsoft: function (dim, bgColor) {
+            dim = dim || 20;
+
+            var _svg = ce('svg');
+            _svg.attr('width', dim);
+            _svg.attr('height', dim);
+
+            _svg.attr('viewBox', '0 0 20 20');
+
+            var _path = ce('path');
+
+            _path.attr('d', 'm0.3275,16.86768l7.80771,1.13085l0,-7.46999l-7.80771,0l0,6.33914zm0,-7.40623l7.80771,0l0,-7.47078l-7.80771,1.13085l0,6.33993zm8.8748,8.69177l10.47641,1.51738l0,-9.14206l-10.47641,0l0,7.62468zm0,-16.31763l0,7.62586l10.47641,0l0,-9.14245l-10.47641,1.51659z');
+            _path.style.strokeWidth = 0;
+            _path.style.fill = bgColor || '#1B344C';
+            _svg.appendChild(_path);
+
+            return Sinco.extend(_svg);
         }
     };
 

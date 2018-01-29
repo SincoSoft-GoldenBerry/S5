@@ -211,7 +211,6 @@
                         text: '',
                         props: {}
                     };
-                    _input.value = '';
                 }
             }
 
