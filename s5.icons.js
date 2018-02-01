@@ -1969,6 +1969,206 @@
             _svg.appendChild(_path);
 
             return Sinco.extend(_svg);
+        },
+        Office: function (dim, bgColor) {
+            dim = dim || 20;
+
+            var _svg = ce('svg');
+            _svg.attr('width', dim);
+            _svg.attr('height', dim);
+
+            _svg.attr('viewBox', '0 0 20 20');
+
+            var _path = ce('path');
+
+            _path.attr('d', 'm17.92682,2.02751l-5.52685,-1.69578c-0.0761,-0.02325 -0.15807,-0.0199 -0.2316,0.01047l-10.01742,4.07599c-0.13002,0.05264 -0.2152,0.17914 -0.2152,0.3198l0,10.8277c0,0.14404 0.0894,0.27289 0.22432,0.32349l10.01742,3.74945c0.03896,0.01451 0.07997,0.02193 0.12112,0.02193c0.02766,0 0.05533,-0.00339 0.08231,-0.01012l5.52685,-1.35643c0.15448,-0.03776 0.26312,-0.17606 0.26312,-0.33531l0,-15.60093c0,-0.15182 -0.09901,-0.28574 -0.24405,-0.33026l-0.00002,0zm-6.31909,14.46685l-7.39044,-1.1368l1.30883,-0.56101c0.12701,-0.0543 0.20933,-0.1791 0.20933,-0.31741l0,-9.39168l5.87228,-1.23632l0,12.64323l0,-0.00001z');
+            _path.style.strokeWidth = 0;
+            _path.style.fill = bgColor || '#1B344C';
+            _svg.appendChild(_path);
+
+            return Sinco.extend(_svg);
+        },
+        Advertisement: function (dim, bgColor) {
+            dim = dim || 26;
+
+            var _svg = ce('svg');
+            _svg.attr('width', dim);
+            _svg.attr('height', dim);
+
+            _svg.attr('viewBox', '0 0 26 26');
+
+            var _path = ce('path');
+
+            _path.attr('d', 'm11.42426,2.83592c0.87007,-1.40766 2.2828,-1.40431 3.15079,0l10.78509,17.44899c1.16153,1.87922 0.31544,3.40262 -1.8887,3.40262l-20.94356,0c-2.20463,0 -3.05399,-1.51734 -1.88871,-3.40262l10.78509,-17.44899zm1.57577,13.85161c0.55228,0 1,-0.45304 1,-0.99703l0,-6.00594c0,-0.55064 -0.44386,-0.99703 -1,-0.99703c-0.55228,0 -1,0.45304 -1,0.99703l0,6.00594c0,0.55064 0.44386,0.99703 1,0.99703zm0,4c0.55228,0 1,-0.44772 1,-1c0,-0.55228 -0.44772,-1 -1,-1c-0.55228,0 -1,0.44772 -1,1c0,0.55228 0.44772,1 1,1zm0,0');
+            _path.style.strokeWidth = 0;
+            _path.style.fill = bgColor || '#1B344C';
+            _svg.appendChild(_path);
+
+            return Sinco.extend(_svg);
+        },
+        Support: function (dim) {
+            var _svg = ce('svg');
+            _svg.attr('width', (dim * 339.1) / 596.4);
+            _svg.attr('height', dim);
+
+            _svg.attr('viewBox', '0 0 339.1 596.4');
+
+            var _poly = ce('polygon');
+            _poly.style.fill = '#0F3F6D';
+            _poly.attr('points', '90.3,508.9 49.5,543.4 138,583.2 138.5,529.5');
+            _svg.appendChild(_poly);
+
+            _poly = ce('polygon');
+            _poly.style.fill = '#376B9D';
+            _poly.attr('points', '85.9,507 139.6,460.1 139.6,407.2 42.2,488.2 45.9,540.4');
+            _svg.appendChild(_poly);
+
+            _poly = ce('polygon');
+            _poly.style.fill = '#245D94';
+            _poly.attr('points', '234.5,444.3 144.6,406 144.4,459.9 192.4,480.4');
+            _svg.appendChild(_poly);
+
+            _poly = ce('polygon');
+            _poly.style.fill = '#4C88B5';
+            _poly.attr('points', '143.4,528.2 142.9,583.3 142.9,583.3 142.9,583.3 239.8,496 238.3,447.7');
+            _svg.appendChild(_poly);
+
+            _poly = ce('polygon');
+            _poly.style.fill = '#0F3F6D';
+            _poly.attr('points', '90.3,445 49.5,479.6 138,519.4 138.5,465.7');
+            _svg.appendChild(_poly);
+
+            _poly = ce('polygon');
+            _poly.style.fill = '#376B9D';
+            _poly.attr('points', '85.9,443.1 139.6,396.2 139.6,343.3 42.2,424.4 45.9,476.5');
+            _svg.appendChild(_poly);
+
+            _poly = ce('polygon');
+            _poly.style.fill = '#245D94';
+            _poly.attr('points', '234.5,380.5 144.6,342.1 144.4,396 192.4,416.5');
+            _svg.appendChild(_poly);
+
+            _poly = ce('polygon');
+            _poly.style.fill = '#4C88B5';
+            _poly.attr('points', '143.4,464.3 142.9,519.4 142.9,519.4 142.9,519.4 239.8,432.1 238.3,383.8');
+            _svg.appendChild(_poly);
+
+            _poly = ce('polygon');
+            _poly.style.fill = '#0F3F6D';
+            _poly.attr('points', '90.3,379.2 49.5,413.8 138,453.6 138.5,399.9');
+            _svg.appendChild(_poly);
+
+            _poly = ce('polygon');
+            _poly.style.fill = '#376B9D';
+            _poly.attr('points', '85.9,377.3 139.6,330.4 139.6,277.5 42.2,358.6 45.9,410.7');
+            _svg.appendChild(_poly);
+
+            _poly = ce('polygon');
+            _poly.style.fill = '#245D94';
+            _poly.attr('points', '234.5,314.7 144.6,276.3 144.4,330.2 192.4,350.8');
+            _svg.appendChild(_poly);
+
+            _poly = ce('polygon');
+            _poly.style.fill = '#4C88B5';
+            _poly.attr('points', '143.4,398.5 142.9,453.6 142.9,453.6 142.9,453.6 239.8,366.4 238.3,318');
+            _svg.appendChild(_poly);
+
+            _poly = ce('polygon');
+            _poly.style.fill = '#0F3F6D';
+            _poly.attr('points', '90.3,309.6 49.5,344.1 138,383.9 138.5,330.2');
+            _svg.appendChild(_poly);
+
+            _poly = ce('polygon');
+            _poly.style.fill = '#376B9D';
+            _poly.attr('points', '85.9,307.7 139.6,260.8 139.6,207.9 42.2,288.9 45.9,341.1');
+            _svg.appendChild(_poly);
+
+            _poly = ce('polygon');
+            _poly.style.fill = '#245D94';
+            _poly.attr('points', '234.5,245 144.6,206.7 144.4,260.6 192.4,281.1');
+            _svg.appendChild(_poly);
+
+            _poly = ce('polygon');
+            _poly.style.fill = '#4C88B5';
+            _poly.attr('points', '143.4,328.9 142.9,384 142.9,384 142.9,384 239.8,296.7 238.3,248.4');
+            _svg.appendChild(_poly);
+
+            _poly = ce('polygon');
+            _poly.style.fill = '#0F3F6D';
+            _poly.attr('points', '90.3,239.9 49.5,274.5 138,314.3 138.5,260.6');
+            _svg.appendChild(_poly);
+
+            _poly = ce('polygon');
+            _poly.style.fill = '#376B9D';
+            _poly.attr('points', '85.9,238 139.6,191.1 139.6,138.2 42.2,219.3 45.9,271.4');
+            _svg.appendChild(_poly);
+
+            _poly = ce('polygon');
+            _poly.style.fill = '#245D94';
+            _poly.attr('points', '234.5,175.4 144.6,137 144.4,190.9 192.4,211.5');
+            _svg.appendChild(_poly);
+
+            _poly = ce('polygon');
+            _poly.style.fill = '#4C88B5';
+            _poly.attr('points', '143.4,259.2 142.9,314.3 142.9,314.3 142.9,314.3 239.8,227.1 238.3,178.7');
+            _svg.appendChild(_poly);
+
+            var _rect = ce('rect');
+            _rect.attr('x', 270.9);
+            _rect.attr('y', 79.3);
+            _rect.attr('width', 39);
+            _rect.attr('height', 39);
+            _rect.attr('transform', 'matrix(0.5186 0.855 -0.855 0.5186 224.2707 -200.798)');
+            _rect.style.stroke = null;
+            _rect.style.strokeWidth = 0;
+            _rect.style.fill = '#4C88B5';
+            _svg.appendChild(_rect);
+
+            _rect = ce('rect');
+            _rect.attr('x', 207.2);
+            _rect.attr('y', 23.3);
+            _rect.attr('width', 51.7);
+            _rect.attr('height', 51.7);
+            _rect.attr('transform', 'matrix(0.5186 0.855 -0.855 0.5186 154.2793 -175.6239)');
+            _rect.style.stroke = null;
+            _rect.style.strokeWidth = 0;
+            _rect.style.fill = '#376B9D';
+            _svg.appendChild(_rect);
+
+            _rect = ce('rect');
+            _rect.attr('x', 195.6);
+            _rect.attr('y', 93.1);
+            _rect.attr('width', 23.1);
+            _rect.attr('height', 23.1);
+            _rect.attr('transform', 'matrix(0.5186 0.855 -0.855 0.5186 189.1816 -126.7729)');
+            _rect.style.stroke = null;
+            _rect.style.strokeWidth = 0;
+            _rect.style.fill = '#0F3F6D';
+            _svg.appendChild(_rect);
+
+            _rect = ce('rect');
+            _rect.attr('x', 233.7);
+            _rect.attr('y', 107.4);
+            _rect.attr('width', 25.2);
+            _rect.attr('height', 25.2);
+            _rect.attr('transform', 'matrix(0.5186 0.855 -0.855 0.5186 221.1391 -152.7981)');
+            _rect.style.stroke = null;
+            _rect.style.strokeWidth = 0;
+            _rect.style.fill = '#245D94';
+            _svg.appendChild(_rect);
+
+            _rect = ce('rect');
+            _rect.attr('x', 202.5);
+            _rect.attr('y', 132.9);
+            _rect.attr('width', 14.9);
+            _rect.attr('height', 14.9);
+            _rect.attr('transform', 'matrix(0.5186 0.855 -0.855 0.5186 221.0282 -111.9778)');
+            _rect.style.stroke = null;
+            _rect.style.strokeWidth = 0;
+            _rect.style.fill = '#4C88B5';
+            _svg.appendChild(_rect);
+
+            return Sinco.extend(_svg);
         }
     };
 
