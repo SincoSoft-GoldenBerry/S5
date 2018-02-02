@@ -2,42 +2,6 @@
 /// <reference path="s5.icons.js" />
 
 (function(Sinco){
-    var hora = function () {
-        var a_p = '';
-        var d = new Date();
-        var curr_hour = d.getHours();
-        if (curr_hour < 12) {
-            a_p = 'am';
-        }
-        else {
-            a_p = 'pm';
-        }
-        if (curr_hour == 0) {
-            curr_hour = 12;
-        }
-        if (curr_hour > 12) {
-            curr_hour = curr_hour - 12;
-        }
-
-        var curr_min = d.getMinutes();
-
-        curr_min = curr_min + '';
-
-        if (curr_min.length == 1) {
-            curr_min = '0' + curr_min;
-        }
-
-        var curr_seg = d.getSeconds();
-
-        curr_seg = curr_seg + '';
-
-        if (curr_seg.length == 1) {
-            curr_seg = '0' + curr_seg;
-        }
-
-        return (curr_hour + ':' + curr_min + ':' + curr_seg + ' ' + a_p);
-    }
-
     var arreglo = new Array();
 
     var exec = function () {
@@ -51,7 +15,7 @@
                 actual.remover();
                 arreglo.splice(arreglo.indexOf(actual), 1);
                 if (arreglo.length > 0 && arreglo[0].loader){
-                    arreglo[0].loader.classList.add('hide');
+                    arreglo[0].loader.classList.add('s5-notification-hide');
                 }
                 else{
                     delete window['running'];
@@ -70,7 +34,7 @@
             this.objeto.remover();
             arreglo.splice(arreglo.indexOf(this.objeto), 1);
             if (arreglo.length > 0 && arreglo[0].loader){
-                arreglo[0].loader.classList.add('hide');
+                arreglo[0].loader.classList.add('s5-notification-hide');
             }
             else{
                 delete window['running'];
@@ -81,7 +45,7 @@
             this.objeto.remover();
     }
 
-    var agregarEstilos = function(){
+    var agregarEstilos = function(target){
         if (!Sinco.get('s5-notification-styles')){
             var estilos = Sinco.createElem('style', { 'type': 'text/css', 'id': 's5-notification-styles' });
             estilos.innerHTML = ' \
@@ -108,7 +72,7 @@
                     \
                     .s5-notification-container.bottom-right { \
                         right: 5px; \
-                        left: 5px; \
+                        bottom: 5px; \
                         -ms-flex-align: end; \
                         align-items: flex-end; \
                     } \
@@ -127,7 +91,7 @@
                         margin: 0 auto; \
                     } \
                     \
-                    .s5-notification-container.top-center { \
+                    .s5-notification-container.bottom-center { \
                         bottom: 5px; \
                         left: 0; \
                         right: 0; \
@@ -199,15 +163,15 @@
                         background-color: #e23e3e; \
                     } \
                     \
-                    .s5-notification-container .s5-notification.advertencia > div { \
+                    .s5-notification-container .s5-notification.warning > div { \
                         background-color: #ffaf34; \
                     } \
                     \
-                    .s5-notification-container .s5-notification.correcto > div { \
+                    .s5-notification-container .s5-notification.success > div { \
                         background-color: #70bb46; \
                     } \
                     \
-                    .s5-notification-container .s5-notification.primario > div { \
+                    .s5-notification-container .s5-notification.info > div { \
                         background-color: #67a7cc; \
                     } \
                 \
@@ -273,9 +237,12 @@
                     height: 5px; \
                     bottom: 0; \
                     width: 100%; \
+                    -moz-border-radius: 3px; \
+                    -webkit-border-radius: 3px; \
+                    border-radius: 3px; \
                 } \
                 \
-                    .s5-notification-container .s5-notification .s5-notification-loader.hide { \
+                    .s5-notification-container .s5-notification .s5-notification-loader.s5-notification-hide { \
                         width: 0%; \
                     } \
                     \
@@ -283,15 +250,15 @@
                         background-color: #c30000; \
                     } \
                     \
-                    .s5-notification-container .s5-notification.advertencia > div .s5-notification-loader { \
+                    .s5-notification-container .s5-notification.warning > div .s5-notification-loader { \
                         background-color: #d27115; \
                     } \
                     \
-                    .s5-notification-container .s5-notification.correcto > div .s5-notification-loader { \
+                    .s5-notification-container .s5-notification.success > div .s5-notification-loader { \
                         background-color: #5c9040; \
                     } \
                     \
-                    .s5-notification-container .s5-notification.primario > div .s5-notification-loader { \
+                    .s5-notification-container .s5-notification.info > div .s5-notification-loader { \
                         background-color: #23719e; \
                     } \
             ';
@@ -302,7 +269,7 @@
         }
         else{
             contenedorNotificaciones = Sinco.createElem('section', { id: 's5-notification-container', class: 's5-notification-container' });
-            document.body.appendChild(contenedorNotificaciones);
+            target.appendChild(contenedorNotificaciones);
         }
         contenedorNotificaciones.indices = contenedorNotificaciones.indices || 16777271;
     }
@@ -310,10 +277,8 @@
     var contenedorNotificaciones;
 
     var notificar = function (opciones) {
-        agregarEstilos();
-
         var config = {
-            type: 'primario',
+            type: 'info',
             message: '!!Info',
             timeOut: null,
             title: '',
@@ -323,10 +288,13 @@
             showLoader: false,
             width: 300,
             queue: true,
-            position: 'top-right'
+            position: 'top-right',
+            target: document.body
         }
 
         Sinco.extend(config, opciones);
+
+        agregarEstilos(config.target);
 
         if ((window['s5-not-w'] || 0) - 10 < config.width){
             window['s5-not-w'] = config.width + 10;
@@ -390,16 +358,16 @@
         if (!!config.showIcon){
             var contenedorIcono = Sinco.createElem('div', { class: 's5-notification-icon' });
             switch(config.type){
-                case 'primario':
+                case 'info':
                     contenedorIcono.insert(Sinco.iconos.Info(25, '#23719e'));
                     break;
                 case 'error':
                     contenedorIcono.insert(Sinco.iconos.Warning(25, '#c30000'));
                     break;
-                case 'advertencia':
+                case 'warning':
                     contenedorIcono.insert(Sinco.iconos.Advertisement(25, '#d27115'));
                     break;
-                case 'correcto':
+                case 'success':
                     contenedorIcono.insert(Sinco.iconos.Ok(22, '#5c9040'));
                     break;
             }
@@ -465,10 +433,10 @@
                 if (loader){
                     if (!!objeto.queue && !window['running']){
                         window['running'] = true;
-                        loader.classList.add('hide');
+                        loader.classList.add('s5-notification-hide');
                     }
                     else if (!objeto.queue){
-                        loader.classList.add('hide');
+                        loader.classList.add('s5-notification-hide');
                     }
                 }
                 contenedorNotificaciones.styles('max-width', window['s5-not-w'] + 'px');
