@@ -404,7 +404,7 @@
                     if (_config.event == 'keydown') {
                         _navigate.call(_input);
                     }
-                    if (!!_config.selectFirst)
+                    if (!!_config.selectFirst || _datos.length == 1)
                         _ubicar(0);
                 }
 
