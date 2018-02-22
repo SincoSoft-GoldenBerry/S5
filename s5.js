@@ -182,81 +182,104 @@
             return a;
         }
     }
-}
 
-if (!Array.prototype.findIndex) {
-    Object.defineProperty(Array.prototype, 'findIndex', {
-        value: function (predicate) {
-            if (this == null) {
-                throw new TypeError('"this" is null or not defined');
-            }
-
-            var o = Object(this);
-
-            var len = o.length >>> 0;
-
-            if (typeof predicate !== 'function') {
-                throw new TypeError('predicate must be a function');
-            }
-
-            var thisArg = arguments[1];
-
-            var k = 0;
-
-            while (k < len) {
-                var kValue = o[k];
-                if (predicate.call(thisArg, kValue, k, o)) {
-                    return k;
+    if (!Array.prototype.findIndex) {
+        Object.defineProperty(Array.prototype, 'findIndex', {
+            value: function (predicate) {
+                if (this == null) {
+                    throw new TypeError('"this" is null or not defined');
                 }
-                k++;
-            }
-
-            return -1;
-        }
-    });
-}
-
-if (!Array.prototype.reduce) {
-    Object.defineProperty(Array.prototype, 'reduce', {
-        value: function (callback) {
-            if (this === null) {
-                throw new TypeError('Array.prototype.reduce ' +
-                  'called on null or undefined');
-            }
-            if (typeof callback !== 'function') {
-                throw new TypeError(callback +
-                  ' is not a function');
-            }
-
-            var o = Object(this);
-            var len = o.length >>> 0;
-
-            var k = 0;
-            var value;
-
-            if (arguments.length >= 2) {
-                value = arguments[1];
-            } else {
-                while (k < len && !(k in o)) {
+    
+                var o = Object(this);
+    
+                var len = o.length >>> 0;
+    
+                if (typeof predicate !== 'function') {
+                    throw new TypeError('predicate must be a function');
+                }
+    
+                var thisArg = arguments[1];
+    
+                var k = 0;
+    
+                while (k < len) {
+                    var kValue = o[k];
+                    if (predicate.call(thisArg, kValue, k, o)) {
+                        return k;
+                    }
                     k++;
                 }
-
-                if (k >= len) {
-                    throw new TypeError('Reduce of empty array ' +
-                      'with no initial value');
-                }
-                value = o[k++];
+    
+                return -1;
             }
-
-            while (k < len) {
-                if (k in o) {
-                    value = callback(value, o[k], k, o);
+        });
+    }
+    
+    if (!Array.prototype.reduce) {
+        Object.defineProperty(Array.prototype, 'reduce', {
+            value: function (callback) {
+                if (this === null) {
+                    throw new TypeError('Array.prototype.reduce ' +
+                      'called on null or undefined');
                 }
-
-                k++;
+                if (typeof callback !== 'function') {
+                    throw new TypeError(callback +
+                      ' is not a function');
+                }
+    
+                var o = Object(this);
+                var len = o.length >>> 0;
+    
+                var k = 0;
+                var value;
+    
+                if (arguments.length >= 2) {
+                    value = arguments[1];
+                } else {
+                    while (k < len && !(k in o)) {
+                        k++;
+                    }
+    
+                    if (k >= len) {
+                        throw new TypeError('Reduce of empty array ' +
+                          'with no initial value');
+                    }
+                    value = o[k++];
+                }
+    
+                while (k < len) {
+                    if (k in o) {
+                        value = callback(value, o[k], k, o);
+                    }
+    
+                    k++;
+                }
+    
+                return value;
             }
+        });
+    }
 
-            return value;
+    var __lists = Object.getOwnPropertyNames(window).filter(function (x) { return x.endsWith('List') || x.indexOf('Array') >= 0; });
+
+    __lists.forEach(function(n) {
+        var __type = window[n];
+        __type.prototype.stream = function () {
+            if (this === void 0 || this === null || !(this instanceof __type))
+                throw new TypeError();
+
+            var Iterator = function (array) {
+                this.value = null;
+                this.index = -1;
+    
+                this.next = function () {
+                    this.index++;
+                    this.value = array[this.index];
+                    return this.index < array.length;
+                }
+            }
+    
+            return new Iterator(this);
         }
     });
 }

@@ -1,6 +1,6 @@
 {
-  "name": "s5",
-  "version": "1.0.11",
+  "name": "s5-js",
+  "version": "1.0.12",
   "description": "¡El mejor framework Javascript, basado en Vanilla Js!",
   "main": "s5.js",
   "scripts": {
@@ -17,6 +17,10 @@
     "s5",
     "autocomplete",
     "icons",
+    "switch",
+    "components",
+    "web",
+    "client",
     "Sinco",
     "SincoSoft"
   ],
@@ -25,5 +29,18 @@
   "bugs": {
     "url": "https://github.com/SincoSoft-GoldenBerry/S5/issues"
   },
-  "homepage": "https://github.com/SincoSoft-GoldenBerry/S5#readme"
+  "homepage": "http://sincoerp.com/S5/",
+  "dependencies": {},
+  "files": [
+    "aes.js",
+    "s5.autocomplete.js",
+    "s5.dragdrop.js",
+    "s5.icons.js",
+    "s5.indicator.js",
+    "s5.js",
+    "s5.notifications.js",
+    "s5.progress.circular.js",
+    "s5.switch.js",
+    "s5.tour.js"
+  ]
 }
