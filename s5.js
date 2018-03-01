@@ -1,9 +1,9 @@
 /**
- * @license S5.js v1.0
- * (c) 2015-2016 Sincosoft, Inc. http://sinco.com.co
+ * @license S5.js v1.0.13
+ * (c) 2015-2018 Sincosoft, Inc. http://sinco.com.co
  * 
  * Creation date: 21/07/2015
- * Last change: 16/05/2016
+ * Last change: 01/03/2018
  *
  * by GoldenBerry
  *
@@ -259,6 +259,33 @@
             }
         });
     }
+
+    Array.prototype.contains = function(searchElement /*, fromIndex*/ ) {
+        'use strict';
+        var O = Object(this);
+        var len = parseInt(O.length) || 0;
+        if (len === 0) {
+            return false;
+        }
+        var n = parseInt(arguments[1]) || 0;
+        var k;
+        if (n >= 0) {
+            k = n;
+        } else {
+            k = len + n;
+            if (k < 0) {k = 0;}
+        }
+        var currentElement;
+        while (k < len) {
+            currentElement = O[k];
+            if (searchElement === currentElement ||
+                (searchElement !== searchElement && currentElement !== currentElement)) {
+                return true;
+            }
+            k++;
+        }
+        return false;
+    };
 
     var __lists = Object.getOwnPropertyNames(window).filter(function (x) { return x.endsWith('List') || x.indexOf('Array') >= 0; });
 
@@ -748,11 +775,19 @@ var Sinco = (function (exports) {
 
     var extend = function (el, opt) {
         if (!el) return null;
-        opt = opt || this;
-        for (var n in opt) {
-            el[n] = opt[n];
+        opt = opt || __htmlElementsProps;
+
+        var extendProps = function (el, opt) {
+            for (var n in opt) {
+                if (el[n] !== null && typeof el[n] == 'object' && !(el[n] instanceof Array))
+                    extendProps(el[n], opt[n]);
+                else
+                    el[n] = opt[n];
+            }
+            return el;
         }
 
+        el = extendProps(el, opt);
         el.listeners = el.listeners || {};
         return el;
     }
@@ -875,6 +910,18 @@ var Sinco = (function (exports) {
         return this;
     }
 
+    var __htmlElementsProps = {
+        get: get,
+        attribute: attribute,
+        insert: insert,
+        addEvent: addEvent,
+        removeEvent: removeEvent,
+        styles: styles,
+        on: on,
+        off: off,
+        'delete': _delete
+    };
+
     var encrypt = function (txt) {
         if (typeof txt === 'String')
             return txt.toAESEncrypt();
@@ -950,17 +997,60 @@ var Sinco = (function (exports) {
         });
     }
 
-    var Request = function (method, url, functions, data, contentType, includeAccept) {
-        includeAccept = typeof includeAccept == 'boolean' ? includeAccept : true;
-        functions = functions || {};
-        functions.Ok = functions.Ok || function () { };
-        functions.BadRequest = functions.BadRequest || function () { };
-        functions.Unauthorized = functions.Unauthorized || function () { };
-        functions.NotFound = functions.NotFound || function () { };
-        functions.InternalServerError = functions.InternalServerError || function () { };
-        functions.GatewayTimeout = functions.GatewayTimeout || function () { };
+    var Request = function (method, url, fn, data, contentType, includeAccept) {
+        var f = function () {};
+        var alerta;
 
-        var types = { JSON: 'application/json; charset=utf-8', XML: 'application/xml; charset=utf-8', TEXT: 'text/plain; charset=utf-8', DEFAULT: 'application/x-www-form-urlencoded' };
+        includeAccept = typeof includeAccept == 'boolean' ? includeAccept : true;
+        fn = fn || {};
+
+        var functions = {};
+        functions['200'] =  fn.Ok || f;
+        functions['201'] =  fn.Created || f;
+        functions['204'] =  fn.NoContent || f;
+        functions['302'] =  fn.Moved || f;
+        functions['400'] =  fn.BadRequest || f;
+        functions['401'] =  fn.Unauthorized || f;
+        functions['404'] =  fn.NotFound || f;
+        functions['500'] = 
+        functions['0'] =    fn.InternalServerError || f;
+        functions['504'] =  fn.GatewayTimeout || f;
+        functions['408'] =  function () { alert('No se puede establecer comunicación con el servidor'); };
+        functions['409'] =  function () {
+            alert('Se cerrará esta sesión porque el usuario ha ingresado en otro dispositivo');
+            window.location.href = 'login.aspx';
+        };
+        functions['412'] =  function () {
+            console.log('Posiblemente la sesión no se comparte entre el marco y el módulo');
+            if (!alerta) {
+                alerta = true;
+                alert('No existe Sesión');
+            }
+            window.location.href = 'login.aspx';
+        };
+
+        var types = {
+            JSON: 'application/json; charset=utf-8',
+            XML: 'application/xml; charset=utf-8',
+            TEXT: 'text/plain; charset=utf-8',
+            DEFAULT: 'application/x-www-form-urlencoded'
+        };
+
+        var _exec = function (fn, text, viewContent) {
+            if (viewContent) {
+                switch (contentType.toUpperCase()) {
+                    case 'JSON':
+                    case 'DEFAULT':
+                        text = JSON.tryParse(text);
+                        break;
+                    case 'XML':
+                        text = parseXml(text);
+                        break;
+                }
+            }
+
+            fn(text);
+        };
 
         contentType = contentType || 'json';
 
@@ -971,80 +1061,19 @@ var Sinco = (function (exports) {
         }
 
         http.setRequestHeader('Content-type', types.hasOwnProperty(contentType.toUpperCase()) ? types[contentType.toUpperCase()] : contentType);
-        var alerta;
+
+        var header = Request.headersConfig.find(function (header) {
+            return url.toLowerCase().startsWith(header.url.toLowerCase());
+        });
+
+        if (header != undefined) {
+            http.setRequestHeader(header.type, header.value);
+        }
+
+        var __switch = [200, 201];
         http.onreadystatechange = function () {
             if (http.readyState == 4) {
-                switch (http.status) {
-                    case 200:
-                        switch (contentType.toUpperCase()) {
-                            case 'TEXT':
-                                functions.Ok(http.responseText);
-                                break;
-                            case 'JSON':
-                                functions.Ok(JSON.tryParse(http.responseText));
-                                break;
-                            case 'DEFAULT':
-                                functions.Ok(JSON.tryParse(http.responseText));
-                                break;
-                            case 'XML':
-                                functions.Ok(parseXml(http.responseText));
-                                break;
-                        }
-                        break;
-                    case 201:
-                        switch (contentType.toUpperCase()) {
-                            case 'TEXT':
-                                functions.Created(http.responseText);
-                                break;
-                            case 'JSON':
-                                functions.Created(JSON.tryParse(http.responseText));
-                                break;
-                            case 'DEFAULT':
-                                functions.Created(JSON.tryParse(http.responseText));
-                                break;
-                            case 'XML':
-                                functions.Created(parseXml(http.responseText));
-                                break;
-                        }
-                        break;
-                    case 204:
-                        functions.NoContent(http.responseText);
-                        break;
-                    case 302:
-                        functions.Moved(http.responseText);
-                        break;
-                    case 400:
-                        functions.BadRequest(http.responseText);
-                        break;
-                    case 401:
-                        functions.Unauthorized(http.responseText);
-                        break;
-                    case 404:
-                        functions.NotFound(http.responseText);
-                        break;
-                    case 408:
-                        alert('No se puede establecer comunicación con el servidor');
-                        break;
-                    case 409:
-                        alert('Se cerrará esta sesión porque el usuario ha ingresado en otro dispositivo');
-                        window.location.href = 'login.aspx';
-                        break;
-                    case 412:
-                        console.log('Posiblemente la sesión no se comparte entre el marco y el módulo');
-                        if (!alerta) {
-                            alerta = true;
-                            alert('No existe Sesión');
-                        }
-                        window.location.href = 'login.aspx';
-                        break;
-                    case 500:
-                    case 0:
-                        functions.InternalServerError(http.responseText);
-                        break;
-                    case 504:
-                        functions.GatewayTimeout(http.responseText);
-                        break;
-                }
+                _exec( functions[http.status], http.responseText, __switch.contains(http.status) );
             }
         };
         if (data) {
@@ -1079,6 +1108,7 @@ var Sinco = (function (exports) {
 
         return http;
     }
+    Request.headersConfig = Request.headersConfig || [];
 
     var script = function () {
 
@@ -1467,16 +1497,8 @@ var Sinco = (function (exports) {
     return {
         extend: extend,
         get: get,
-        on: on,
-        off: off,
-        dispatch: dispatch,
         createElem: createElem,
-        attribute: attribute,
-        insert: insert,
         'delete': _delete,
-        styles: styles,
-        addEvent: addEvent,
-        removeEvent: removeEvent,
         utilities:
         {
             encrypt: encrypt,
@@ -1496,6 +1518,7 @@ var Sinco = (function (exports) {
         fileToBase64: fileToBase64,
         watch: watch,
         model: model,
-        interpolate: interpolate
+        interpolate: interpolate,
+        addEvent: addEvent
     };
 })(window);
