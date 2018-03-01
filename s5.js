@@ -1,5 +1,5 @@
 /**
- * @license S5.js v1.0.13
+ * @license S5.js v1.0.14
  * (c) 2015-2018 Sincosoft, Inc. http://sinco.com.co
  * 
  * Creation date: 21/07/2015
@@ -1108,7 +1108,14 @@ var Sinco = (function (exports) {
 
         return http;
     }
-    Request.headersConfig = Request.headersConfig || [];
+    Object.defineProperty(Request, 'headersConfig', {
+        value: [],
+        enumerable: false,
+        configurable: false
+    });
+    Request.setHeader = function (url, type, value) {
+        Request.headersConfig.push({ url: url, type: type, value: value });
+    };
 
     var script = function () {
 
