@@ -14,7 +14,9 @@
             textOff: 'No',
             size: 'normal',
             onColor: 'primary', //primary,info,success,warning,default
-            offColor: 'default' //primary,info,success,warning,default
+            offColor: 'default', //primary,info,success,warning,default
+            onchange: function () { },
+            isChecked: function () { }
         };
 
         if (element)
@@ -27,6 +29,7 @@
         _isDisabled = _input.disabled;
         _parent = Sinco.extend(_input.parentNode);
         _options = Sinco.extend(_options, options || {});
+        _options.isChecked = function () { return _isChecked; };
 
         var agregarEstilos = function() {
             if (!Sinco.get('s5-switch-styles')){
@@ -82,7 +85,7 @@
                         } \
                         \
                         .s5-switch.normal .s5-switch-inner-container { \
-                            height: 23px; \
+                            height: 25px; \
                             width: 90px; \
                         } \
                         \
@@ -147,7 +150,7 @@
                         display: flex; \
                         align-items: center; \
                         justify-content: center; \
-                        padding: 5px; \
+                        /*padding: 5px;*/ \
                     } \
                     \
                     .s5-switch.small .s5-switch-on-off, \
@@ -240,6 +243,7 @@
                     _isChecked = !_isChecked;
                     cambiarOnOff();
                     _input.checked = _isChecked;
+                    _options.onchange();
                 }
             });
         }

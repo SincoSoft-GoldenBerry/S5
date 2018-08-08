@@ -286,29 +286,6 @@
         }
         return false;
     };
-
-    var __lists = Object.getOwnPropertyNames(window).filter(function (x) { return x.endsWith('List') || x.indexOf('Array') >= 0; });
-
-    __lists.forEach(function(n) {
-        var __type = window[n];
-        __type.prototype.stream = function () {
-            if (this === void 0 || this === null || !(this instanceof __type))
-                throw new TypeError();
-
-            var Iterator = function (array) {
-                this.value = null;
-                this.index = -1;
-    
-                this.next = function () {
-                    this.index++;
-                    this.value = array[this.index];
-                    return this.index < array.length;
-                }
-            }
-    
-            return new Iterator(this);
-        }
-    });
 }
 
 //Opciones de String
@@ -426,6 +403,29 @@
         return iterar(valorIterar, text, key, iv).toString() + valorIterar;
     };
 }
+
+var __lists = Object.getOwnPropertyNames(window).filter(function (x) { return x.endsWith('List') || x.indexOf('Array') >= 0; });
+
+__lists.forEach(function(n) {
+	var __type = window[n];
+	__type.prototype.stream = function () {
+		if (this === void 0 || this === null || !(this instanceof __type))
+			throw new TypeError();
+
+		var Iterator = function (array) {
+			this.value = null;
+			this.index = -1;
+
+			this.next = function () {
+				this.index++;
+				this.value = array[this.index];
+				return this.index < array.length;
+			}
+		}
+
+		return new Iterator(this);
+	}
+});
 
 //Opciones de JSON
 {
@@ -779,7 +779,7 @@ var Sinco = (function (exports) {
 
         var extendProps = function (el, opt) {
             for (var n in opt) {
-                if (el[n] !== null && typeof el[n] == 'object' && !(el[n] instanceof Array))
+                if (el[n] !== null && typeof el[n] == 'object' && !(el[n] instanceof Array) && !(el[n] instanceof HTMLElement))
                     extendProps(el[n], opt[n]);
                 else
                     el[n] = opt[n];
@@ -919,6 +919,7 @@ var Sinco = (function (exports) {
         styles: styles,
         on: on,
         off: off,
+        dispatch: dispatch,
         'delete': _delete
     };
 
@@ -1009,6 +1010,7 @@ var Sinco = (function (exports) {
         functions['201'] =  fn.Created || f;
         functions['204'] =  fn.NoContent || f;
         functions['302'] =  fn.Moved || f;
+        functions['300'] =  fn.MultipleChoices || f;
         functions['400'] =  fn.BadRequest || f;
         functions['401'] =  fn.Unauthorized || f;
         functions['404'] =  fn.NotFound || f;
@@ -1062,15 +1064,17 @@ var Sinco = (function (exports) {
 
         http.setRequestHeader('Content-type', types.hasOwnProperty(contentType.toUpperCase()) ? types[contentType.toUpperCase()] : contentType);
 
-        var header = Request.headersConfig.find(function (header) {
+        var headers = Request.headersConfig.filter(function (header) {
             return url.toLowerCase().startsWith(header.url.toLowerCase());
         });
 
-        if (header != undefined) {
-            http.setRequestHeader(header.type, header.value);
+        if (headers.length > 0) {
+            headers.forEach(function (header) {
+                http.setRequestHeader(header.type, header.value);
+            });
         }
 
-        var __switch = [200, 201];
+        var __switch = [200, 201, 300];
         http.onreadystatechange = function () {
             if (http.readyState == 4) {
                 _exec( functions[http.status], http.responseText, __switch.contains(http.status) );
@@ -1526,6 +1530,7 @@ var Sinco = (function (exports) {
         watch: watch,
         model: model,
         interpolate: interpolate,
-        addEvent: addEvent
+        addEvent: addEvent,
+        removeEvent: removeEvent
     };
 })(window);

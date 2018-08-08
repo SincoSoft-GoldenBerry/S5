@@ -54,6 +54,7 @@
                     overflow: hidden; \
                     display: flex; \
                     flex-flow: column nowrap; \
+                    z-index: 16777271; \
                 } \
                 \
                     .s5-notification-container.top-right { \
@@ -429,7 +430,7 @@
 
             if (_height === 5) {
                 contenedorCerrar.style.visibility = 'visible';
-                contenedorNotificaciones.dispatch('view-end');
+                //contenedorNotificaciones.dispatch('view-end');
                 if (loader){
                     if (!!objeto.queue && !window['running']){
                         window['running'] = true;

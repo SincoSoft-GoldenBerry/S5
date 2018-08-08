@@ -17,7 +17,8 @@
                 _indexSelected = -1,
                 _datos = [],
                 _http,
-                _encontrado;
+                _encontrado,
+                _app = window['aplicacion'] || (window.location.hostname + '_' + window.location.pathname.split('/')[1] + '?').toLowerCase();
 
             window['autocompletes'] = (window['autocompletes'] || 16777272) - 1;
 
@@ -65,26 +66,32 @@
 
             this.setSelectedValue = function (value, itemDatos) {
                 if (value != null && typeof value != 'undefined') {
-                    value = value.toString().toLowerCase();
-                    var indice = -1;
-                    var b;
-                    var item = (itemDatos || _datos).find(function (o, i) {
-                        b = o[_config.value].toString().toLowerCase() == value;
-                        if (b) {
-                            indice = i;
-                        }
-                        return b;
-                    });
-                    if (!item) {
-                        item = _datos[0];
-                        indice = 0;
+                    if (!_config.dataSource) {
+                        _input.value = value;
+                        _exec.call(_input, true);
                     }
+                    else {
+                        value = value.toString().toLowerCase();
+                        var indice = -1;
+                        var b;
+                        var item = (itemDatos || _datos).find(function (o, i) {
+                            b = o[_config.value].toString().toLowerCase() == value;
+                            if (b) {
+                                indice = i;
+                            }
+                            return b;
+                        });
+                        if (!item) {
+                            item = _datos[0];
+                            indice = 0;
+                        }
 
-                    _selectItem(item);
-                    _indexSelected = indice;
-                    _input.value = item[_config.text];
-                    //_exec.call(_input);
-                    _ocultarItems();
+                        _selectItem(item);
+                        _indexSelected = indice;
+                        _input.value = item[_config.text];
+                        //_exec.call(_input);
+                        _ocultarItems();
+                    }
                 }
                 else {
                     _exec.call(_input);
@@ -123,6 +130,7 @@
             this.setServiceUrl = function (url) {
                 _config.service._url = url;
                 _config.service.url = url;
+                _setHeaderRequest(url);
             }
 
             this.restart = function () {
@@ -242,11 +250,13 @@
                 }
             }
 
-            var _exec = function () {
+            var _exec = function (selectFirst) {
                 var texto = this.value;
 
                 var funciones = {
-                    Ok: _mostrarOpciones
+                    Ok: function(d){
+                        _mostrarOpciones(d, selectFirst);
+                    }
                 }
 
                 if (texto.split(' ').join('') === '')
@@ -324,7 +334,7 @@
                 });
             }
 
-            var _mostrarOpciones = function (data) {
+            var _mostrarOpciones = function (data, selectFirst) {
                 if (!data) {
                     data = { length: 0 };
                 }
@@ -404,7 +414,9 @@
                     if (_config.event == 'keydown') {
                         _navigate.call(_input);
                     }
-                    if (!!_config.selectFirst || _datos.length == 1)
+                    if (!!selectFirst)
+                        _clickItem.call({ dataInfo: _datos[0] });
+                    else if (!!_config.selectFirst || _datos.length == 1)
                         _ubicar(0);
                 }
 
@@ -430,6 +442,10 @@
                     }
                 }
             }
+
+            var _setHeaderRequest = function (url) {
+                Sinco.Request.setHeader(url.split('[').shift(), 'Authorization', localStorage.getItem(_app + '_token'));
+            }
         }
 
         //Inicializaciones/validaciones
@@ -445,6 +461,10 @@
 
             if (!_config.service.url && !_config.dataSource)
                 throw new SincoInitializationError('¡Autocomplete requiere una url o un datasource para ejecutar la consulta de los datos!');
+
+            if (localStorage.getItem(_app + '_token') && _config.service.url) {
+                _setHeaderRequest(_config.service.url);
+            }
         }
 
         //Elementos HTML
