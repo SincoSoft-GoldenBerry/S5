@@ -48,7 +48,8 @@
                     method: 'GET',
                     url: ''
                 },
-                onselected: function () { }
+                onselected: function () { },
+                onresponse: undefined
             };
 
             var selected = {
@@ -265,9 +266,9 @@
                 if (!!_config.dataSource) {
                     _mostrarOpciones(
                         texto == '_' ? _config.dataSource :
-                            _config.dataSource.filter(function (o) {
-                                return o[_config.text].toLowerCase().indexOf(texto.toLowerCase()) >= 0 || o[_config.value].toString().indexOf(texto) >= 0;
-                            })
+                        _config.dataSource.filter(function (o) {
+                            return o[_config.text].toLowerCase().indexOf(texto.toLowerCase()) >= 0 || o[_config.value].toString().indexOf(texto) >= 0;
+                        })
                     );
                 }
                 else {
@@ -327,14 +328,24 @@
 
             var _ordenarDatos = function (data) {
                 var by = _config.orderby || _config.text;
+
                 _datos = data.sort(function (a, b) {
-                    if (a[by].toLowerCase() < b[by].toLowerCase()) return -1;
-                    if (a[by].toLowerCase() > b[by].toLowerCase()) return 1;
+
+                    var compare_A = (a[by].toLowerCase) ? a[by].toLowerCase() : a[by];
+                    var compare_B = (b[by].toLowerCase) ? b[by].toLowerCase() : b[by];
+
+                    if (compare_A < compare_B) return -1;
+                    if (compare_A > compare_B) return 1;
                     return 0;
                 });
             }
 
             var _mostrarOpciones = function (data, selectFirst) {
+
+                if (_config.onresponse != undefined) {
+                    data = _config.onresponse(data);
+                }
+
                 if (!data) {
                     data = { length: 0 };
                 }
@@ -395,8 +406,17 @@
                             var detail;
 
                             _config.extended.details.forEach(function (itemdetail) {
+
+                                var infodet = o;
+
+                                if (/\./.test(itemdetail)) {
+                                    var path = itemdetail.split('.');                                    
+                                    infodet = (!!infodet[path[1]]) ? infodet : JSON.parse(infodet[path[0]]);
+                                    itemdetail = path[1];
+                                }
+
                                 detail = Sinco.createElem('div');
-                                detail.innerHTML = o[itemdetail];
+                                detail.innerHTML = infodet[itemdetail];
                                 section.insert(detail);
                             });
 
@@ -484,6 +504,8 @@
 
                 _input.styles('-ms-flex', '1 1 auto');
                 _input.styles('flex', '1 1 auto');
+                _input.attribute('autocomplete', 'off');
+                
                 if (_config.icon !== '')
                     _input.styles('padding-left', '47px');
 
@@ -491,11 +513,11 @@
 
                 _config.dimensions = {
                     width: _input.offsetWidth,
-                    height: _input.offsetHeight,
-                    left: parseInt(style.marginLeft == 'auto' ? '0' : style.marginLeft.split('px').join('')),
-                    top: parseInt(style.marginTop == 'auto' ? '0' : style.marginTop.split('px').join('')),
-                    right: parseInt(style.marginRight == 'auto' ? '0' : style.marginRight.split('px').join('')),
-                    bottom: parseInt(style.marginBottom == 'auto' ? '0' : style.marginBottom.split('px').join(''))
+                    height: _input.offsetHeight || 20,
+                    left: parseInt(style.marginLeft == 'auto' ? '0' : style.marginLeft.split('px').join('')) || 0,
+                    top: parseInt(style.marginTop == 'auto' ? '0' : style.marginTop.split('px').join('')) || 0,
+                    right: parseInt(style.marginRight == 'auto' ? '0' : style.marginRight.split('px').join('')) || 0,
+                    bottom: parseInt(style.marginBottom == 'auto' ? '0' : style.marginBottom.split('px').join('')) || 0
                 };
 
                 if (!!_config.icon) {
@@ -553,7 +575,7 @@
 
                 _stylesArray.push('#autocomplete-results-' + _config.id + ' {');
                 _stylesArray.push('    position: absolute;');
-                _stylesArray.push('    top: ' + (_config.dimensions.height + _config.dimensions.top - 5) + 'px;');
+                _stylesArray.push('    top: ' + (_config.dimensions.height + _config.dimensions.top - 1) + 'px;');
                 _stylesArray.push('    border-width: 0 1px 1px 1px;');
                 _stylesArray.push('    border-style: solid;');
                 _stylesArray.push('    border-color: silver;');

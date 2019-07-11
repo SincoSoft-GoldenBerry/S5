@@ -1,9 +1,9 @@
 /**
- * @license S5.js v1.0.14
+ * @license S5.js v1.0.2
  * (c) 2015-2018 Sincosoft, Inc. http://sinco.com.co
  * 
  * Creation date: 21/07/2015
- * Last change: 01/03/2018
+ * Last change: 07/03/2019
  *
  * by GoldenBerry
  *
@@ -260,6 +260,32 @@
         });
     }
 
+    if (!Array.prototype.some) {
+        Array.prototype.some = function(fun/*, thisArg*/) {
+            'use strict';
+
+            if (this == null) {
+                throw new TypeError('Array.prototype.some called on null or undefined');
+            }
+
+            if (typeof fun !== 'function') {
+                throw new TypeError();
+            }
+
+            var t = Object(this);
+            var len = t.length >>> 0;
+
+            var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
+            for (var i = 0; i < len; i++) {
+                if (i in t && fun.call(thisArg, t[i], i, t)) {
+                    return true;
+                }
+            }
+
+            return false;
+        };
+    }
+
     Array.prototype.contains = function(searchElement /*, fromIndex*/ ) {
         'use strict';
         var O = Object(this);
@@ -273,7 +299,7 @@
             k = n;
         } else {
             k = len + n;
-            if (k < 0) {k = 0;}
+            if (k < 0) { k = 0; }
         }
         var currentElement;
         while (k < len) {
@@ -329,6 +355,16 @@
 
             return string;
         };
+    }
+
+    if (!String.prototype.trim) {
+        (function () {
+            // Make sure we trim BOM and NBSP
+            var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
+            String.prototype.trim = function () {
+                return this.replace(rtrim, '');
+            };
+        })();
     }
 
     String.concat = function () {
@@ -407,24 +443,24 @@
 var __lists = Object.getOwnPropertyNames(window).filter(function (x) { return x.endsWith('List') || x.indexOf('Array') >= 0; });
 
 __lists.forEach(function(n) {
-	var __type = window[n];
-	__type.prototype.stream = function () {
-		if (this === void 0 || this === null || !(this instanceof __type))
-			throw new TypeError();
+    var __type = window[n];
+    __type.prototype.stream = function () {
+        if (this === void 0 || this === null || !(this instanceof __type))
+            throw new TypeError();
 
-		var Iterator = function (array) {
-			this.value = null;
-			this.index = -1;
+        var Iterator = function (array) {
+            this.value = null;
+            this.index = -1;
 
-			this.next = function () {
-				this.index++;
-				this.value = array[this.index];
-				return this.index < array.length;
-			}
-		}
+            this.next = function () {
+                this.index++;
+                this.value = array[this.index];
+                return this.index < array.length;
+            }
+        }
 
-		return new Iterator(this);
-	}
+        return new Iterator(this);
+    }
 });
 
 //Opciones de JSON
@@ -855,7 +891,7 @@ var Sinco = (function (exports) {
             this.insertBefore(e, this.firstChild);
         }
 
-        if (this.listeners['insert']) {
+        if (this.listeners && this.listeners['insert']) {
             dispatch.call(this, 'insert');
         }
         return this;
@@ -998,38 +1034,58 @@ var Sinco = (function (exports) {
         });
     }
 
+    var RequestStatusCodes = {
+        '0': 'InternalServerError',
+        '200': 'Ok',
+        '201': 'Created',
+        '204': 'NoContent',
+        '302': 'Moved',
+        '300': 'MultipleChoices',
+        '303': 'SeeOther',
+        '400': 'BadRequest',
+        '401': 'Unauthorized',
+        '403': 'Forbidden',
+        '404': 'NotFound',
+        '408': 'RequestTimeout',
+        '409': 'Conflict',
+        '412': 'PreconditionFailed',
+        '500': 'InternalServerError',
+        '504': 'GatewayTimeout'
+    };
+
     var Request = function (method, url, fn, data, contentType, includeAccept) {
-        var f = function () {};
+        var f = function () { };
         var alerta;
 
         includeAccept = typeof includeAccept == 'boolean' ? includeAccept : true;
         fn = fn || {};
 
-        var functions = {};
-        functions['200'] =  fn.Ok || f;
-        functions['201'] =  fn.Created || f;
-        functions['204'] =  fn.NoContent || f;
-        functions['302'] =  fn.Moved || f;
-        functions['300'] =  fn.MultipleChoices || f;
-        functions['400'] =  fn.BadRequest || f;
-        functions['401'] =  fn.Unauthorized || f;
-        functions['404'] =  fn.NotFound || f;
-        functions['500'] = 
-        functions['0'] =    fn.InternalServerError || f;
-        functions['504'] =  fn.GatewayTimeout || f;
-        functions['408'] =  function () { alert('No se puede establecer comunicación con el servidor'); };
-        functions['409'] =  function () {
-            alert('Se cerrará esta sesión porque el usuario ha ingresado en otro dispositivo');
-            window.location.href = 'login.aspx';
-        };
-        functions['412'] =  function () {
-            console.log('Posiblemente la sesión no se comparte entre el marco y el módulo');
-            if (!alerta) {
-                alerta = true;
-                alert('No existe Sesión');
+        for (var code in RequestStatusCodes) {
+            switch (code) {
+                case '408':
+                    fn.RequestTimeout = function () { alert('No se puede establecer comunicación con el servidor'); };
+                    break;
+                case '409':
+                    fn.Conflict = fn.Conflict || function () {
+                                    alert('Se cerrará esta sesión porque el usuario ha ingresado en otro dispositivo');
+                                    window.location.href = 'login.aspx';
+                                };
+                    break;
+                case '412':
+                    fn.PreconditionFailed = fn.PreconditionFailed || function () {
+                                                console.log('Posiblemente la sesión no se comparte entre el marco y el módulo');
+                                                if (!alerta) {
+                                                    alerta = true;
+                                                    alert('No existe Sesión');
+                                                }
+                                                window.location.href = 'login.aspx';
+                                            };
+                    break;
+                default:
+                    fn[RequestStatusCodes[code]] = fn[RequestStatusCodes[code]] || f;
+                    break;
             }
-            window.location.href = 'login.aspx';
-        };
+        }
 
         var types = {
             JSON: 'application/json; charset=utf-8',
@@ -1038,8 +1094,17 @@ var Sinco = (function (exports) {
             DEFAULT: 'application/x-www-form-urlencoded'
         };
 
-        var _exec = function (fn, text, viewContent) {
+        var _exec = function (prevFn, fn, text, viewContent, responseHeaders) {
             if (viewContent) {
+
+                responseHeaders = responseHeaders.split('\n').filter(function (item) { return item.split(' ').join('') !== '' && item.split('\r').join('') !== ''; }).map(function (item) {
+                    var splitted = item.split(':');
+                    return {
+                        name: splitted[0],
+                        value: splitted[1].trim()
+                    };
+                });
+
                 switch (contentType.toUpperCase()) {
                     case 'JSON':
                     case 'DEFAULT':
@@ -1051,7 +1116,11 @@ var Sinco = (function (exports) {
                 }
             }
 
-            fn(text);
+            if (prevFn) {
+                prevFn(contentType.toUpperCase() == 'JSON' || contentType.toUpperCase() == 'DEFAULT' ? JSON.tryParse(text) : (contentType.toUpperCase() == 'XML' ? parseXml(text) : text), responseHeaders);
+            }
+
+            fn(text, responseHeaders);
         };
 
         contentType = contentType || 'json';
@@ -1063,21 +1132,21 @@ var Sinco = (function (exports) {
         }
 
         http.setRequestHeader('Content-type', types.hasOwnProperty(contentType.toUpperCase()) ? types[contentType.toUpperCase()] : contentType);
-
+        
         var headers = Request.headersConfig.filter(function (header) {
             return url.toLowerCase().startsWith(header.url.toLowerCase());
         });
 
         if (headers.length > 0) {
             headers.forEach(function (header) {
-                http.setRequestHeader(header.type, header.value);
+                http.setRequestHeader(header.type, typeof header.value == 'function' ? header.value() : header.value);
             });
         }
 
         var __switch = [200, 201, 300];
         http.onreadystatechange = function () {
             if (http.readyState == 4) {
-                _exec( functions[http.status], http.responseText, __switch.contains(http.status) );
+                _exec(Request.responseFunctions[RequestStatusCodes[http.status]], fn[RequestStatusCodes[http.status]], http.responseText, __switch.contains(http.status), http.getAllResponseHeaders());
             }
         };
         if (data) {
@@ -1117,8 +1186,18 @@ var Sinco = (function (exports) {
         enumerable: false,
         configurable: false
     });
+    Object.defineProperty(Request, 'responseFunctions', {
+        value: {},
+        enumerable: false,
+        configurable: false
+    });
     Request.setHeader = function (url, type, value) {
         Request.headersConfig.push({ url: url, type: type, value: value });
+    };
+    Request.setResponseFunctions = function (fns) {
+        for (var name in fns) {
+            Request.responseFunctions[name] = fns[name];
+        }
     };
 
     var script = function () {
@@ -1351,7 +1430,12 @@ var Sinco = (function (exports) {
         var url = window.location.href.split('/');
         url.pop();
         var src = Sinco.map(document.getElementsByTagName('script'), function (s) { return s; }).pop().src.replaceAll(url.join('/'), '').split('/');
-        src.shift();
+
+        var n = new RegExp();
+        var n = new RegExp(/^(http).*/)
+        if (!n.test(src[0])) {
+            src.shift();
+        }
         src.pop();
         src = src.join('/');
 
@@ -1366,7 +1450,7 @@ var Sinco = (function (exports) {
 
         var addOnModule = function () {
             plugins = null;
-            if (modulos && modulos.dependencies) {
+            if (!!modulos && !!modulos.dependencies) {
                 modulos.dependencies.forEach(function (dependency) {
                     if (pending.indexOf(dependency) == -1) {
                         require.loadScript(src + '/' + dependency + '.js', function () {
@@ -1411,9 +1495,17 @@ var Sinco = (function (exports) {
             }
         };
 
+        var components = {
+            'import': function (component) {
+                var path = 's5_components';
+                require.loadScript(path + '/' + component + '/' + component + '.js');
+            }
+        }
+
         return {
             require: require,
-            define: define
+            define: define,
+            components: components
         }
     }
 
@@ -1452,7 +1544,7 @@ var Sinco = (function (exports) {
                 props_Clase.forEach(function (key){ \
 				    obj[key] = parametros_NuevaInstancia[key]; \
 				    }); \
-                funcion_Constructor.call(this); \
+                funcion_Constructor.call(this, parametros_NuevaInstancia); \
 			    return obj; \
 		    }; };')())(propiedades_Clase, functions.constructor);
 
@@ -1498,7 +1590,7 @@ var Sinco = (function (exports) {
 
     var interpolate = function (str) {
         return function interpolate(o) {
-            return str.replace(/\${([^{}]*)}/g, function (a, b) {
+            return str.replace(/{{([^{}]*)}}/g, function (a, b) {
                 var r = typeof o[b] == "function" ? o[b]() : o[b];
                 return typeof r === 'string' || typeof r === 'number' ? r : a;
             });

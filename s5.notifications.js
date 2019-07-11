@@ -1,7 +1,7 @@
 /// <reference path="s5.js" />
 /// <reference path="s5.icons.js" />
 
-(function(Sinco){
+(function (Sinco) {
     var arreglo = new Array();
 
     var exec = function () {
@@ -9,15 +9,15 @@
         if (!!actual && !actual.ejecutando) {
             actual.ejecutando = true;
 
-            (actual.onInit || function (){ })(actual._original);
+            (actual.onInit || function () { })(actual._original);
 
             actual._timeOut = setTimeout(function () {
                 actual.remover();
                 arreglo.splice(arreglo.indexOf(actual), 1);
-                if (arreglo.length > 0 && arreglo[0].loader){
+                if (arreglo.length > 0 && arreglo[0].loader) {
                     arreglo[0].loader.classList.add('s5-notification-hide');
                 }
-                else{
+                else {
                     delete window['running'];
                 }
                 exec();
@@ -33,10 +33,10 @@
             }
             this.objeto.remover();
             arreglo.splice(arreglo.indexOf(this.objeto), 1);
-            if (arreglo.length > 0 && arreglo[0].loader){
+            if (arreglo.length > 0 && arreglo[0].loader) {
                 arreglo[0].loader.classList.add('s5-notification-hide');
             }
-            else{
+            else {
                 delete window['running'];
             }
             exec();
@@ -45,8 +45,8 @@
             this.objeto.remover();
     }
 
-    var agregarEstilos = function(target){
-        if (!Sinco.get('s5-notification-styles')){
+    var agregarEstilos = function (target) {
+        if (!Sinco.get('s5-notification-styles')) {
             var estilos = Sinco.createElem('style', { 'type': 'text/css', 'id': 's5-notification-styles' });
             estilos.innerHTML = ' \
                 .s5-notification-container { \
@@ -265,10 +265,10 @@
             ';
             document.head.appendChild(estilos);
         }
-        if (Sinco.get('s5-notification-container')){
+        if (Sinco.get('s5-notification-container')) {
             contenedorNotificaciones = Sinco.get('s5-notification-container');
         }
-        else{
+        else {
             contenedorNotificaciones = Sinco.createElem('section', { id: 's5-notification-container', class: 's5-notification-container' });
             target.appendChild(contenedorNotificaciones);
         }
@@ -297,7 +297,7 @@
 
         agregarEstilos(config.target);
 
-        if ((window['s5-not-w'] || 0) - 10 < config.width){
+        if ((window['s5-not-w'] || 0) - 10 < config.width) {
             window['s5-not-w'] = config.width + 10;
         }
 
@@ -321,7 +321,7 @@
                     var _heightMax = this.height;
                     var contador = 5;
                     var indice = this.indice;
-                    (this.onSuccess || function (){ })(this._original);
+                    (this.onSuccess || function () { })(this._original);
                     var inte = setInterval(function () {
                         if (config.position == 'top-right' || config.position == 'top-left' || config.position == 'top-center')
                             elem.style.marginTop = contador + 'px';
@@ -330,7 +330,7 @@
 
                         if (contador <= _heightMax) {
                             clearInterval(inte);
-                            try{
+                            try {
                                 elem.parentNode.removeChild(elem);
                             }
                             catch (e) { }
@@ -356,9 +356,9 @@
         contenedorCerrar.styles('visibility', 'hidden');
         contenedor.insert(contenedorCerrar);
 
-        if (!!config.showIcon){
+        if (!!config.showIcon) {
             var contenedorIcono = Sinco.createElem('div', { class: 's5-notification-icon' });
-            switch(config.type){
+            switch (config.type) {
                 case 'info':
                     contenedorIcono.insert(Sinco.iconos.Info(25, '#23719e'));
                     break;
@@ -376,7 +376,7 @@
         }
 
         var contenedorCentral = Sinco.createElem('div', { class: 's5-notification-central' });
-        if (!config.showIcon){
+        if (!config.showIcon) {
             contenedorCentral.classList.add('no-icon');
         }
         contenedor.insert(contenedorCentral);
@@ -431,12 +431,12 @@
             if (_height === 5) {
                 contenedorCerrar.style.visibility = 'visible';
                 //contenedorNotificaciones.dispatch('view-end');
-                if (loader){
-                    if (!!objeto.queue && !window['running']){
+                if (loader) {
+                    if (!!objeto.queue && !window['running']) {
                         window['running'] = true;
                         loader.classList.add('s5-notification-hide');
                     }
-                    else if (!objeto.queue){
+                    else if (!objeto.queue) {
                         loader.classList.add('s5-notification-hide');
                     }
                 }
@@ -449,7 +449,7 @@
 
         if (typeof objeto.duracion === 'number') {
 
-            if (!!objeto.queue){
+            if (!!objeto.queue) {
                 arreglo.push(objeto);
 
                 if (arreglo.length === 1) {
@@ -457,15 +457,15 @@
                     exec();
                 }
             }
-            else{
-                (objeto.onInit || function (){ })(objeto._original);
+            else {
+                (objeto.onInit || function () { })(objeto._original);
                 objeto._timeOut = setTimeout(function () {
                     objeto.remover();
                 }, objeto.duracion);
             }
         }
-        else{
-            (objeto.onInit || function (){ })(objeto._original);
+        else {
+            (objeto.onInit || function () { })(objeto._original);
         }
 
         return objeto;
