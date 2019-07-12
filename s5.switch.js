@@ -16,7 +16,7 @@
             onColor: 'primary', //primary,info,success,warning,default
             offColor: 'default', //primary,info,success,warning,default
             onchange: function () { },
-            isChecked: function () { }
+            isChecked: false
         };
 
         if (element)
@@ -31,8 +31,8 @@
         _options = Sinco.extend(_options, options || {});
         _options.isChecked = function () { return _isChecked; };
 
-        var agregarEstilos = function() {
-            if (!Sinco.get('s5-switch-styles')){
+        var agregarEstilos = function () {
+            if (!Sinco.get('s5-switch-styles')) {
                 var estilos = Sinco.createElem('style', { 'type': 'text/css', 'id': 's5-switch-styles' });
                 estilos.innerHTML = ' \
                     .s5-switch { \
@@ -180,20 +180,20 @@
             }
         }
 
-        var crearElementos = function(){
+        var crearElementos = function () {
 
-            var cambiarOnOff = function(){
-                if (_isChecked){
+            var cambiarOnOff = function () {
+                if (_isChecked) {
                     innerContainer.classList.add('s5-switch-on');
                     innerContainer.classList.remove('s5-switch-off');
                 }
-                else{
+                else {
                     innerContainer.classList.add('s5-switch-off');
                     innerContainer.classList.remove('s5-switch-on');
                 }
             }
 
-            var cambiarDisabled = function(){
+            var cambiarDisabled = function () {
                 if (_isDisabled)
                     contenedor.classList.add('disabled');
                 else
@@ -206,12 +206,12 @@
             cambiarDisabled();
             contenedor.classList.add(_options.size);
 
-            Sinco.watch(_input, 'disabled', function(prop, oldValue, newValue){
+            Sinco.watch(_input, 'disabled', function (prop, oldValue, newValue) {
                 _isDisabled = newValue;
                 cambiarDisabled();
             });
 
-            Sinco.watch(_input, 'checked', function(prop, oldValue, newValue){
+            Sinco.watch(_input, 'checked', function (prop, oldValue, newValue) {
                 _isChecked = newValue;
                 cambiarOnOff();
             });
@@ -238,8 +238,8 @@
 
             _parent.insert(contenedor);
 
-            contenedor.addEvent('click', function(){
-                if (!_isDisabled){
+            contenedor.addEvent('click', function () {
+                if (!_isDisabled) {
                     _isChecked = !_isChecked;
                     cambiarOnOff();
                     _input.checked = _isChecked;
@@ -251,7 +251,7 @@
         agregarEstilos();
         crearElementos();
 
-        _input.isChecked = function(){
+        _input.isChecked = function () {
             return _isChecked;
         }
 
