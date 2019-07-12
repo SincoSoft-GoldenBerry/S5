@@ -258,7 +258,7 @@
         return _input;
     }
 
-    Sinco.utilities = Sinco.utilities || {};
-    Sinco.utilities.switch = _switch;
+    window.Sinco.utilities = window.Sinco.utilities || {};
+    window.Sinco.utilities.switch = _switch;
 
 })(Sinco);

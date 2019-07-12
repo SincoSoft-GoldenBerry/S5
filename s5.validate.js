@@ -375,11 +375,11 @@
 		return form;
 	};
 
-	Sinco.utilities = Sinco.utilities || {};    
-    Sinco.utilities.validateExtend = validateExtend;
-    Sinco.utilities.validateSetup = validateExtend;
-    Sinco.utilities.validate = validate;
-    Sinco.utilities.validateDestroy = validateDestroy;
+	window.Sinco.utilities = window.Sinco.utilities || {};    
+    window.Sinco.utilities.validateExtend = validateExtend;
+    window.Sinco.utilities.validateSetup = validateExtend;
+    window.Sinco.utilities.validate = validate;
+    window.Sinco.utilities.validateDestroy = validateDestroy;
 })({
 
 	// Send form if is valid?

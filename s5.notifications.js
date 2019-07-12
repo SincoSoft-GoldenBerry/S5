@@ -471,6 +471,6 @@
         return objeto;
     }
 
-    Sinco.utilities = Sinco.utilities || {};
-    Sinco.utilities.notify = notificar;
+    window.Sinco.utilities = window.Sinco.utilities || {};
+    window.Sinco.utilities.notify = notificar;
 })(Sinco);

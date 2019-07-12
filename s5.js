@@ -1626,3 +1626,5 @@ var Sinco = (function (exports) {
         removeEvent: removeEvent
     };
 })(window);
+
+window['Sinco'] = Sinco;

@@ -754,6 +754,6 @@
         return JSON.stringify(this.getSelected());
     }
 
-    Sinco.utilities = Sinco.utilities || {};
-    Sinco.utilities.autocomplete = autocomplete;
+    window.Sinco.utilities = window.Sinco.utilities || {};
+    window.Sinco.utilities.autocomplete = autocomplete;
 })(Sinco);
