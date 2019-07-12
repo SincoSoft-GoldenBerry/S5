@@ -1847,5 +1847,5 @@
         }
     };
 
-    Sinco.iconos = iconos;
+    window.Sinco.iconos = iconos;
 })(Sinco);

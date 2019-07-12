@@ -279,7 +279,7 @@
         startInterval();
     }
 
-    Sinco.utilities = Sinco.utilities || {};
-    Sinco.utilities.Carousel = carousel;
+    window.Sinco.utilities = window.Sinco.utilities || {};
+    window.Sinco.utilities.Carousel = carousel;
 
 })(Sinco);

@@ -117,6 +117,6 @@
         }
     }
 
-    Sinco.utilities = Sinco.utilities || {};
-    Sinco.utilities.dragDrop = dragDrop;
+    window.Sinco.utilities = window.Sinco.utilities || {};
+    window.Sinco.utilities.dragDrop = dragDrop;
 })(Sinco);

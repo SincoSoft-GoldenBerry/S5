@@ -723,6 +723,6 @@
         }
     }
 
-    Sinco.utilities = Sinco.utilities || {};
-    Sinco.utilities.Tour = tour;
+    window.Sinco.utilities = window.Sinco.utilities || {};
+    window.Sinco.utilities.Tour = tour;
 })(Sinco);

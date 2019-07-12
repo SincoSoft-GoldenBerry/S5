@@ -59,8 +59,8 @@
     	canvas
     }
 
-    Sinco.utilities = Sinco.utilities || {};
-    Sinco.utilities.Indicator = function (target, options) {
+    window.Sinco.utilities = window.Sinco.utilities || {};
+    window.Sinco.utilities.Indicator = function (target, options) {
     	return new indicator(target, options);
     };
 })(Sinco);

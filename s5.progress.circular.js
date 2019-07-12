@@ -213,5 +213,5 @@
         }
     };
 
-    Sinco.utilities.circularProgress = circularProgress;
+    window.Sinco.utilities.circularProgress = circularProgress;
 })(Sinco);
