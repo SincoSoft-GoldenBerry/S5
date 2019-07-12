@@ -1192,7 +1192,17 @@ var Sinco = (function (exports) {
         configurable: false
     });
     Request.setHeader = function (url, type, value) {
-        Request.headersConfig.push({ url: url, type: type, value: value });
+        if (Request.headersConfig.some(function(hc) { return hc.url == url; })) {
+            Request.headersConfig
+                .filter(function(hc) { return hc.url == url; })
+                .forEach(function(hc) {
+                    hc.type = type;
+                    hc.value = value;
+                });
+        }
+        else {
+            Request.headersConfig.push({ url: url, type: type, value: value });
+        }
     };
     Request.setResponseFunctions = function (fns) {
         for (var name in fns) {
