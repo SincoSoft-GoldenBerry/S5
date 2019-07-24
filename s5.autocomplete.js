@@ -469,8 +469,11 @@
                 if (window.parent.getToken){
                     _token = window.parent.getToken();
                 }
-                else if (_token = localStorage.getItem(_app + '_token')){}
-                Sinco.Request.setHeader(_url, 'Authorization', _token);
+                else if (localStorage.getItem(_app + '_token')){
+                    _token = localStorage.getItem(_app + '_token');
+                }
+                if (_token && _token !== '')
+                    Sinco.Request.setHeader(_url, 'Authorization', _token);
             }
         }
 
@@ -488,7 +491,7 @@
             if (!_config.service.url && !_config.dataSource)
                 throw new SincoInitializationError('¡Autocomplete requiere una url o un datasource para ejecutar la consulta de los datos!');
 
-            if (localStorage.getItem(_app + '_token') && _config.service.url) {
+            if (_config.service.url) {
                 _setHeaderRequest(_config.service.url);
             }
         }
