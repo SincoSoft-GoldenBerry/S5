@@ -1,6 +1,6 @@
 {
   "name": "s5-js",
-  "version": "1.0.24",
+  "version": "1.0.27",
   "description": "¡El mejor framework Javascript, basado en Vanilla Js!",
   "main": "s5.js",
   "scripts": {
@@ -34,6 +34,7 @@
   "files": [
     "aes.js",
     "s5.autocomplete.js",
+    "s5.carousel.js",
     "s5.dragdrop.js",
     "s5.icons.js",
     "s5.indicator.js",
@@ -41,6 +42,7 @@
     "s5.notifications.js",
     "s5.progress.circular.js",
     "s5.switch.js",
-    "s5.tour.js"
+    "s5.tour.js",
+    "s5.version.js"
   ]
 }

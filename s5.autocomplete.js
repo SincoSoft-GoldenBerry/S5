@@ -464,7 +464,13 @@
             }
 
             var _setHeaderRequest = function (url) {
-                Sinco.Request.setHeader(url.split('[').shift(), 'Authorization', localStorage.getItem(_app + '_token'));
+                var _url = url.split('[').shift();
+                var _token = '';
+                if (window.parent.getToken){
+                    _token = window.parent.getToken();
+                }
+                else if (_token = localStorage.getItem(_app + '_token')){}
+                Sinco.Request.setHeader(_url, 'Authorization', _token);
             }
         }
 
