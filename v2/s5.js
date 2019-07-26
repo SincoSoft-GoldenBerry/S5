@@ -1,5 +1,5 @@
 /**
- * @license S5.js v2.0.5
+ * @license S5.js v2.0.6
  * (c) 2015-2019 Sincosoft, Inc. http://sinco.com.co
  * 
  * Creation date: 27/02/2018
@@ -1068,6 +1068,7 @@
         extend: _extend,
         createElem: _createElem,
         addEvent: _addEvent,
+        removeEvent: _removeEvent,
         'delete': _delete
     };
 });
