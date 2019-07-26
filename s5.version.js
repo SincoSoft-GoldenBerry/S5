@@ -1,1 +1,1 @@
-﻿window['version-js'] = '1.0.27';
+﻿window['version-js'] = '1.0.32';

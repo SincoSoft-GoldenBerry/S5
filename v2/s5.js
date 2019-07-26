@@ -1,9 +1,9 @@
 /**
- * @license S5.js v2.0.0
- * (c) 2015-2018 Sincosoft, Inc. http://sinco.com.co
+ * @license S5.js v2.0.5
+ * (c) 2015-2019 Sincosoft, Inc. http://sinco.com.co
  * 
  * Creation date: 27/02/2018
- * Last change: 06/08/2018
+ * Last change: 25/07/2019
  *
  * by GoldenBerry
 **/
@@ -99,11 +99,9 @@
         };
     });
 
-    if (!s.prototype.replaceAll) {
-        s.prototype.replaceAll = function (rThis, rWith) {
-            return this.replace(new RegExp(rThis, 'g'), rWith);
-        };
-    }
+    s.prototype.replaceAll = function (rThis, rWith) {
+        return this.replace(new RegExp(rThis, 'g'), rWith);
+    };
 
     s.format = s.prototype.format = function () {
         let i = 0, l = 0;
@@ -117,7 +115,10 @@
         return str;
     };
 
-    s.concat = () => a.prototype.slice.call(arguments).join('');
+    s.concat = function () {
+        let args = a.prototype.slice.call(arguments);
+        return args.shift().concat(...args);
+    };
 
     s.toAESEncrypt = s.prototype.toAESEncrypt = function () {
         if (typeof CryptoJS === 'undefined') {
@@ -125,14 +126,14 @@
         }
 
         let text = '';
-        let key = CryptoJS.enc.Utf8.parse(String.concat(String.fromCharCode(53), String.fromCharCode(49), String.fromCharCode(110),
-            String.fromCharCode(99), String.fromCharCode(48), String.fromCharCode(115), String.fromCharCode(111),
-            String.fromCharCode(102), String.fromCharCode(116), String.fromCharCode(95), String.fromCharCode(53),
-            String.fromCharCode(46), String.fromCharCode(65), String.fromCharCode(46), String.fromCharCode(53),
-            String.fromCharCode(46))); //Mismo KEY usado en C#
+        let key = CryptoJS.enc.Utf8.parse(s.concat(s.fromCharCode(53), s.fromCharCode(49), s.fromCharCode(110),
+            s.fromCharCode(99), s.fromCharCode(48), s.fromCharCode(115), s.fromCharCode(111),
+            s.fromCharCode(102), s.fromCharCode(116), s.fromCharCode(95), s.fromCharCode(53),
+            s.fromCharCode(46), s.fromCharCode(65), s.fromCharCode(46), s.fromCharCode(53),
+            s.fromCharCode(46))); //Mismo KEY usado en C#
 
 
-        let setKey = (k) => {
+        let setKey = k => {
             let _k = [];
             for (let i = 0; i < k.length; i += 4) {
                 if (k[i + 1]) {
@@ -140,7 +141,7 @@
                 }
             }
             k = new Uint8Array(_k);
-            let r = s.fromCharCode.apply(String, k);
+            let r = s.fromCharCode.apply(s, k);
             key = CryptoJS.enc.Utf8.parse(r);
         }
 
@@ -157,15 +158,15 @@
             }
         }
 
-        const iv = CryptoJS.enc.Utf8.parse(String.concat(String.fromCharCode(95), String.fromCharCode(84), String.fromCharCode(49),
-            String.fromCharCode(99), String.fromCharCode(115), String.fromCharCode(124), String.fromCharCode(70),
-            String.fromCharCode(111), String.fromCharCode(110), String.fromCharCode(42), String.fromCharCode(53),
-            String.fromCharCode(111), String.fromCharCode(95), String.fromCharCode(83), String.fromCharCode(52),
-            String.fromCharCode(53))); //Mismo IV usado en C#
+        const iv = CryptoJS.enc.Utf8.parse(s.concat(s.fromCharCode(95), s.fromCharCode(84), s.fromCharCode(49),
+            s.fromCharCode(99), s.fromCharCode(115), s.fromCharCode(124), s.fromCharCode(70),
+            s.fromCharCode(111), s.fromCharCode(110), s.fromCharCode(42), s.fromCharCode(53),
+            s.fromCharCode(111), s.fromCharCode(95), s.fromCharCode(83), s.fromCharCode(52),
+            s.fromCharCode(53))); //Mismo IV usado en C#
 
         const valorIterar = Math.floor((Math.random() * 9) + 1);
 
-        let iterar = (final, text, key, iv) => {
+        const iterar = (final, text, key, iv) => {
             let textoCrypto;
 
             textoCrypto = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(text), key,
@@ -233,12 +234,12 @@
     }
     SincoInitializationError.prototype = Error.prototype;
 
-    const s5 = fac(win, doc);
+    const s5 = fac(win, doc, a, o, s, j);
 
     const def = (n, v) => 
         o.defineProperty(win, n, {
-            get: () => v,
-            set: v => { throw new ReferenceError('¡El elemento no se puede eliminar ni reasignar!') },
+            get: _ => v,
+            set: _ => { throw new ReferenceError('¡El elemento no se puede eliminar ni reasignar!') },
             enumerable: false,
             configurable: false
         });
@@ -246,22 +247,19 @@
     def('s5', s5);
     def('Sinco', s5);
     def('isIE', isIE);
-    def('isMobile', isMobile);
+    def('__lists', __lists);
+    def('isMobile', isMobile); 
     def('isFirefox', isFirefox);
     def('versionIE', versionIE);
     def('SincoInitializationError', SincoInitializationError);
 
-})(typeof window !== 'undefined' ? window : this, document, (win, doc) => {
-
-    const arr = Array;
-    const o = Object;
-    const s = String;
+})(typeof window !== 'undefined' ? window : this, document, (win, doc, arr, o, s, j) => {
 
     const _get = function (id) {
         id = id.toString();
         let dis = ( this.attribute == __htmlElementsProps.attribute ? this : doc );
         if (/[$/:-?{-~!"^_`\[\]#.\s]/.test(id)) {
-            let r = s5.map(dis.querySelectorAll(id), elem => s5.extend(elem));
+            let r = _map(dis.querySelectorAll(id), elem => _extend(elem));
             return r.length > 1 ? r : r.shift();
         }
         else {
@@ -329,7 +327,7 @@
         else if (_this.attachEvent) {
             _this['_' + type] = callback;
             _this['e' + type + callback] = callback;
-            _this[type + callback] = () => _this['e' + type + callback](win.event);
+            _this[type + callback] = _ => _this['e' + type + callback](win.event);
             _this.attachEvent('on' + type, _this[type + callback]);
         }
         return _this;
@@ -403,15 +401,16 @@
                     let FR = new FileReader();
                     FR.name = f.name;
                     FR.size = f.size;
-                    FR.onload = function (e) {
-                        if (c) {
+
+                    if (c) {
+                        FR.onload = function (e) {
                             c({
                                 'name': this.name,
                                 'src': e.target.result.split(',').pop(),
                                 'kilobytes': this.size
                             });
-                        }
-                    };
+                        };
+                    }
                     FR.readAsDataURL(f);
                 }
                 else {
@@ -424,11 +423,11 @@
         }
     };
 
-    const _map = (obj, iterator) => arr.map.call(obj, iterator);
+    const _map = (obj, iterator) => arr.prototype.map.call(obj, iterator);
 
-    const _filter = (obj, iterator) => arr.filter.call(obj, iterator);
+    const _filter = (obj, iterator) => arr.prototype.filter.call(obj, iterator);
 
-    const _reduce = (obj, iterator, memo) => arr.reduce.call(obj, iterator, memo);
+    const _reduce = (obj, iterator, memo) => arr.prototype.reduce.call(obj, iterator, memo);
 
     const _validacionesOnClick = config => {
         doc.addEventListener('click', event => {
@@ -482,7 +481,9 @@
 
         const extendProps = (el, opt) => {
             for (let n in opt) {
-                if (el[n] !== null && typeof el[n] == 'object' && !(el[n] instanceof arr))
+                if (el[n] !== null && typeof el[n] == 'object'
+                    && !(el[n] instanceof arr)
+                    && !(el[n] instanceof HTMLElement))
                     extendProps(el[n], opt[n]);
                 else
                     el[n] = opt[n];
@@ -514,19 +515,28 @@
         return xmlDoc;
     };
 
+    const _encrypt = txt => {
+        if (typeof txt === 'String')
+            return txt.toAESEncrypt();
+        else if (txt instanceof s5.constructor)
+            return txt.value.toAESEncrypt();
+        else
+            return null;
+    };
+
     let _QueryString = {
-        toString: () => {
+        toString: _ => {
             let retorno = '',
                 sep = '';
             for (let name in s5.QueryString) {
                 if (typeof s5.QueryString[name] !== 'function') {
-                    retorno += sep + name + '=' + s5.QueryString[name];
+                    retorno += sep + name + '=' + encodeURIComponent(s5.QueryString[name]);
                     sep = '&';
                 }
             }
             return retorno;
         },
-        hasProperties: () => {
+        hasProperties: _ => {
             for (let name in s5.QueryString)
                 if (typeof s5.QueryString[name] !== 'function')
                     return true;
@@ -534,14 +544,14 @@
         }
     };
 
-    (() => {
+    (_ => {
         const hashes = win.location.href.slice(win.location.href.indexOf('?') + 1).split('&');
         if (win.location.href.lastIndexOf(hashes[0]) != 0) {
             hashes.forEach(hash => _QueryString[hash.split('=')[0].toLowerCase()] = hash.split('=')[1].split('#').shift());
         }
     })();
 
-    let _script = (() => {
+    let _script = (_ => {
         const extractHostname = url => {
             let hostname;
 
@@ -581,191 +591,192 @@
         };
     })();
 
-    let modules = [],
-        pending = [],
-        loaded = [];
+    const _init = (_plugins, _fnEnd, _src) => {
+        const SincoRequire = function (plugins, fn, src) {
+            const modules = [],
+                pending = [],
+                loaded = [];
 
-    const _define = (name, _dependencies, _module) => {
-        let dependencies, module;
-        if (typeof _dependencies === 'function'){
-            module = _dependencies;
-            dependencies = _require.extractDependencies(module);
-        }
-        else {
-            dependencies = _dependencies;
-            module = _module;
-        }
+            const _define = (name, _dependencies, _module) => {
+                let dependencies, module;
+                if (typeof _dependencies === 'function')
+                    module = _dependencies,
+                    dependencies = _require.extractDependencies(module);
+                else
+                    dependencies = _dependencies,
+                    module = _module;
 
-        if (!dependencies || !dependencies.length) {
-            loaded.push(name);
+                if (!dependencies || !dependencies.length) {
+                    loaded.push(name);
 
-            modules[name] = {
-                name: name,
-                callback: module,
-                module: module(),
-                loaded: true,
-                dependencies: []
-            };
-        }
-        else {
-            modules[name] = {
-                name: name,
-                callback: module,
-                loaded: false,
-                dependencies: dependencies
-            };
-        }
-
-        _unroll();
-
-        if (_require.onModule)
-            _require.onModule(modules[name]);
-
-        return modules[name];
-    }
-
-    const _require = (_dependencies, _callback) => {
-        let dependencies, callback;
-        if (typeof _dependencies === 'function') {
-            callback = _dependencies;
-            dependencies = _require.extractDependencies(callback);
-        }
-        else {
-            dependencies = _dependencies;
-            callback = _callback;
-        }
-
-        let module = {
-            callback: callback,
-            dependencies: dependencies
-        };
-
-        modules.push(module);
-
-        if (_require.onModule)
-            _require.onModule(module);
-
-        _unroll();
-
-        return module;
-    };
-
-    const _unroll = () => {
-        _map(Object.keys(modules), name => modules[name])
-            .concat(modules)
-            .forEach(module => {
-                if (!module.loaded && module.dependencies.every(depn => loaded.indexOf(depn) !== -1)) {
-                    loaded.push(module.name);
-                    module.loaded = true;
-                    module.module = module.callback.apply(null, module.dependencies
-                        .map(depn => modules[depn].module));
-
-                    _unroll();
-                }
-            });
-    };
-
-    _require.extractDependencies = fn => {
-        fn = fn.toString();
-
-        fn = fn.replace(/\/\*[^(?:\*\/)]+\*\//g, '');
-        if (fn.indexOf('function') >= 0){
-            fn = fn.match(/function \(([^\)]*)\)/)[1];
-        }
-        else{
-            fn = fn.match(/\(([^\)]*)\)(.|)+(=>)+/)[1];
-        }
-
-        return fn ? fn.split(',').map(dependency => dependency.trim()) : [];
-    };
-
-    _require.loadScript = (src, callback) => {
-        let script = doc.createElement('script');
-        script.onload = callback;
-        script.onerror = () => _extend(script)['delete']();
-
-        doc.getElementsByTagName('head')[0].appendChild(script);
-        script.src = src + (win['version -js'] ? '?v=' + win['version-js'] : '');
-    };
-
-    _require.modules = modules;
-
-    const _init = (plugins, fnEnd) => {
-        let url = win.location.href.split('/');
-        url.pop();
-        let src = s5.map(doc.getElementsByTagName('script'), (sc) => sc).pop().src.replaceAll(url.join('/'), '').split('/');
-        src.shift();
-        src.pop();
-        src = src.join('/');
-
-        let modulos, version;
-
-        const getVersion = () => {
-            let splitted = doc.querySelector('script[src*="s5.js"]').src.split('=');
-            if (splitted.length > 1) {
-                version = splitted.pop();
-            }
-        };
-
-        const addOnModule = () => {
-            plugins = null;
-            if (modulos && modulos.dependencies) {
-                modulos.dependencies.forEach(dependency => {
-                    if (pending.indexOf(dependency) == -1) {
-                        _require.loadScript(src + '/' + dependency + '.js', () => { /*pending.splice(pending.indexOf(dependency), 1);*/ });
-
-                        pending.push(dependency);
-                    }
-                });
-            }
-            if (!!fnEnd && typeof fnEnd === "function") {
-                fnEnd();
-            }
-        };
-
-        if (plugins) {
-            let sum = 0;
-            getVersion();
-            plugins.forEach(script => {
-                let _url = 's5.' + script + '.js' + (version ? '?v=' + version : '');
-
-                if (s5.script.locationHost != s5.script.host) {
-                    _url = s5.script.originalUrl + _url;
+                    modules[name] = {
+                        name: name,
+                        callback: module,
+                        module: module(),
+                        loaded: true,
+                        dependencies: []
+                    };
                 }
                 else {
-                    _url = s5.script.path + '/' + _url;
+                    modules[name] = {
+                        name: name,
+                        callback: module,
+                        loaded: false,
+                        dependencies: dependencies
+                    };
                 }
 
-                _require.loadScript(_url, () => {
-                    sum++;
-                    if (sum == plugins.length) {
-                        addOnModule();
-                    }
-                });
-            });
-        }
+                _unroll();
 
-        _require.onModule = module => {
-            modulos = module;
-            if (!plugins) {
-                addOnModule();
+                if (_require.onModule)
+                _require.onModule(modules[name]);
+
+                return modules[name];
+            };
+
+            const _require = (_dependencies, _callback) => {
+                let dependencies, callback;
+                if (typeof _dependencies === 'function')
+                    callback = _dependencies,
+                    dependencies = _require.extractDependencies(callback);
+                else
+                    dependencies = _dependencies,
+                    callback = _callback;
+
+                const module = {
+                    callback: callback,
+                    dependencies: dependencies
+                };
+
+                modules.push(module);
+
+                if (_require.onModule)
+                    _require.onModule(module);
+
+                _unroll();
+
+                return module;
+            };
+
+            const _unroll = _ => {
+                _map(o.keys(modules), name => modules[name])
+                    .concat(modules)
+                    .forEach(module => {
+                        if (!module.loaded && module.dependencies.every(depn => loaded.indexOf(depn) !== -1)){
+                            loaded.push(module.name);
+                            module.loaded = true;
+                            module.module = module.callback.apply(null, module.dependencies.map(depn => modules[depn].module));
+
+                            _unroll();
+                        }
+                    });
+            };
+
+            _require.extractDependencies = fn => {
+                fn = fn.toString();
+
+                fn = fn.replace(/\/\*[^(?:\*\/)]+\*\//g, '');
+                fn = fn.match(/function \(([^\)]*)\)/)[1];
+
+                return fn ? fn.split(',').map(depn => depn.trim()) : [];
+            };
+
+            _require.loadScript = (src, callback) => {
+                const script = doc.createElement('script');
+                script.onload = callback;
+                script.onerror = function () {
+                    _extend(script)['delete']();
+                };
+
+                doc.getElementsByTagName('head')[0].appendChild(script);
+                script.src = src + (win['version-js'] ? '?v=' + win['version-js'] : '');
+            };
+
+            _require.modules = modules;
+
+            if (!src) {
+                const url = win.location.href.split('/');
+                url.pop();
+                src = _map(doc.getElementsByTagName('script'), s => s).pop().src.replaceAll(url.join('/'), '').split('/');
+                src.shift();
+                src.pop();
+                src = src.join('/');
+                if (src.startsWith('/' + win.location.host)) {
+                    src = src.replace('/' + win.location.host, '');
+                }
             }
-        };
 
-        var _components = {
-            'import': component => _require.loadScript('s5_components/' + component + '/' + component + '.js')
-        };
+            let modulos, version;
 
-        return {
-            require: _require,
-            define: _define,
-            components: _components
-        }
+            const getVersion = _ => {
+                const splitted = doc.currentScript.src.split('=');
+                if (splitted.length > 1) {
+                    version = splitted.pop();
+                }
+            };
+
+            const addOnModule = _ => {
+                plugins = null;
+                if (!!modulos && !!modulos.dependencies) {
+                    modulos.dependencies.forEach(dependency => {
+                        if (pending.indexOf(dependency) == -1) {
+                            _require.loadScript(src + '/' + dependency + '.js');
+
+                            pending.push(dependency);
+                        }
+                    });
+                }
+                if (!!fn && typeof fn === "function") {
+                    fn();
+                }
+            };
+
+            if (plugins) {
+                let sum = 0;
+                getVersion();
+                plugins.forEach(script => {
+                    let _url = 's5.' + script + '.js' + (version && !win['version-js'] ? '?v=' + version : '');
+
+                    if (_script.locationHost != _script.host) {
+                        _url = _script.originalUrl + _url;
+                    }
+                    else {
+                        _url = _script.path + '/' + _url;
+                    }
+
+                    _require.loadScript(_url, function () {
+                        sum++;
+                        if (sum == plugins.length) {
+                            addOnModule();
+                        }
+                    });
+                });
+            }
+
+            _require.onModule = module => {
+                modulos = module;
+                if (!plugins) {
+                    addOnModule();
+                }
+            };
+
+            const _components = {
+                'import': component => {
+                    const path = 's5_components';
+                    _require.loadScript(path + '/' + component + '/' + component + '.js');
+                }
+            };
+
+            this.require = _require;
+            this.define = _define;
+            this.components = _components;
+        };
+        return new SincoRequire(_plugins, _fnEnd, _src);
     };
 
     const _interpolate = str => function interpolate(o) {
         return str.replace(/\${([^{}]*)}/g, (a, b) => {
-            var r = typeof o[b] == "function" ? o[b]() : o[b];
+            const r = typeof o[b] == "function" ? o[b]() : o[b];
             return typeof r === 'string' || typeof r === 'number' ? r : a;
         });
     };
@@ -810,7 +821,7 @@
     const _watch = function (obj, prop, callback) {
         let oldValue = obj[prop]
             , newValue = oldValue
-            , getter = () => newValue
+            , getter = _ => newValue
             , setter = value => {
                 oldValue = newValue;
                 newValue = value;
@@ -827,36 +838,56 @@
         return this;
     };
 
+    const RequestStatusCodes = {
+        '0': 'InternalServerError',
+        '200': 'Ok',
+        '201': 'Created',
+        '204': 'NoContent',
+        '302': 'Moved',
+        '300': 'MultipleChoices',
+        '303': 'SeeOther',
+        '400': 'BadRequest',
+        '401': 'Unauthorized',
+        '403': 'Forbidden',
+        '404': 'NotFound',
+        '408': 'RequestTimeout',
+        '409': 'Conflict',
+        '412': 'PreconditionFailed',
+        '500': 'InternalServerError',
+        '504': 'GatewayTimeout'
+    };
+
     const _Request = (method, url, fn, data, contentType, includeAccept) => {
         const f = () => { };
         includeAccept = typeof includeAccept == 'boolean' ? includeAccept : true;
         fn = fn || {};
 
-        let functions = {};
-        functions['200'] =  fn.Ok || f;
-        functions['201'] =  fn.Created || f;
-        functions['204'] =  fn.NoContent || f;
-        functions['302'] =  fn.Moved || f;
-        functions['300'] =  fn.MultipleChoices || f;
-        functions['400'] =  fn.BadRequest || f;
-        functions['401'] =  fn.Unauthorized || f;
-        functions['404'] =  fn.NotFound || f;
-        functions['500'] = 
-        functions['0'] =    fn.InternalServerError || f;
-        functions['504'] =  fn.GatewayTimeout || f;
-        functions['408'] =  () => alert('No se puede establecer comunicación con el servidor');
-        functions['409'] =  () => {
-            alert('Se cerrará esta sesión porque el usuario ha ingresado en otro dispositivo');
-            win.location.href = 'login.aspx';
-        };
-        functions['412'] =  () => {
-            console.log('Posiblemente la sesión no se comparte entre el marco y el módulo');
-            if (!alerta) {
-                alerta = true;
-                alert('No existe Sesión');
+        for (let code in RequestStatusCodes) {
+            switch (code) {
+                case '408':
+                    fn.RequestTimeout = _ => alert('No se puede establecer comunicación con el servidor');
+                    break;
+                case '409':
+                    fn.Conflict = fn.Conflict || (_ => {
+                                    alert('Se cerrará esta sesión porque el usuario ha ingresado en otro dispositivo');
+                                    win.location.href = 'login.aspx';
+                                });
+                    break;
+                case '412':
+                    fn.PreconditionFailed = fn.PreconditionFailed || (_ => {
+                                                console.log('Posiblemente la sesión no se comparte entre el marco y el módulo');
+                                                if (!alerta) {
+                                                    alerta = true;
+                                                    alert('No existe Sesión');
+                                                }
+                                                win.location.href = 'login.aspx';
+                                            });
+                    break;
+                default:
+                    fn[RequestStatusCodes[code]] = fn[RequestStatusCodes[code]] || f;
+                    break;
             }
-            win.location.href = 'login.aspx';
-        };
+        }
 
         const types = {
             JSON: 'application/json; charset=utf-8',
@@ -865,12 +896,23 @@
             DEFAULT: 'application/x-www-form-urlencoded'
         };
 
-        const _exec = (fn, text, viewContent) => {
+        const _exec = (prevFn, fn, text, viewContent, responseHeaders) => {
             if (viewContent) {
+
+                responseHeaders = responseHeaders.split('\n')
+                                        .filter(item => item.split(' ').join('') !== '' && item.split('\r').join('') !== '')
+                                        .map(item => {
+                                            let splitted = item.split(':');
+                                            return {
+                                                name: splitted[0],
+                                                value: splitted[1].trim()
+                                            };
+                                        });
+
                 switch (contentType.toUpperCase()) {
                     case 'JSON':
                     case 'DEFAULT':
-                        text = JSON.tryParse(text);
+                        text = j.tryParse(text);
                         break;
                     case 'XML':
                         text = _parseXml(text);
@@ -878,7 +920,11 @@
                 }
             }
 
-            fn(text);
+            if (prevFn) {
+                prevFn(contentType.toUpperCase() == 'JSON' || contentType.toUpperCase() == 'DEFAULT' ? j.tryParse(text) : (contentType.toUpperCase() == 'XML' ? _parseXml(text) : text), responseHeaders);
+            }
+
+            fn(text, responseHeaders);
         };
 
         contentType = contentType || 'json';
@@ -895,15 +941,22 @@
         const headers = _Request.headersConfig.filter(header => url.toLowerCase().startsWith(header.url.toLowerCase()));
 
         if (headers.length > 0) {
-            headers.forEach(header => http.setRequestHeader(header.type, header.value));
+            headers.forEach(header => http.setRequestHeader(header.type, typeof header.value == 'function' ? header.value() : header.value));
         }
 
         let alerta;
         const __switch = [200, 201, 300];
 
-        http.onreadystatechange = () => {
+        http.onreadystatechange = _ => {
             if (http.readyState == 4) {
-                _exec( functions[http.status], http.responseText, __switch.contains(http.status) );
+                const statusCode = RequestStatusCodes[http.status];
+                _exec(
+                    _Request.responseFunctions[statusCode],
+                    fn[statusCode],
+                    http.responseText,
+                    __switch.contains(http.status),
+                    http.getAllResponseHeaders()
+                );
             }
         };
         if (data) {
@@ -928,7 +981,7 @@
                 http.send(data);
             }
             else {
-                http.send(JSON.stringify(data));
+                http.send(j.stringify(data));
             }
         }
         else
@@ -943,7 +996,29 @@
         configurable: false
     });
 
-    _Request.setHeader = (url, type, value) => _Request.headersConfig.push({ url: url, type: type, value: value });
+    o.defineProperty(_Request, 'responseFunctions', {
+        value: {},
+        enumerable: false,
+        configurable: false
+    });
+
+    _Request.setHeader = (url, type, value) => {
+        if (_Request.headersConfig.some(hc => hc.url == url)) {
+            _Request.headersConfig
+                .filter(hc => hc.url == url)
+                .forEach(hc => {
+                    hc.type = type;
+                    hc.value = value;
+                });
+        }
+        else {
+            _Request.headersConfig.push({ url: url, type: type, value: value });
+        }
+    };
+
+    _Request.setResponseFunctions = fns => {
+        for (let name in fns) _Request.responseFunctions[name] = fns[name];
+    };
 
     const _Cookie = (key, value) => {
         const app = win['aplicacion'] || (win.location.hostname + '_' + win.location.pathname.split('/')[1] + '?').toLowerCase();
@@ -985,7 +1060,8 @@
         utilities: {
             onClickValidations: _validacionesOnClick,
             addStyles: _addStyles,
-            parseXml: _parseXml
+            parseXml: _parseXml,
+            encrypt: _encrypt
         },
 
         get: _get,

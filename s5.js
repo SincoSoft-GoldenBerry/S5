@@ -1,9 +1,9 @@
 /**
- * @license S5.js v1.0.27
+ * @license S5.js v1.0.32
  * (c) 2015-2019 Sincosoft, Inc. http://sinco.com.co
  * 
  * Creation date: 21/07/2015
- * Last change: 23/07/2019
+ * Last change: 24/07/2019
  *
  * by GoldenBerry
  *
@@ -1453,12 +1453,15 @@ var Sinco = (function (exports) {
                 src.shift();
                 src.pop();
                 src = src.join('/');
+                if (src.startsWith('/' + window.location.host)) {
+                    src = src.replace('/' + window.location.host, '');
+                }
             }
 
             var modulos, version;
 
             var getVersion = function () {
-                var splitted = document.querySelector('script[src*="s5.js"]').src.split('=');
+                var splitted = document.currentScript.src.split('=');
                 if (splitted.length > 1) {
                     version = splitted.pop();
                 }

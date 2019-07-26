@@ -1,6 +1,6 @@
 {
   "name": "s5-js",
-  "version": "1.0.28",
+  "version": "1.0.32",
   "description": "¡El mejor framework Javascript, basado en Vanilla Js!",
   "main": "s5.js",
   "scripts": {
@@ -39,6 +39,8 @@
     "s5.icons.js",
     "s5.indicator.js",
     "s5.js",
+    "s5.min.js",
+    "s5.min.js.map",
     "s5.notifications.js",
     "s5.progress.circular.js",
     "s5.switch.js",
