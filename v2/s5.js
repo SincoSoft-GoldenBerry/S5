@@ -1,9 +1,9 @@
 /**
- * @license S5.js v2.0.6
+ * @license S5.js v2.0.8
  * (c) 2015-2019 Sincosoft, Inc. http://sinco.com.co
  * 
  * Creation date: 27/02/2018
- * Last change: 25/07/2019
+ * Last change: 14/08/2019
  *
  * by GoldenBerry
 **/
@@ -210,7 +210,7 @@
                         navigator.userAgent.match(/rv 11/) ||
                         navigator.userAgent.match(/edge/i));
 
-    const versionIE = (() => {
+    const versionIE = (_ => {
         let rv = -1;
         if (isIE) {
             let ua = navigator.userAgent;
@@ -344,7 +344,7 @@
     };
 
     const _styles = function (name, value) {
-        if (!value)
+        if (!value && value !== '')
             return this.style[name];
         else {
             this.style[name] = value;
@@ -858,7 +858,7 @@
     };
 
     const _Request = (method, url, fn, data, contentType, includeAccept) => {
-        const f = () => { };
+        const f = _ => { };
         includeAccept = typeof includeAccept == 'boolean' ? includeAccept : true;
         fn = fn || {};
 
@@ -938,7 +938,13 @@
 
         http.setRequestHeader('Content-type', types.hasOwnProperty(contentType.toUpperCase()) ? types[contentType.toUpperCase()] : contentType);
 
-        const headers = _Request.headersConfig.filter(header => url.toLowerCase().startsWith(header.url.toLowerCase()));
+        const headers = _Request.headersConfig
+                            .filter(header => url.toLowerCase().startsWith(header.url.toLowerCase()))
+                            .reduce((ar, ac) => {
+                                if (!ar.some(a => a.type.toLowerCase() === ac.type.toLowerCase()))
+                                    ar.push(ac);
+                                return ar;
+                            }, []);
 
         if (headers.length > 0) {
             headers.forEach(header => http.setRequestHeader(header.type, typeof header.value == 'function' ? header.value() : header.value));
@@ -1003,13 +1009,10 @@
     });
 
     _Request.setHeader = (url, type, value) => {
-        if (_Request.headersConfig.some(hc => hc.url == url)) {
+        if (_Request.headersConfig.some(hc => hc.url == url && hc.type == type)) {
             _Request.headersConfig
-                .filter(hc => hc.url == url)
-                .forEach(hc => {
-                    hc.type = type;
-                    hc.value = value;
-                });
+                .filter(hc => hc.url == url && hc.type == type)
+                .forEach(hc => hc.value = value);
         }
         else {
             _Request.headersConfig.push({ url: url, type: type, value: value });
