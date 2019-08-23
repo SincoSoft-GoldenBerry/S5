@@ -1,9 +1,9 @@
 /**
- * @license S5.js v2.0.8
+ * @license S5.js v2.0.9
  * (c) 2015-2019 Sincosoft, Inc. http://sinco.com.co
  * 
  * Creation date: 27/02/2018
- * Last change: 14/08/2019
+ * Last change: 23/08/2019
  *
  * by GoldenBerry
 **/
@@ -260,7 +260,20 @@
         let dis = ( this.attribute == __htmlElementsProps.attribute ? this : doc );
         if (/[$/:-?{-~!"^_`\[\]#.\s]/.test(id)) {
             let r = _map(dis.querySelectorAll(id), elem => _extend(elem));
-            return r.length > 1 ? r : r.shift();
+            if (r.length == 1) return r.shift();
+
+            o.keys(__htmlElementsProps).forEach(p =>
+                o.defineProperty(r, p, {
+                    get: _ => function() {
+                        this.forEach(e => e[p](...arguments));
+                    },
+                    set: _ => { throw new ReferenceError('¡El elemento no se puede eliminar ni reasignar!') },
+                    enumerable: false,
+                    configurable: false
+                })
+            );
+
+            return r;
         }
         else {
             let el = dis.querySelector('#' + id);
