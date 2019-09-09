@@ -1,5 +1,5 @@
 /**
- * @license S5.js v2.0.9
+ * @license S5.js v2.0.10
  * (c) 2015-2019 Sincosoft, Inc. http://sinco.com.co
  * 
  * Creation date: 27/02/2018
@@ -475,11 +475,13 @@
                         }
                     }
 
-                    if (!obj.iguales && !encontrado && !excepcionEncontrada) {
-                        obj.funcion();
-                    }
-                    else if (obj.iguales && encontrado && !excepcionEncontrada) {
-                        obj.funcion();
+                    if (!excepcionEncontrada) {
+                        if (!obj.iguales && !encontrado) {
+                            obj.funcion();
+                        }
+                        else if (obj.iguales && encontrado) {
+                            obj.funcion();
+                        }
                     }
                 }
 

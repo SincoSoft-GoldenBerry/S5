@@ -1,5 +1,5 @@
 /**
- * @license S5.js v1.0.38
+ * @license S5.js v1.0.39
  * (c) 2015-2019 Sincosoft, Inc. http://sinco.com.co
  * 
  * Creation date: 21/07/2015
