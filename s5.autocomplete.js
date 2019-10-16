@@ -109,9 +109,11 @@
                     _parseParam(arguments[0], arguments[1]);
                 }
                 else {
+                    var url = _config.service.url;
                     for (var i in arguments[0]) {
-                        _parseParam(i, arguments[0][i]);
+                        url = url.split('[' + i + ']').join(arguments[0][i]);
                     }
+                    _config.service._url = url;
                 }
             }
 

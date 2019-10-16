@@ -1,5 +1,5 @@
 /**
- * @license S5.js v2.0.10
+ * @license S5.js v2.0.11
  * (c) 2015-2019 Sincosoft, Inc. http://sinco.com.co
  * 
  * Creation date: 27/02/2018
@@ -260,7 +260,6 @@
         let dis = ( this.attribute == __htmlElementsProps.attribute ? this : doc );
         if (/[$/:-?{-~!"^_`\[\]#.\s]/.test(id)) {
             let r = _map(dis.querySelectorAll(id), elem => _extend(elem));
-            if (r.length == 1) return r.shift();
 
             o.keys(__htmlElementsProps).forEach(p =>
                 o.defineProperty(r, p, {
