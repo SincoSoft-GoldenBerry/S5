@@ -1,5 +1,5 @@
 /**
- * @license S5.js v1.0.42
+ * @license S5.js v1.0.43
  * (c) 2015-2019 Sincosoft, Inc. http://sinco.com.co
  * 
  * Creation date: 21/07/2015
@@ -951,7 +951,7 @@ var Sinco = (function (exports) {
 
     var get = function (id) {
         id = id.toString();
-        if (/[$/:-?{-~!"^_`\[\]#.\s]/.test(id)) {
+        if (/[$/:-?{-~!"^`\[\]#.\s]/.test(id)) {
 
             if (document.querySelectorAll) {
                 var r = Sinco.map(document.querySelectorAll(id), function (elem) {
