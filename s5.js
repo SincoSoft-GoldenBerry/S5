@@ -1,9 +1,9 @@
 /**
- * @license S5.js v1.0.43
+ * @license S5.js v1.0.46
  * (c) 2015-2019 Sincosoft, Inc. http://sinco.com.co
  * 
  * Creation date: 21/07/2015
- * Last change: 02/10/2019
+ * Last change: 20/03/2020
  *
  * by GoldenBerry
  *
@@ -1067,6 +1067,17 @@ var Sinco = (function (exports) {
         }
     }
 
+    var isElement = function(obj) {
+        try {
+            return obj instanceof HTMLElement;
+        }
+        catch(e){
+            return (typeof obj==="object") &&
+                    (obj.nodeType===1) && (typeof obj.style === "object") &&
+                    (typeof obj.ownerDocument ==="object");
+        }
+    }
+
     var insert = function (e, opc) {
         if (Array.isArray(e)) {
             var orig = this;
@@ -1092,6 +1103,19 @@ var Sinco = (function (exports) {
         }
         return this;
     }
+
+    var insertAfter = function (e, opc) {
+        if (!opc || !isElement(opc)) {
+            throw new TypeError('Debe especificar el segundo parámetro, el cual corresponde al elemento HTML que quedará previo al nuevo insertado.');
+        }
+        if (Array.isArray(e)) {
+            e = e.reverse();
+        }
+        var node = opc;
+        var index = 0;
+        for (; (node=node.previousSibling); index++);
+        return insert.call(this, e, index+1);
+    };
 
     var _delete = function (ele) {
         var _this = ele || this;
@@ -1146,6 +1170,7 @@ var Sinco = (function (exports) {
         get: get,
         attribute: attribute,
         insert: insert,
+        insertAfter: insertAfter,
         addEvent: addEvent,
         removeEvent: removeEvent,
         styles: styles,
@@ -1231,7 +1256,7 @@ var Sinco = (function (exports) {
     }
 
     var RequestStatusCodes = {
-        '0': 'InternalServerError',
+        '0': 'Aborted',
         '200': 'Ok',
         '201': 'Created',
         '204': 'NoContent',
@@ -1329,28 +1354,35 @@ var Sinco = (function (exports) {
 
         http.setRequestHeader('Content-type', types.hasOwnProperty(contentType.toUpperCase()) ? types[contentType.toUpperCase()] : contentType);
         
-        var headers = Request.headersConfig.filter(function (header) {
-            return url.toLowerCase().startsWith(header.url.toLowerCase());
-        }).reduce(function (acum, act) {
-            if (!acum.some(function (a) {
-                return a.type.toLowerCase() === act.type.toLowerCase();
-            })) {
-                acum.push(act);
-            }
-            return acum;
-        }, []);
+        var headers = Request.headersConfig
+                        .filter(function (header) {
+                            return header.type(header.url)(url);
+                        })
+                        .reduce(function (acum, act) {
+                            if (!acum.some(function (a) {
+                                return a.key.toLowerCase() === act.key.toLowerCase();
+                            })) {
+                                acum.push(act);
+                            }
+                            return acum;
+                        }, []);
 
         if (headers.length > 0) {
             headers.forEach(function (header) {
-                http.setRequestHeader(header.type, typeof header.value == 'function' ? header.value() : header.value);
+                http.setRequestHeader(header.key, typeof header.value == 'function' ? header.value() : header.value);
             });
         }
 
         var __switch = [200, 201, 300];
         http.onreadystatechange = function () {
-            if (http.readyState == 4) {
-                _exec(Request.responseFunctions[RequestStatusCodes[http.status]], fn[RequestStatusCodes[http.status]], http.responseText, __switch.contains(http.status), http.getAllResponseHeaders());
+            if (http.readyState == 4 && http.status !== 0) {
+                var statusCode = RequestStatusCodes[http.status];
+                _exec(Request.responseFunctions[statusCode], fn[statusCode], http.responseText, __switch.contains(http.status), http.getAllResponseHeaders());
             }
+        };
+        http.onabort = function () {
+            var statusCode = RequestStatusCodes['0'];
+            _exec(Request.responseFunctions[statusCode], fn[statusCode], 'El usuario abortó el Request', __switch.contains(0), http.getAllResponseHeaders());
         };
         if (data) {
             if (contentType.toUpperCase() == 'DEFAULT') {
@@ -1394,17 +1426,53 @@ var Sinco = (function (exports) {
         enumerable: false,
         configurable: false
     });
-    Request.setHeader = function (url, type, value) {
-        if (Request.headersConfig.some(function (hc) { return hc.url == url && hc.type == type; })) {
+
+    var _headerType = { 
+        startsWith: function(x) {
+            return function(y) {
+                return new RegExp('(^' + x + ')', 'i').test(y);
+            }
+        },
+        endsWith: function(x) {
+            return function(y) {
+                return new RegExp('(' + x + '$)', 'i').test(y);
+            }
+        },
+        equals: function(x) {
+            return function(y) {
+                return new RegExp('(^' + x + '$)', 'i').test(y);
+            }
+        },
+        contains: function(x) {
+            return function(y) {
+                return new RegExp(x, 'i').test(y);
+            }
+        },
+        different: function(x) {
+            return function(y) {
+                return new RegExp('^(?!.*?(^' + x + '$)).*', 'i').test(y);
+            }
+        },
+        notContains: function(x) {
+            return function(y) {
+                return new RegExp('^(?!.*?' + x + ').*', 'i').test(y);
+            }
+        }
+    };
+
+    Request.setHeader = function (url, key, value, type) {
+        type = _headerType[type || 'startsWith'];
+
+        if (Request.headersConfig.some(function (hc) { return hc.url == url && hc.key == key; })) {
             Request.headersConfig
-                .filter(function (hc) { return hc.url == url && hc.type == type; })
+                .filter(function (hc) { return hc.url == url && hc.key == key; })
                 .forEach(function(hc) {
-                    hc.type = type;
                     hc.value = value;
+                    hc.type = type;
                 });
         }
         else {
-            Request.headersConfig.push({ url: url, type: type, value: value });
+            Request.headersConfig.push({ url: url, key: key, value: value, type: type });
         }
     };
     Request.setResponseFunctions = function (fns) {

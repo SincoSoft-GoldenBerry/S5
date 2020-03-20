@@ -1,9 +1,9 @@
 /**
- * @license S5.js v2.0.12
+ * @license S5.js v2.0.14
  * (c) 2015-2019 Sincosoft, Inc. http://sinco.com.co
  * 
  * Creation date: 27/02/2018
- * Last change: 23/08/2019
+ * Last change: 20/03/2020
  *
  * by GoldenBerry
 **/
@@ -254,6 +254,17 @@
     def('SincoInitializationError', SincoInitializationError);
 
 })(typeof window !== 'undefined' ? window : this, document, (win, doc, arr, o, s, j) => {
+    
+    const _isElement = obj => {
+        try {
+            return obj instanceof HTMLElement;
+        }
+        catch(e){
+            return (typeof obj==="object") &&
+                    (obj.nodeType===1) && (typeof obj.style === "object") &&
+                    (typeof obj.ownerDocument ==="object");
+        }
+    };
 
     const _get = function (id) {
         id = id.toString();
@@ -329,6 +340,17 @@
         return this;
     };
 
+    const _insertAfter = function (e, opc) {
+        if (!opc || !_isElement(opc)) {
+            throw new TypeError('Debe especificar el segundo parámetro, el cual corresponde al elemento HTML que quedará previo al nuevo insertado.');
+        }
+        if (arr.isArray(e)) {
+            e = e.reverse();
+        }
+        let index = arr.from(opc.parentNode.childNodes).indexOf(opc);
+        return _insert.call(this, e, index+1);
+    };
+
     const _addEvent = function (type, callback) {
         let _this = this;
 
@@ -397,6 +419,7 @@
         get: _get,
         attribute: _attribute,
         insert: _insert,
+        insertAfter: _insertAfter,
         addEvent: _addEvent,
         removeEvent: _removeEvent,
         styles: _styles,
@@ -853,7 +876,7 @@
     };
 
     const RequestStatusCodes = {
-        '0': 'InternalServerError',
+        '0': 'Aborted',
         '200': 'Ok',
         '201': 'Created',
         '204': 'NoContent',
@@ -953,22 +976,23 @@
         http.setRequestHeader('Content-type', types.hasOwnProperty(contentType.toUpperCase()) ? types[contentType.toUpperCase()] : contentType);
 
         const headers = _Request.headersConfig
-                            .filter(header => url.toLowerCase().startsWith(header.url.toLowerCase()))
+                            .filter(({ url: hurl, type }) => type(hurl)(url))
                             .reduce((ar, ac) => {
-                                if (!ar.some(a => a.type.toLowerCase() === ac.type.toLowerCase()))
+                                if (!ar.some(a => a.key.toLowerCase() === ac.key.toLowerCase())) {
                                     ar.push(ac);
+                                }
                                 return ar;
                             }, []);
 
         if (headers.length > 0) {
-            headers.forEach(header => http.setRequestHeader(header.type, typeof header.value == 'function' ? header.value() : header.value));
+            headers.forEach(header => http.setRequestHeader(header.key, typeof header.value == 'function' ? header.value() : header.value));
         }
 
         let alerta;
-        const __switch = [200, 201, 300];
+        const __switch = [200, 201, 300, 404];
 
         http.onreadystatechange = _ => {
-            if (http.readyState == 4) {
+            if (http.readyState == 4 && http.status !== 0) {
                 const statusCode = RequestStatusCodes[http.status];
                 _exec(
                     _Request.responseFunctions[statusCode],
@@ -978,6 +1002,16 @@
                     http.getAllResponseHeaders()
                 );
             }
+        };
+        http.onabort = _ => {
+            const statusCode = RequestStatusCodes['0'];
+            _exec(
+                _Request.responseFunctions[statusCode],
+                fn[statusCode],
+                'El usuario abortó el Request',
+                __switch.contains(0),
+                http.getAllResponseHeaders()
+            );
         };
         if (data) {
             if (contentType.toUpperCase() == 'DEFAULT') {
@@ -1022,14 +1056,28 @@
         configurable: false
     });
 
-    _Request.setHeader = (url, type, value) => {
-        if (_Request.headersConfig.some(hc => hc.url == url && hc.type == type)) {
+    const _headerType = { 
+        'startsWith': x => y => new RegExp(`(^${x})`, 'i').test(y), 
+        'endsWith': x => y => new RegExp(`(${x}$)`, 'i').test(y), 
+        'equals': x => y => new RegExp(`(^${x}$)`, 'i').test(y), 
+        'contains': x => y => new RegExp(x, 'i').test(y), 
+        'different': x => y => new RegExp(`^(?!.*?(^${x}$)).*`, 'i').test(y), 
+        'notContains': x => y => new RegExp(`^(?!.*?${x}).*`, 'i').test(y)
+    };
+
+    _Request.setHeader = (url, key, value, type = 'startsWith') => {
+        type = _headerType[type];
+
+        if (_Request.headersConfig.some(hc => hc.url == url && hc.key == key)) {
             _Request.headersConfig
-                .filter(hc => hc.url == url && hc.type == type)
-                .forEach(hc => hc.value = value);
+                .filter(hc => hc.url == url && hc.key == key)
+                .forEach(hc => {
+                    hc.value = value;
+                    hc.type = type;
+                });
         }
         else {
-            _Request.headersConfig.push({ url: url, type: type, value: value });
+            _Request.headersConfig.push({ url, key, value, type });
         }
     };
 
