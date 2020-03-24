@@ -65,7 +65,7 @@
         'AbortController': configurePropS5Web(AbortController)
     });
 
-    const _req = async (method, url, { controller, data, contentType, includeAccept }) => new Promise((resolve, reject) => {
+    const _req = async (method, url, { controller = new AbortController(), data = null, contentType = 'json', includeAccept = true }) => new Promise((resolve, reject) => {
         const responseFunctions = {};
         
         const nextFn = (promiseFunction, status) => async (data, responseHeaders) => promiseFunction({ data, status, responseHeaders, url });
