@@ -1,7 +1,17 @@
-((w, s5) => {
+/**
+ * @license S5.js >= v2.0.14 or S5.js >= v1.0.46
+ * (c) 2015-2020 Sincosoft, Inc. http://sinco.com.co
+ * 
+ * Creation date: 20/03/2020
+ * Last change: 24/03/2020
+ *
+ * by GoldenBerry
+**/
+
+((s5, o) => {
 
     if (!s5.hr) {
-        Object.defineProperty(s5, 'hr', { 
+        o.defineProperty(s5, 'hr', { 
             enumerable: false,
             configurable: true,
             writable: false,
@@ -40,34 +50,40 @@
     });
 
     function AbortController() {
-        const hrs = [];
+        let hrs;
+        const init = () => hrs = [];
         this.addRequest = hr => hrs.push(hr);
-        this.abort = () => hrs.forEach(hr => hr.abort());
+        this.abort = () => {
+            hrs.forEach(hr => hr.abort());
+            init();
+        };
+        init();
     };
 
-    Object.defineProperties(s5.hr, {
+    o.defineProperties(s5.hr, {
         'setHeader': configurePropS5Web(s5.Request.setHeader),
         'AbortController': configurePropS5Web(AbortController)
-    })
+    });
 
     const _req = async (method, url, { controller, data, contentType, includeAccept }) => new Promise((resolve, reject) => {
-        const nextFn = (fn, code) => async (data, headers) => fn({ data, status: code, responseHeaders: headers, url });
+        const responseFunctions = {};
         
-        const fns = {};
-        const appendFn = (obj, fn) => rc => fns[rc] = nextFn(fn, obj[rc]);
+        const nextFn = (promiseFunction, status) => async (data, responseHeaders) => promiseFunction({ data, status, responseHeaders, url });
+        
+        const appendResponseFunction = (statusCodeObject, promiseFunction) => statusCodeName => responseFunctions[statusCodeName] = nextFn(promiseFunction, statusCodeObject[statusCodeName]);
 
-        Object.keys(RequestStatusCodes.error).forEach(appendFn(RequestStatusCodes.error, reject));
-        Object.keys(RequestStatusCodes.correcto).forEach(appendFn(RequestStatusCodes.correcto, resolve));
+        o.keys(RequestStatusCodes.error).forEach(appendResponseFunction(RequestStatusCodes.error, reject));
+        o.keys(RequestStatusCodes.correcto).forEach(appendResponseFunction(RequestStatusCodes.correcto, resolve));
 
-        controller.addRequest(s5.Request(method, url, fns, data, contentType, includeAccept));
+        controller.addRequest(s5.Request(method, url, responseFunctions, data, contentType, includeAccept));
     });
 
     const verbs = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
-    verbs.forEach(verb => Object.defineProperty(s5.hr, verb.toLowerCase(), 
+    verbs.forEach(verb => o.defineProperty(s5.hr, verb.toLowerCase(), 
         configurePropS5Web(
             async (url, config = { controller: new AbortController(), data: null, contentType: 'json', includeAccept: true }) => await _req(verb, url, config)
         )
     ));
 
-})(window, Sinco);
+})(Sinco, Object);
