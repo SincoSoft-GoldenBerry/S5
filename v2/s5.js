@@ -1,9 +1,9 @@
 /**
- * @license S5.js v2.0.15
+ * @license S5.js v2.0.17
  * (c) 2015-2020 Sincosoft, Inc. http://sinco.com.co
  * 
  * Creation date: 27/02/2018
- * Last change: 20/03/2020
+ * Last change: 22/04/2020
  *
  * by GoldenBerry
 **/
@@ -820,7 +820,7 @@
 
     const _model = {
         create: (clase, data) => new win[clase](data),
-        define: (nombreClase, props, functions) => {
+        define: function (nombreClase, props, functions) {
             const propiedades_Clase = o.keys(props);
             const funciones = o.keys(functions);
                 

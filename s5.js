@@ -1,9 +1,9 @@
 /**
- * @license S5.js v1.0.46
+ * @license S5.js v1.0.48
  * (c) 2015-2019 Sincosoft, Inc. http://sinco.com.co
  * 
  * Creation date: 21/07/2015
- * Last change: 20/03/2020
+ * Last change: 20/04/2020
  *
  * by GoldenBerry
  *
@@ -334,26 +334,24 @@
         };
     }
 
-    if (!String.prototype.replaceAll) {
-        String.replaceAll = String.prototype.replaceAll = function (replaceThis, replaceWith) {
-            var string = this;
-            var rgx = new RegExp(replaceThis, 'g');
+    String.replaceAll = String.prototype.replaceAll = function (replaceThis, replaceWith) {
+        var string = this;
+        var rgx = new RegExp(replaceThis, 'g');
 
-            return string.replace(rgx, replaceWith);
-        };
-    }
+        return string.replace(rgx, replaceWith);
+    };
 
     if (!String.prototype.format) {
         String.format = String.prototype.format = function () {
             var i = 0, l = 0;
-            var string = (typeof (this) == 'function' && !(i++)) ? arguments[0] : this;
+            var str = (typeof (this) == 'function' && !(i++)) ? arguments[0] : this;
 
             while (i < arguments.length) {
-                string = string.replaceAll('\\{' + l + '\\}', arguments[i]);
+                str = str.replaceAll('\\{' + l + '\\}', arguments[i]);
                 i++; l++;
             }
 
-            return string;
+            return str;
         };
     }
 
@@ -1912,3 +1910,4 @@ var Sinco = (function (exports) {
 })(window);
 
 window['Sinco'] = Sinco;
+window['s5'] = Sinco;
