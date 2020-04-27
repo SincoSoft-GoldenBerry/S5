@@ -1,5 +1,5 @@
 /**
- * @license S5.js v2.0.17
+ * @license S5.js v2.0.18
  * (c) 2015-2020 Sincosoft, Inc. http://sinco.com.co
  * 
  * Creation date: 27/02/2018
@@ -1003,16 +1003,18 @@
                 );
             }
         };
-        http.onabort = _ => {
+        const errorXmlHttp = msj => e => {
             const statusCode = RequestStatusCodes['0'];
             _exec(
                 _Request.responseFunctions[statusCode],
                 fn[statusCode],
-                'El usuario abortó el Request',
+                `Mensaje: ${msj}, Error: ${JSON.stringify(e)}`,
                 __switch.contains(0),
                 http.getAllResponseHeaders()
             );
         };
+        http.onabort = errorXmlHttp('El usuario abortó el Request');
+        http.onerror = errorXmlHttp('Ocurrió un error en el Request');
         if (data) {
             if (contentType.toUpperCase() == 'DEFAULT') {
                 let params = [];

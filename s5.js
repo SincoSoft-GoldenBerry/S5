@@ -1,5 +1,5 @@
 /**
- * @license S5.js v1.0.48
+ * @license S5.js v1.0.49
  * (c) 2015-2019 Sincosoft, Inc. http://sinco.com.co
  * 
  * Creation date: 21/07/2015
@@ -1378,10 +1378,15 @@ var Sinco = (function (exports) {
                 _exec(Request.responseFunctions[statusCode], fn[statusCode], http.responseText, __switch.contains(http.status), http.getAllResponseHeaders());
             }
         };
-        http.onabort = function () {
-            var statusCode = RequestStatusCodes['0'];
-            _exec(Request.responseFunctions[statusCode], fn[statusCode], 'El usuario abortó el Request', __switch.contains(0), http.getAllResponseHeaders());
+        var errorXmlHttp = function(msj) {
+            return function(e) {
+                var statusCode = RequestStatusCodes['0'];
+                msj = 'Mensaje: ' + msj + ', Error: ' + JSON.stringify(e);
+                _exec(Request.responseFunctions[statusCode], fn[statusCode], msj, __switch.contains(0), http.getAllResponseHeaders());
+            }
         };
+        http.onabort = errorXmlHttp('El usuario abortó el Request');
+        http.onerror = errorXmlHttp('Ocurrió un error en el Request');
         if (data) {
             if (contentType.toUpperCase() == 'DEFAULT') {
                 var params = [];
