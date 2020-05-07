@@ -659,166 +659,201 @@ if (!document.registerElement) {
     })(window);
 }
 
-//Creación del objeto Sinco
-var Sinco = (function (exports) {
+(function(){
+    //Creación del objeto Sinco
+    var s5def = (function (exports) {
 
-    //Propiedades de ventana
-    exports['isIE'] = navigator.appName == 'Microsoft Internet Exporer' ||
-        !!(navigator.userAgent.match(/Trident/) ||
-            navigator.userAgent.match(/rv 11/));
+        //Propiedades de ventana
+        exports['isIE'] = navigator.appName == 'Microsoft Internet Exporer' ||
+            !!(navigator.userAgent.match(/Trident/) ||
+                navigator.userAgent.match(/rv 11/));
 
-    exports['isFirefox'] = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+        exports['isFirefox'] = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 
-    exports['versionIE'] = (function () {
-        var rv = -1;
-        if (exports['isIE']) {
-            var ua = navigator.userAgent;
-            var re = new RegExp((ua.lastIndexOf('rv:') > 0 ? 'rv:' : (ua.lastIndexOf('MSIE ') > 0 ? 'MSIE ' : 'Edge/')) + "([0-9]{1,}[\.0-9]{0,})");
-            if (re.exec(ua) != null) {
-                rv = parseFloat(RegExp.$1);
+        exports['versionIE'] = (function () {
+            var rv = -1;
+            if (exports['isIE']) {
+                var ua = navigator.userAgent;
+                var re = new RegExp((ua.lastIndexOf('rv:') > 0 ? 'rv:' : (ua.lastIndexOf('MSIE ') > 0 ? 'MSIE ' : 'Edge/')) + "([0-9]{1,}[\.0-9]{0,})");
+                if (re.exec(ua) != null) {
+                    rv = parseFloat(RegExp.$1);
+                }
             }
+            return rv;
+        })();
+        exports['isMobile'] = navigator.isMobile ||
+            /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
+
+        /**
+        * @name SincoInitializationError
+        *
+        * @description Objeto que controla las excepciones de inicialización de objetos
+        * @param {string} m String para mostrar como error.
+        */
+        function SincoInitializationError(m) {
+            this.name = 'Sinco Initialization Error';
+            this.message = m;
         }
-        return rv;
-    })();
-    exports['isMobile'] = navigator.isMobile ||
-        /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
+        SincoInitializationError.prototype = Error.prototype;
+        window['SincoInitializationError'] = SincoInitializationError;
 
-    /**
-     * @name SincoInitializationError
-     *
-     * @description Objeto que controla las excepciones de inicialización de objetos
-     * @param {string} m String para mostrar como error.
-     */
-    function SincoInitializationError(m) {
-        this.name = 'Sinco Initialization Error';
-        this.message = m;
-    }
-    SincoInitializationError.prototype = Error.prototype;
-    window['SincoInitializationError'] = SincoInitializationError;
-
-    var fileToBase64 = function (file, callback) {
-        if (file) {
-            if (FileReader) {
-                if (file instanceof File) {
-                    var FR = new FileReader();
-                    FR.name = file.name;
-                    FR.size = file.size;
-                    FR.onload = function (e) {
-                        var archivo = {
-                            'name': this.name,
-                            'src': e.target.result.split(',').pop(),
-                            'kilobytes': this.size
-                        };
-                        if (callback) {
-                            callback(archivo);
+        var fileToBase64 = function (file, callback) {
+            if (file) {
+                if (FileReader) {
+                    if (file instanceof File) {
+                        var FR = new FileReader();
+                        FR.name = file.name;
+                        FR.size = file.size;
+                        FR.onload = function (e) {
+                            var archivo = {
+                                'name': this.name,
+                                'src': e.target.result.split(',').pop(),
+                                'kilobytes': this.size
+                            };
+                            if (callback) {
+                                callback(archivo);
+                            }
                         }
-                    }
-                    FR.readAsDataURL(file);
-                }
-                else {
-                    throw new SincoInitializationError('¡El primer parámetro debe ser de tipo "File"!');
-                }
-            }
-            else {
-                throw new SincoInitializationError('¡El navegador no soporta esta funcionalidad!');
-            }
-        }
-    }
-
-    var fallback = function (name, fallback) {
-        var nativeFn = Array.prototype[name];
-        return function (obj, iterator, memo) {
-            var fn = obj ? obj[name] : 0;
-            return fn && fn === nativeFn ?
-                fn.call(obj, iterator, memo) :
-                fallback(obj, iterator, memo);
-        };
-    };
-
-    var eachSync = fallback('forEach', function (obj, iterator) {
-        var isObj = obj instanceof Object;
-        var arr = isObj ? Object.keys(obj) : (obj || []);
-        for (var i = 0, len = arr.length; i < len; i++) {
-            var k = isObj ? arr[i] : i;
-            iterator(obj[k], k, obj);
-        }
-    });
-
-    var eachParallel = function (obj, iterator, callback) {
-        var len = obj.length || Object.keys(obj).length;
-        if (!len) {
-            return callback();
-        }
-        var completed = 0;
-        eachSync(obj, function () {
-            var cb = function (err) {
-                if (err) {
-                    callback(err);
-                    callback = function () { };
-                }
-                else {
-                    if (++completed === len) {
-                        callback();
-                    }
-                }
-            };
-            var args = Array.prototype.slice.call(arguments);
-            if (iterator.length) {
-                args = args.slice(0, iterator.length - 1);
-                args[iterator.length - 1] = cb;
-            }
-            else {
-                args.push(cb);
-            }
-            iterator.apply(this, args);
-        });
-    };
-
-    var eachSeries = function (obj, iterator, callback) {
-        var keys_list = Object.keys(obj);
-        if (!keys_list.length) {
-            return callback();
-        }
-        var completed = 0;
-        var iterate = function () {
-            var k = keys_list[completed];
-            var args = [obj[k], k, obj].slice(0, iterator.length - 1);
-            args[iterator.length - 1] = function (err) {
-                if (err) {
-                    callback(err);
-                    callback = function () { };
-                }
-                else {
-                    if (++completed === keys_list.length) {
-                        callback();
+                        FR.readAsDataURL(file);
                     }
                     else {
-                        iterate();
+                        throw new SincoInitializationError('¡El primer parámetro debe ser de tipo "File"!');
                     }
                 }
+                else {
+                    throw new SincoInitializationError('¡El navegador no soporta esta funcionalidad!');
+                }
+            }
+        }
+
+        var fallback = function (name, fallback) {
+            var nativeFn = Array.prototype[name];
+            return function (obj, iterator, memo) {
+                var fn = obj ? obj[name] : 0;
+                return fn && fn === nativeFn ?
+                    fn.call(obj, iterator, memo) :
+                    fallback(obj, iterator, memo);
             };
-            iterator.apply(this, args);
         };
-        iterate();
-    };
 
-    var mapSync = fallback('map', function (obj, iterator) {
-        var results = [];
-        eachSync(obj, function (v, k, obj) {
-            results[results.length] = iterator(v, k, obj);
+        var eachSync = fallback('forEach', function (obj, iterator) {
+            var isObj = obj instanceof Object;
+            var arr = isObj ? Object.keys(obj) : (obj || []);
+            for (var i = 0, len = arr.length; i < len; i++) {
+                var k = isObj ? arr[i] : i;
+                iterator(obj[k], k, obj);
+            }
         });
-        return results;
-    });
 
-    var mapAsync = function (eachfn) {
-        return function (obj, iterator, callback) {
+        var eachParallel = function (obj, iterator, callback) {
+            var len = obj.length || Object.keys(obj).length;
+            if (!len) {
+                return callback();
+            }
+            var completed = 0;
+            eachSync(obj, function () {
+                var cb = function (err) {
+                    if (err) {
+                        callback(err);
+                        callback = function () { };
+                    }
+                    else {
+                        if (++completed === len) {
+                            callback();
+                        }
+                    }
+                };
+                var args = Array.prototype.slice.call(arguments);
+                if (iterator.length) {
+                    args = args.slice(0, iterator.length - 1);
+                    args[iterator.length - 1] = cb;
+                }
+                else {
+                    args.push(cb);
+                }
+                iterator.apply(this, args);
+            });
+        };
+
+        var eachSeries = function (obj, iterator, callback) {
+            var keys_list = Object.keys(obj);
+            if (!keys_list.length) {
+                return callback();
+            }
+            var completed = 0;
+            var iterate = function () {
+                var k = keys_list[completed];
+                var args = [obj[k], k, obj].slice(0, iterator.length - 1);
+                args[iterator.length - 1] = function (err) {
+                    if (err) {
+                        callback(err);
+                        callback = function () { };
+                    }
+                    else {
+                        if (++completed === keys_list.length) {
+                            callback();
+                        }
+                        else {
+                            iterate();
+                        }
+                    }
+                };
+                iterator.apply(this, args);
+            };
+            iterate();
+        };
+
+        var mapSync = fallback('map', function (obj, iterator) {
             var results = [];
-            eachfn(obj, function (value, i, obj, callback) {
-                var cb = function (err, v) {
+            eachSync(obj, function (v, k, obj) {
+                results[results.length] = iterator(v, k, obj);
+            });
+            return results;
+        });
+
+        var mapAsync = function (eachfn) {
+            return function (obj, iterator, callback) {
+                var results = [];
+                eachfn(obj, function (value, i, obj, callback) {
+                    var cb = function (err, v) {
+                        results[results.length] = v;
+                        callback(err);
+                    };
+                    var args = [value, i, obj];
+                    if (iterator.length) {
+                        args = args.slice(0, iterator.length - 1);
+                        args[iterator.length - 1] = cb;
+                    }
+                    else {
+                        args.push(cb);
+                    }
+                    iterator.apply(this, args);
+                }, function (err) {
+                    callback(err, results);
+                });
+            };
+        };
+
+        var filterSync = fallback('filter', function (obj, iterator, callback) {
+            var results = [];
+            eachSync(obj, function (v, k, obj) {
+                if (iterator(v, k, obj)) {
                     results[results.length] = v;
+                }
+            });
+            return results;
+        });
+
+        var filterParallel = function (obj, iterator, callback) {
+            var results = [];
+            eachParallel(obj, function (value, k, obj, callback) {
+                var cb = function (err, a) {
+                    if (a) {
+                        results[results.length] = value;
+                    }
                     callback(err);
                 };
-                var args = [value, i, obj];
+                var args = [value, k, obj];
                 if (iterator.length) {
                     args = args.slice(0, iterator.length - 1);
                     args[iterator.length - 1] = cb;
@@ -831,1088 +866,1091 @@ var Sinco = (function (exports) {
                 callback(err, results);
             });
         };
-    };
 
-    var filterSync = fallback('filter', function (obj, iterator, callback) {
-        var results = [];
-        eachSync(obj, function (v, k, obj) {
-            if (iterator(v, k, obj)) {
-                results[results.length] = v;
-            }
+        var reduceSync = fallback('reduce', function (obj, iterator, memo) {
+            eachSync(obj, function (v, i, obj) {
+                memo = iterator(memo, v, i, obj);
+            });
+            return memo;
         });
-        return results;
-    });
 
-    var filterParallel = function (obj, iterator, callback) {
-        var results = [];
-        eachParallel(obj, function (value, k, obj, callback) {
-            var cb = function (err, a) {
-                if (a) {
-                    results[results.length] = value;
+        var reduceSeries = function (obj, iterator, memo, callback) {
+            eachSeries(obj, function (value, i, obj, callback) {
+                var cb = function (err, v) {
+                    memo = v;
+                    callback(err);
+                };
+                var args = [memo, value, i, obj];
+                if (iterator.length) {
+                    args = args.slice(0, iterator.length - 1);
+                    args[iterator.length - 1] = cb;
                 }
-                callback(err);
-            };
-            var args = [value, k, obj];
-            if (iterator.length) {
-                args = args.slice(0, iterator.length - 1);
-                args[iterator.length - 1] = cb;
-            }
-            else {
-                args.push(cb);
-            }
-            iterator.apply(this, args);
-        }, function (err) {
-            callback(err, results);
-        });
-    };
+                else {
+                    args.push(cb);
+                }
+                iterator.apply(this, args);
+            }, function (err) {
+                callback(err, memo);
+            });
+        };
 
-    var reduceSync = fallback('reduce', function (obj, iterator, memo) {
-        eachSync(obj, function (v, i, obj) {
-            memo = iterator(memo, v, i, obj);
-        });
-        return memo;
-    });
+        ////Métodos para Sinco
 
-    var reduceSeries = function (obj, iterator, memo, callback) {
-        eachSeries(obj, function (value, i, obj, callback) {
-            var cb = function (err, v) {
-                memo = v;
-                callback(err);
-            };
-            var args = [memo, value, i, obj];
-            if (iterator.length) {
-                args = args.slice(0, iterator.length - 1);
-                args[iterator.length - 1] = cb;
-            }
-            else {
-                args.push(cb);
-            }
-            iterator.apply(this, args);
-        }, function (err) {
-            callback(err, memo);
-        });
-    };
+        var validacionesOnClick = function (configuracion) {
 
-    ////Métodos para Sinco
+            document.addEventListener('click', function (event) {
+                var target = event.target || event.srcElement;
+                if (target.nodeName.toLowerCase() !== 'body') {
+                    var encontrado,
+                        excepcionEncontrada;
 
-    var validacionesOnClick = function (configuracion) {
-
-        document.addEventListener('click', function (event) {
-            var target = event.target || event.srcElement;
-            if (target.nodeName.toLowerCase() !== 'body') {
-                var encontrado,
-                    excepcionEncontrada;
-
-                var validarClick = function (obj, target) {
-                    encontrado = false;
-                    excepcionEncontrada = false;
-                    if (!!target && target.nodeName.toLowerCase() !== 'html') {
-                        while (target.nodeName.toLowerCase() !== 'body') {
-                            if (!excepcionEncontrada) {
-                                for (var i = 0; i < obj.excepciones.length; i++) {
-                                    if (target.classList && obj.excepciones[i].startsWith('.') && target.classList.contains(obj.excepciones[i].replace('.', ''))) {
-                                        excepcionEncontrada = true;
-                                        break;
-                                    }
-                                    else if (target.id == obj.excepciones[i]) {
-                                        excepcionEncontrada = true;
-                                        break;
+                    var validarClick = function (obj, target) {
+                        encontrado = false;
+                        excepcionEncontrada = false;
+                        if (!!target && target.nodeName.toLowerCase() !== 'html') {
+                            while (target.nodeName.toLowerCase() !== 'body') {
+                                if (!excepcionEncontrada) {
+                                    for (var i = 0; i < obj.excepciones.length; i++) {
+                                        if (target.classList && obj.excepciones[i].startsWith('.') && target.classList.contains(obj.excepciones[i].replace('.', ''))) {
+                                            excepcionEncontrada = true;
+                                            break;
+                                        }
+                                        else if (target.id == obj.excepciones[i]) {
+                                            excepcionEncontrada = true;
+                                            break;
+                                        }
                                     }
                                 }
-                            }
 
-                            if ((obj.target instanceof Array && obj.target.indexOf(target.id) >= 0) || target.id == obj.target) {
-                                encontrado = true;
-                                break;
+                                if ((obj.target instanceof Array && obj.target.indexOf(target.id) >= 0) || target.id == obj.target) {
+                                    encontrado = true;
+                                    break;
+                                }
+                                target = target.parentNode;
                             }
-                            target = target.parentNode;
+                        }
+
+                        if (!obj.iguales && !encontrado && !excepcionEncontrada) {
+                            obj.funcion();
+                        }
+                        else if (obj.iguales && encontrado && !excepcionEncontrada) {
+                            obj.funcion();
                         }
                     }
 
-                    if (!obj.iguales && !encontrado && !excepcionEncontrada) {
-                        obj.funcion();
-                    }
-                    else if (obj.iguales && encontrado && !excepcionEncontrada) {
-                        obj.funcion();
-                    }
-                }
-
-                configuracion.forEach(function (obj) {
-                    (function (target) {
-                        validarClick(obj, target);
-                    }(target));
-                });
-            }
-
-        }, true);
-    }
-
-    var get = function (id) {
-        id = id.toString();
-        if (/[$/:-?{-~!"^`\[\]#.\s]/.test(id)) {
-
-            if (document.querySelectorAll) {
-                var r = Sinco.map(document.querySelectorAll(id), function (elem) {
-                    elem = Sinco.extend(elem);
-                    elem.listeners = elem.listeners || {};
-                    return elem;
-                });
-
-                var def = function(p){
-                    Object.defineProperty(r, p, {
-                        get: function() {
-                            return function() {
-                                var args = Array.prototype.slice.call(arguments);
-                                this.forEach(function(e){
-                                    e[p].apply(e, args);
-                                });
-                            }
-                        },
-                        set: function() { throw new ReferenceError('¡El elemento no se puede eliminar ni reasignar!'); },
-                        enumerable: false,
-                        configurable: false
+                    configuracion.forEach(function (obj) {
+                        (function (target) {
+                            validarClick(obj, target);
+                        }(target));
                     });
                 }
 
-                Object.keys(__htmlElementsProps).forEach(def);
-    
-                return r;
+            }, true);
+        }
+
+        var get = function (id) {
+            id = id.toString();
+            if (/[$/:-?{-~!"^`\[\]#.\s]/.test(id)) {
+
+                if (document.querySelectorAll) {
+                    var r = Sinco.map(document.querySelectorAll(id), function (elem) {
+                        elem = Sinco.extend(elem);
+                        elem.listeners = elem.listeners || {};
+                        return elem;
+                    });
+
+                    var def = function(p){
+                        Object.defineProperty(r, p, {
+                            get: function() {
+                                return function() {
+                                    var args = Array.prototype.slice.call(arguments);
+                                    this.forEach(function(e){
+                                        e[p].apply(e, args);
+                                    });
+                                }
+                            },
+                            set: function() { throw new ReferenceError('¡El elemento no se puede eliminar ni reasignar!'); },
+                            enumerable: false,
+                            configurable: false
+                        });
+                    }
+
+                    Object.keys(__htmlElementsProps).forEach(def);
+        
+                    return r;
+                }
+                else {
+                    var classes = id.split(' ').join('').split('.').clean('');
+                    var elems = document.body.getElementsByTagName('*');
+
+                    var filtrado = Sinco.filter(elems, function (elem) {
+                        return elem.classList && classes.filter(function (cl) {
+                            return elem.classList.contains(cl);
+                        }).length == classes.length;
+                    }).unique();
+
+                    return filtrado.map(function (elem) {
+                        elem = Sinco.extend(elem);
+                        elem.listeners = elem.listeners || {};
+                        return elem;
+                    });
+                }
             }
             else {
-                var classes = id.split(' ').join('').split('.').clean('');
-                var elems = document.body.getElementsByTagName('*');
-
-                var filtrado = Sinco.filter(elems, function (elem) {
-                    return elem.classList && classes.filter(function (cl) {
-                        return elem.classList.contains(cl);
-                    }).length == classes.length;
-                }).unique();
-
-                return filtrado.map(function (elem) {
-                    elem = Sinco.extend(elem);
-                    elem.listeners = elem.listeners || {};
-                    return elem;
-                });
+                var el = Sinco.extend(document.getElementById(id));
+                if (el)
+                    el.listeners = el.listeners || {};
+                return el;
             }
-        }
-        else {
-            var el = Sinco.extend(document.getElementById(id));
-            if (el)
-                el.listeners = el.listeners || {};
-            return el;
-        }
-    };
+        };
 
-    var extend = function (el, opt) {
-        if (!el) return null;
-        opt = opt || __htmlElementsProps;
+        var extend = function (el, opt) {
+            if (!el) return null;
+            opt = opt || __htmlElementsProps;
 
-        var extendProps = function (el, opt) {
-            for (var n in opt) {
-                if (el[n] !== null && typeof el[n] == 'object' && !(el[n] instanceof Array) && !(el[n] instanceof HTMLElement))
-                    extendProps(el[n], opt[n]);
-                else
-                    el[n] = opt[n];
+            var extendProps = function (el, opt) {
+                for (var n in opt) {
+                    if (el[n] !== null && typeof el[n] == 'object' && !(el[n] instanceof Array) && !(el[n] instanceof HTMLElement))
+                        extendProps(el[n], opt[n]);
+                    else
+                        el[n] = opt[n];
+                }
+                return el;
             }
+
+            el = extendProps(el, opt);
+            el.listeners = el.listeners || {};
             return el;
         }
 
-        el = extendProps(el, opt);
-        el.listeners = el.listeners || {};
-        return el;
-    }
-
-    var createElem = function (type, attr) {
-        var ele = Sinco.extend(document.createElement(type));
-        attr = attr || {};
-        var k = Object.keys(attr);
-        var l = k.length;
-        var i = 0;
-        var prop;
-        while (i < l) {
-            prop = k[i];
-            ele.attribute(prop, attr[prop]);
-            i++;
-        }
-        ele.listeners = {};
-        return ele;
-    }
-
-    var attribute = function (nombre, valor) {
-        if (!valor)
-            return this.getAttribute(nombre);
-        else {
-            this.setAttribute(nombre, valor);
-            dispatch.call(this, 'attribute', { name: nombre, value: valor });
-            return this;
-        }
-    }
-
-    var on = function (eventName, listener) {
-        if (!this.listeners[eventName]) this.listeners[eventName] = [];
-        this.listeners[eventName].push(listener);
-    }
-
-    var off = function (eventName) {
-        this.listeners[eventName] = [];
-    }
-
-    var dispatch = function (eventName, values) {
-        if (this.listeners[eventName]) {
-            for (var i = 0; this.listeners[eventName] && i < this.listeners[eventName].length; i++) {
-                this.listeners[eventName][i](this, values);
+        var createElem = function (type, attr) {
+            var ele = Sinco.extend(document.createElement(type));
+            attr = attr || {};
+            var k = Object.keys(attr);
+            var l = k.length;
+            var i = 0;
+            var prop;
+            while (i < l) {
+                prop = k[i];
+                ele.attribute(prop, attr[prop]);
+                i++;
             }
+            ele.listeners = {};
+            return ele;
         }
-    }
 
-    var isElement = function(obj) {
-        try {
-            return obj instanceof HTMLElement;
-        }
-        catch(e){
-            return (typeof obj==="object") &&
-                    (obj.nodeType===1) && (typeof obj.style === "object") &&
-                    (typeof obj.ownerDocument ==="object");
-        }
-    }
-
-    var insert = function (e, opc) {
-        if (Array.isArray(e)) {
-            var orig = this;
-            e.forEach(function (el) { orig.appendChild(el); });
-        }
-        else if (typeof opc === 'undefined' || (typeof opc === 'boolean' && !opc)) {
-            this.appendChild(e);
-        }
-        else if (typeof opc === 'number') {
-            if (this.childNodes[opc]) {
-                this.insertBefore(e, this.childNodes[opc]);
-            }
+        var attribute = function (nombre, valor) {
+            if (!valor)
+                return this.getAttribute(nombre);
             else {
+                this.setAttribute(nombre, valor);
+                dispatch.call(this, 'attribute', { name: nombre, value: valor });
+                return this;
+            }
+        }
+
+        var on = function (eventName, listener) {
+            if (!this.listeners[eventName]) this.listeners[eventName] = [];
+            this.listeners[eventName].push(listener);
+        }
+
+        var off = function (eventName) {
+            this.listeners[eventName] = [];
+        }
+
+        var dispatch = function (eventName, values) {
+            if (this.listeners[eventName]) {
+                for (var i = 0; this.listeners[eventName] && i < this.listeners[eventName].length; i++) {
+                    this.listeners[eventName][i](this, values);
+                }
+            }
+        }
+
+        var isElement = function(obj) {
+            try {
+                return obj instanceof HTMLElement;
+            }
+            catch(e){
+                return (typeof obj==="object") &&
+                        (obj.nodeType===1) && (typeof obj.style === "object") &&
+                        (typeof obj.ownerDocument ==="object");
+            }
+        }
+
+        var insert = function (e, opc) {
+            if (Array.isArray(e)) {
+                var orig = this;
+                e.forEach(function (el) { orig.appendChild(el); });
+            }
+            else if (typeof opc === 'undefined' || (typeof opc === 'boolean' && !opc)) {
                 this.appendChild(e);
             }
-        }
-        else {
-            this.insertBefore(e, this.firstChild);
-        }
+            else if (typeof opc === 'number') {
+                if (this.childNodes[opc]) {
+                    this.insertBefore(e, this.childNodes[opc]);
+                }
+                else {
+                    this.appendChild(e);
+                }
+            }
+            else {
+                this.insertBefore(e, this.firstChild);
+            }
 
-        if (this.listeners && this.listeners['insert']) {
-            dispatch.call(this, 'insert');
-        }
-        return this;
-    }
-
-    var insertAfter = function (e, opc) {
-        if (!opc || !isElement(opc)) {
-            throw new TypeError('Debe especificar el segundo parámetro, el cual corresponde al elemento HTML que quedará previo al nuevo insertado.');
-        }
-        if (Array.isArray(e)) {
-            e = e.reverse();
-        }
-        var node = opc;
-        var index = 0;
-        for (; (node=node.previousSibling); index++);
-        return insert.call(this, e, index+1);
-    };
-
-    var _delete = function (ele) {
-        var _this = ele || this;
-        var _r = Sinco.extend(_this.cloneNode());
-        if (!_this.remove) {
-            if (_this.parentElement)
-                _this.parentElement.removeChild(_this);
-        }
-        else
-            _this.remove();
-        return _r;
-    }
-
-    var styles = function (n, v) {
-        if (!v && v !== '')
-            return this.style[n];
-        else {
-            this.style[n] = v;
+            if (this.listeners && this.listeners['insert']) {
+                dispatch.call(this, 'insert');
+            }
             return this;
         }
-    }
 
-    var addEvent = function (type, callback) {
-        var _this = this;
-
-        if (_this.addEventListener) {
-            _this['_' + type] = callback;
-            _this.addEventListener(type, callback, false);
-        }
-        else if (_this.attachEvent) {
-            _this['_' + type] = callback;
-            _this['e' + type + callback] = callback;
-            _this[type + callback] = function () {
-                _this['e' + type + callback](window.event);
+        var insertAfter = function (e, opc) {
+            if (!opc || !isElement(opc)) {
+                throw new TypeError('Debe especificar el segundo parámetro, el cual corresponde al elemento HTML que quedará previo al nuevo insertado.');
             }
-            _this.attachEvent('on' + type, _this[type + callback]);
-        }
-        return _this;
-    }
-
-    var removeEvent = function (type, callback) {
-        if (this.detachEvent) {
-            this.detachEvent('on' + type, this[type + callback]);
-            this[type + callback] = null;
-        }
-        else
-            this.removeEventListener(type, callback, false);
-        return this;
-    }
-
-    var __htmlElementsProps = {
-        get: get,
-        attribute: attribute,
-        insert: insert,
-        insertAfter: insertAfter,
-        addEvent: addEvent,
-        removeEvent: removeEvent,
-        styles: styles,
-        on: on,
-        off: off,
-        dispatch: dispatch,
-        'delete': _delete
-    };
-
-    var encrypt = function (txt) {
-        if (typeof txt === 'String')
-            return txt.toAESEncrypt();
-        else if (txt instanceof Sinco.constructor)
-            return txt.value.toAESEncrypt();
-        else
-            return null;
-    }
-
-    var addStyles = function (e, p) {
-        if (e instanceof Sinco.constructor) {
-            for (var key in p)
-                e.styles(key, p[key]);
-        }
-        else {
-            for (var key in p)
-                e.style[key] = p[key];
-        }
-    }
-
-    var parseXml = function (xmlStr) {
-        if (window.DOMParser) {
-            return new window.DOMParser().parseFromString(xmlStr, 'text/xml');
-        }
-        var xmlDoc = null;
-        if (typeof window.ActiveXObject != 'undefined' && !!(xmlDoc = new window.ActiveXObject('Microsoft.XMLDOM'))) {
-            xmlDoc.async = 'false';
-            xmlDoc.loadXML(xmlStr);
-        }
-        return xmlDoc;
-    }
-
-    var map = function (obj, iterator, callback) {
-        if (Array.prototype.map && obj && obj.length) {
-            return Array.prototype.map.call(obj, iterator);
-        }
-        else {
-            return (callback ? mapAsync(eachParallel) : mapSync)(obj, iterator, callback);
-        }
-    }
-
-    var filter = function (obj, iterator, callback) {
-        return (callback ? filterParallel : filterSync)(obj, iterator, callback);
-    }
-
-    var reduce = function (obj, iterator, memo, callback) {
-        return (callback ? reduceSeries : reduceSync)(obj, iterator, memo, callback);
-    }
-
-    var parallel = function (fns, callback) {
-        var results = new fns.constructor();
-        eachParallel(fns, function (fn, k, cb) {
-            fn(function (err) {
-                var v = Array.prototype.slice.call(arguments, 1);
-                results[k] = v.length <= 1 ? v[0] : v;
-                cb(err);
-            });
-        }, function (err) {
-            (callback || function () { })(err, results);
-        });
-    }
-
-    var series = function (fns, callback) {
-        var results = new fns.constructor();
-        eachSeries(fns, function (fn, k, cb) {
-            fn(function (err, result) {
-                var v = Array.prototype.slice.call(arguments, 1);
-                results[k] = v.length <= 1 ? v[0] : v;
-                cb(err);
-            });
-        }, function (err) {
-            (callback || function () { })(err, results);
-        });
-    }
-
-    var RequestStatusCodes = {
-        '0': 'Aborted',
-        '200': 'Ok',
-        '201': 'Created',
-        '204': 'NoContent',
-        '302': 'Moved',
-        '300': 'MultipleChoices',
-        '303': 'SeeOther',
-        '400': 'BadRequest',
-        '401': 'Unauthorized',
-        '403': 'Forbidden',
-        '404': 'NotFound',
-        '408': 'RequestTimeout',
-        '409': 'Conflict',
-        '412': 'PreconditionFailed',
-        '500': 'InternalServerError',
-        '504': 'GatewayTimeout'
-    };
-
-    var Request = function (method, url, fn, data, contentType, includeAccept) {
-        var f = function () { };
-        var alerta;
-
-        includeAccept = typeof includeAccept == 'boolean' ? includeAccept : true;
-        fn = fn || {};
-
-        for (var code in RequestStatusCodes) {
-            switch (code) {
-                case '408':
-                    fn.RequestTimeout = function () { alert('No se puede establecer comunicación con el servidor'); };
-                    break;
-                case '409':
-                    fn.Conflict = fn.Conflict || function () {
-                                    alert('Se cerrará esta sesión porque el usuario ha ingresado en otro dispositivo');
-                                    window.location.href = 'login.aspx';
-                                };
-                    break;
-                case '412':
-                    fn.PreconditionFailed = fn.PreconditionFailed || function () {
-                                                console.log('Posiblemente la sesión no se comparte entre el marco y el módulo');
-                                                if (!alerta) {
-                                                    alerta = true;
-                                                    alert('No existe Sesión');
-                                                }
-                                                window.location.href = 'login.aspx';
-                                            };
-                    break;
-                default:
-                    fn[RequestStatusCodes[code]] = fn[RequestStatusCodes[code]] || f;
-                    break;
+            if (Array.isArray(e)) {
+                e = e.reverse();
             }
-        }
-
-        var types = {
-            JSON: 'application/json; charset=utf-8',
-            XML: 'application/xml; charset=utf-8',
-            TEXT: 'text/plain; charset=utf-8',
-            DEFAULT: 'application/x-www-form-urlencoded'
+            var node = opc;
+            var index = 0;
+            for (; (node=node.previousSibling); index++);
+            return insert.call(this, e, index+1);
         };
 
-        var _exec = function (prevFn, fn, text, viewContent, responseHeaders) {
-            if (viewContent) {
+        var insertTo = function (e) {
+            if (typeof e === 'undefined' || !e){
+                throw new TypeError('Debe especificar el elemento al que se insertará.');
+            }
+            e.appendChild(this);
 
-                responseHeaders = responseHeaders.split('\n').filter(function (item) { return item.split(' ').join('') !== '' && item.split('\r').join('') !== ''; }).map(function (item) {
-                    var splitted = item.split(':');
-                    return {
-                        name: splitted[0],
-                        value: splitted[1].trim()
-                    };
+            if (this.listeners && this.listeners['insertTo']) {
+                dispatch.call(this, 'insertTo');
+            }
+            return this;
+        };
+
+        var _delete = function (ele) {
+            var _this = ele || this;
+            var _r = Sinco.extend(_this.cloneNode());
+            if (!_this.remove) {
+                if (_this.parentElement)
+                    _this.parentElement.removeChild(_this);
+            }
+            else
+                _this.remove();
+            return _r;
+        }
+
+        var styles = function (n, v) {
+            if (!v && v !== '')
+                return this.style[n];
+            else {
+                this.style[n] = v;
+                return this;
+            }
+        }
+
+        var addEvent = function (type, callback) {
+            var _this = this;
+
+            if (_this.addEventListener) {
+                _this['_' + type] = callback;
+                _this.addEventListener(type, callback, false);
+            }
+            else if (_this.attachEvent) {
+                _this['_' + type] = callback;
+                _this['e' + type + callback] = callback;
+                _this[type + callback] = function () {
+                    _this['e' + type + callback](window.event);
+                }
+                _this.attachEvent('on' + type, _this[type + callback]);
+            }
+            return _this;
+        }
+
+        var removeEvent = function (type, callback) {
+            if (this.detachEvent) {
+                this.detachEvent('on' + type, this[type + callback]);
+                this[type + callback] = null;
+            }
+            else
+                this.removeEventListener(type, callback, false);
+            return this;
+        }
+
+        var __htmlElementsProps = {
+            get: get,
+            attribute: attribute,
+            insert: insert,
+            insertAfter: insertAfter,
+            insertTo, insertTo,
+            addEvent: addEvent,
+            removeEvent: removeEvent,
+            styles: styles,
+            on: on,
+            off: off,
+            dispatch: dispatch,
+            'delete': _delete
+        };
+
+        var encrypt = function (txt) {
+            if (typeof txt === 'String')
+                return txt.toAESEncrypt();
+            else if (txt instanceof Sinco.constructor)
+                return txt.value.toAESEncrypt();
+            else
+                return null;
+        }
+
+        var addStyles = function (e, p) {
+            if (e instanceof Sinco.constructor) {
+                for (var key in p)
+                    e.styles(key, p[key]);
+            }
+            else {
+                for (var key in p)
+                    e.style[key] = p[key];
+            }
+        }
+
+        var parseXml = function (xmlStr) {
+            if (window.DOMParser) {
+                return new window.DOMParser().parseFromString(xmlStr, 'text/xml');
+            }
+            var xmlDoc = null;
+            if (typeof window.ActiveXObject != 'undefined' && !!(xmlDoc = new window.ActiveXObject('Microsoft.XMLDOM'))) {
+                xmlDoc.async = 'false';
+                xmlDoc.loadXML(xmlStr);
+            }
+            return xmlDoc;
+        }
+
+        var map = function (obj, iterator, callback) {
+            if (Array.prototype.map && obj && obj.length) {
+                return Array.prototype.map.call(obj, iterator);
+            }
+            else {
+                return (callback ? mapAsync(eachParallel) : mapSync)(obj, iterator, callback);
+            }
+        }
+
+        var filter = function (obj, iterator, callback) {
+            return (callback ? filterParallel : filterSync)(obj, iterator, callback);
+        }
+
+        var reduce = function (obj, iterator, memo, callback) {
+            return (callback ? reduceSeries : reduceSync)(obj, iterator, memo, callback);
+        }
+
+        var parallel = function (fns, callback) {
+            var results = new fns.constructor();
+            eachParallel(fns, function (fn, k, cb) {
+                fn(function (err) {
+                    var v = Array.prototype.slice.call(arguments, 1);
+                    results[k] = v.length <= 1 ? v[0] : v;
+                    cb(err);
                 });
+            }, function (err) {
+                (callback || function () { })(err, results);
+            });
+        }
 
-                switch (contentType.toUpperCase()) {
-                    case 'JSON':
-                    case 'DEFAULT':
-                        text = JSON.tryParse(text);
+        var series = function (fns, callback) {
+            var results = new fns.constructor();
+            eachSeries(fns, function (fn, k, cb) {
+                fn(function (err, result) {
+                    var v = Array.prototype.slice.call(arguments, 1);
+                    results[k] = v.length <= 1 ? v[0] : v;
+                    cb(err);
+                });
+            }, function (err) {
+                (callback || function () { })(err, results);
+            });
+        }
+
+        var RequestStatusCodes = {
+            '0': 'Aborted',
+            '200': 'Ok',
+            '201': 'Created',
+            '204': 'NoContent',
+            '302': 'Moved',
+            '300': 'MultipleChoices',
+            '303': 'SeeOther',
+            '400': 'BadRequest',
+            '401': 'Unauthorized',
+            '403': 'Forbidden',
+            '404': 'NotFound',
+            '408': 'RequestTimeout',
+            '409': 'Conflict',
+            '412': 'PreconditionFailed',
+            '500': 'InternalServerError',
+            '504': 'GatewayTimeout'
+        };
+
+        var Request = function (method, url, fn, data, contentType, includeAccept) {
+            var f = function () { };
+            var alerta;
+
+            includeAccept = typeof includeAccept == 'boolean' ? includeAccept : true;
+            fn = fn || {};
+
+            for (var code in RequestStatusCodes) {
+                switch (code) {
+                    case '408':
+                        fn.RequestTimeout = function () { alert('No se puede establecer comunicación con el servidor'); };
                         break;
-                    case 'XML':
-                        text = parseXml(text);
+                    case '409':
+                        fn.Conflict = fn.Conflict || function () {
+                                        alert('Se cerrará esta sesión porque el usuario ha ingresado en otro dispositivo');
+                                        window.location.href = 'login.aspx';
+                                    };
+                        break;
+                    case '412':
+                        fn.PreconditionFailed = fn.PreconditionFailed || function () {
+                                                    console.log('Posiblemente la sesión no se comparte entre el marco y el módulo');
+                                                    if (!alerta) {
+                                                        alerta = true;
+                                                        alert('No existe Sesión');
+                                                    }
+                                                    window.location.href = 'login.aspx';
+                                                };
+                        break;
+                    default:
+                        fn[RequestStatusCodes[code]] = fn[RequestStatusCodes[code]] || f;
                         break;
                 }
             }
 
-            if (prevFn) {
-                prevFn(contentType.toUpperCase() == 'JSON' || contentType.toUpperCase() == 'DEFAULT' ? JSON.tryParse(text) : (contentType.toUpperCase() == 'XML' ? parseXml(text) : text), responseHeaders);
+            var types = {
+                JSON: 'application/json; charset=utf-8',
+                XML: 'application/xml; charset=utf-8',
+                TEXT: 'text/plain; charset=utf-8',
+                DEFAULT: 'application/x-www-form-urlencoded'
+            };
+
+            var _exec = function (prevFn, fn, text, viewContent, responseHeaders) {
+                if (viewContent) {
+
+                    responseHeaders = responseHeaders.split('\n').filter(function (item) { return item.split(' ').join('') !== '' && item.split('\r').join('') !== ''; }).map(function (item) {
+                        var splitted = item.split(':');
+                        return {
+                            name: splitted[0],
+                            value: splitted[1].trim()
+                        };
+                    });
+
+                    switch (contentType.toUpperCase()) {
+                        case 'JSON':
+                        case 'DEFAULT':
+                            text = JSON.tryParse(text);
+                            break;
+                        case 'XML':
+                            text = parseXml(text);
+                            break;
+                    }
+                }
+
+                if (prevFn) {
+                    prevFn(contentType.toUpperCase() == 'JSON' || contentType.toUpperCase() == 'DEFAULT' ? JSON.tryParse(text) : (contentType.toUpperCase() == 'XML' ? parseXml(text) : text), responseHeaders);
+                }
+
+                fn(text, responseHeaders);
+            };
+
+            contentType = contentType || 'json';
+
+            var http = new XMLHttpRequest();
+            http.open(method, url, true);
+            if (includeAccept === true) {
+                http.setRequestHeader('Accept', 'application/json, text/javascript');
             }
 
-            fn(text, responseHeaders);
-        };
+            http.setRequestHeader('Content-type', types.hasOwnProperty(contentType.toUpperCase()) ? types[contentType.toUpperCase()] : contentType);
+            
+            var headers = Request.headersConfig
+                            .filter(function (header) {
+                                return header.type(header.url)(url);
+                            })
+                            .reduce(function (acum, act) {
+                                if (!acum.some(function (a) {
+                                    return a.key.toLowerCase() === act.key.toLowerCase();
+                                })) {
+                                    acum.push(act);
+                                }
+                                return acum;
+                            }, []);
 
-        contentType = contentType || 'json';
+            if (headers.length > 0) {
+                headers.forEach(function (header) {
+                    http.setRequestHeader(header.key, typeof header.value == 'function' ? header.value() : header.value);
+                });
+            }
 
-        var http = new XMLHttpRequest();
-        http.open(method, url, true);
-        if (includeAccept === true) {
-            http.setRequestHeader('Accept', 'application/json, text/javascript');
-        }
-
-        http.setRequestHeader('Content-type', types.hasOwnProperty(contentType.toUpperCase()) ? types[contentType.toUpperCase()] : contentType);
-        
-        var headers = Request.headersConfig
-                        .filter(function (header) {
-                            return header.type(header.url)(url);
-                        })
-                        .reduce(function (acum, act) {
-                            if (!acum.some(function (a) {
-                                return a.key.toLowerCase() === act.key.toLowerCase();
-                            })) {
-                                acum.push(act);
+            var __switch = [200, 201, 300];
+            http.onreadystatechange = function () {
+                if (http.readyState == 4 && http.status !== 0) {
+                    var statusCode = RequestStatusCodes[http.status];
+                    _exec(Request.responseFunctions[statusCode], fn[statusCode], http.responseText, __switch.contains(http.status), http.getAllResponseHeaders());
+                }
+            };
+            var errorXmlHttp = function(msj) {
+                return function(e) {
+                    var statusCode = RequestStatusCodes['0'];
+                    msj = 'Mensaje: ' + msj + ', Error: ' + JSON.stringify(e);
+                    _exec(Request.responseFunctions[statusCode], fn[statusCode], msj, __switch.contains(0), http.getAllResponseHeaders());
+                }
+            };
+            http.onabort = errorXmlHttp('El usuario abortó el Request');
+            http.onerror = errorXmlHttp('Ocurrió un error en el Request');
+            if (data) {
+                if (contentType.toUpperCase() == 'DEFAULT') {
+                    var params = [];
+                    for (var attr in data) {
+                        if (data[attr] instanceof Array) {
+                            if (!!data[attr].length) {
+                                data[attr].forEach(function (d) {
+                                    params.push(String.format('{0}={1}', attr, encodeURIComponent(d)));
+                                });
                             }
-                            return acum;
-                        }, []);
-
-        if (headers.length > 0) {
-            headers.forEach(function (header) {
-                http.setRequestHeader(header.key, typeof header.value == 'function' ? header.value() : header.value);
-            });
-        }
-
-        var __switch = [200, 201, 300];
-        http.onreadystatechange = function () {
-            if (http.readyState == 4 && http.status !== 0) {
-                var statusCode = RequestStatusCodes[http.status];
-                _exec(Request.responseFunctions[statusCode], fn[statusCode], http.responseText, __switch.contains(http.status), http.getAllResponseHeaders());
-            }
-        };
-        var errorXmlHttp = function(msj) {
-            return function(e) {
-                var statusCode = RequestStatusCodes['0'];
-                msj = 'Mensaje: ' + msj + ', Error: ' + JSON.stringify(e);
-                _exec(Request.responseFunctions[statusCode], fn[statusCode], msj, __switch.contains(0), http.getAllResponseHeaders());
-            }
-        };
-        http.onabort = errorXmlHttp('El usuario abortó el Request');
-        http.onerror = errorXmlHttp('Ocurrió un error en el Request');
-        if (data) {
-            if (contentType.toUpperCase() == 'DEFAULT') {
-                var params = [];
-                for (var attr in data) {
-                    if (data[attr] instanceof Array) {
-                        if (!!data[attr].length) {
-                            data[attr].forEach(function (d) {
-                                params.push(String.format('{0}={1}', attr, encodeURIComponent(d)));
-                            });
+                            else {
+                                params.push(String.format('{0}={1}', attr, ''));
+                            }
                         }
                         else {
-                            params.push(String.format('{0}={1}', attr, ''));
+                            params.push(String.format('{0}={1}', attr, encodeURIComponent(data[attr])));
                         }
                     }
-                    else {
-                        params.push(String.format('{0}={1}', attr, encodeURIComponent(data[attr])));
-                    }
+                    http.send(params.join('&'));
                 }
-                http.send(params.join('&'));
-            }
-            else if (contentType.toUpperCase() == 'TEXT') {
-                http.send(data);
-            }
-            else {
-                http.send(JSON.stringify(data));
-            }
-        }
-        else
-            http.send();
-
-        return http;
-    }
-    Object.defineProperty(Request, 'headersConfig', {
-        value: [],
-        enumerable: false,
-        configurable: false
-    });
-    Object.defineProperty(Request, 'responseFunctions', {
-        value: {},
-        enumerable: false,
-        configurable: false
-    });
-
-    var _headerType = { 
-        startsWith: function(x) {
-            return function(y) {
-                return new RegExp('(^' + x + ')', 'i').test(y);
-            }
-        },
-        endsWith: function(x) {
-            return function(y) {
-                return new RegExp('(' + x + '$)', 'i').test(y);
-            }
-        },
-        equals: function(x) {
-            return function(y) {
-                return new RegExp('(^' + x + '$)', 'i').test(y);
-            }
-        },
-        contains: function(x) {
-            return function(y) {
-                return new RegExp(x, 'i').test(y);
-            }
-        },
-        different: function(x) {
-            return function(y) {
-                return new RegExp('^(?!.*?(^' + x + '$)).*', 'i').test(y);
-            }
-        },
-        notContains: function(x) {
-            return function(y) {
-                return new RegExp('^(?!.*?' + x + ').*', 'i').test(y);
-            }
-        }
-    };
-
-    Request.setHeader = function (url, key, value, type) {
-        type = _headerType[type || 'startsWith'];
-
-        if (Request.headersConfig.some(function (hc) { return hc.url == url && hc.key == key; })) {
-            Request.headersConfig
-                .filter(function (hc) { return hc.url == url && hc.key == key; })
-                .forEach(function(hc) {
-                    hc.value = value;
-                    hc.type = type;
-                });
-        }
-        else {
-            Request.headersConfig.push({ url: url, key: key, value: value, type: type });
-        }
-    };
-    Request.setResponseFunctions = function (fns) {
-        for (var name in fns) {
-            Request.responseFunctions[name] = fns[name];
-        }
-    };
-
-    var script = function () {
-
-        var extractHostname = function (url) {
-            var hostname;
-
-            if (url.indexOf("://") > -1) {
-                hostname = url.split('/')[2];
-            }
-            else {
-                hostname = url.split('/')[0];
-            }
-
-            hostname = hostname.split(':')[0];
-            hostname = hostname.split('?')[0];
-
-            return hostname;
-        }
-
-        var _url = window.location.href.split('/');
-        _url.pop();
-
-        var _s = document.getElementsByTagName('script');
-        var _src = _s[_s.length - 1].src;
-
-        var _domain = extractHostname(_src);
-        var _urlOriginal = _src;
-
-        _src = _src.replaceAll(_url.join('/'), '').split('/');
-        _s = _src.pop();
-        _src.shift();
-        return {
-            name: _s.split('.').shift(),
-            url: _s,
-            path: _src.join('/'),
-            originalUrl: _urlOriginal.split(_s).join(''),
-            host: _domain,
-            locationHost: extractHostname(window.location.href)
-        };
-    }
-
-    var QueryString = {
-        toString: function () {
-            var retorno = '',
-                sep = '';
-            for (var name in Sinco.QueryString) {
-                if (typeof Sinco.QueryString[name] !== 'function') {
-                    retorno += sep + name + '=' + Sinco.QueryString[name];
-                    sep = '&';
+                else if (contentType.toUpperCase() == 'TEXT') {
+                    http.send(data);
+                }
+                else {
+                    http.send(JSON.stringify(data));
                 }
             }
-            return retorno;
-        },
-        hasProperties: function () {
-            for (var name in Sinco.QueryString)
-                if (typeof Sinco.QueryString[name] !== 'function')
-                    return true;
-            return false;
-        }
-    };
+            else
+                http.send();
 
-    var hash;
-    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-    if (window.location.href.lastIndexOf(hashes[0]) != 0) {
-        hashes.forEach(function (hash) {
-            hash = hash.split('=');
-            QueryString[hash[0].toLowerCase()] = hash[1].split('#').shift();
+            return http;
+        }
+        Object.defineProperty(Request, 'headersConfig', {
+            value: [],
+            enumerable: false,
+            configurable: false
         });
-    }
+        Object.defineProperty(Request, 'responseFunctions', {
+            value: {},
+            enumerable: false,
+            configurable: false
+        });
 
-    var initialize = function (_plugins, _fn, _src) {
-        var SincoRequire = function (plugins, fn, src) {
+        var _headerType = { 
+            startsWith: function(x) {
+                return function(y) {
+                    return new RegExp('(^' + x + ')', 'i').test(y);
+                }
+            },
+            endsWith: function(x) {
+                return function(y) {
+                    return new RegExp('(' + x + '$)', 'i').test(y);
+                }
+            },
+            equals: function(x) {
+                return function(y) {
+                    return new RegExp('(^' + x + '$)', 'i').test(y);
+                }
+            },
+            contains: function(x) {
+                return function(y) {
+                    return new RegExp(x, 'i').test(y);
+                }
+            },
+            different: function(x) {
+                return function(y) {
+                    return new RegExp('^(?!.*?(^' + x + '$)).*', 'i').test(y);
+                }
+            },
+            notContains: function(x) {
+                return function(y) {
+                    return new RegExp('^(?!.*?' + x + ').*', 'i').test(y);
+                }
+            }
+        };
 
-            //Funcionalidades Require
-            {
+        Request.setHeader = function (url, key, value, type) {
+            type = _headerType[type || 'startsWith'];
 
-                var modules = [],
-                    pending = [],
-                    loaded = [];
+            if (Request.headersConfig.some(function (hc) { return hc.url == url && hc.key == key; })) {
+                Request.headersConfig
+                    .filter(function (hc) { return hc.url == url && hc.key == key; })
+                    .forEach(function(hc) {
+                        hc.value = value;
+                        hc.type = type;
+                    });
+            }
+            else {
+                Request.headersConfig.push({ url: url, key: key, value: value, type: type });
+            }
+        };
+        Request.setResponseFunctions = function (fns) {
+            for (var name in fns) {
+                Request.responseFunctions[name] = fns[name];
+            }
+        };
 
-                /**
-                 * @name Define
-                 *
-                 * @description Función que realiza la creación de un módulo importando funcionalidades
-                 *              definidas en otros recursos
-                 * @param {String} name String con el nombre que identificará el módulo.
-                 * @param {*} _dependencies Objeto de tipo Función o Arreglo. Al ser arreglo, son los
-                 *                           módulos que éste necesitará.
-                 * @param {Function} _module Función que se ejecutará al momento de cargar las dependencias.
-                 */
-                var define = function (name, _dependencies, _module) {
-                    var dependencies, module;
-                    if (typeof _dependencies === 'function')
-                        module = _dependencies,
-                            dependencies = require.extractDependencies(module);
-                    else
-                        dependencies = _dependencies,
-                            module = _module;
+        var script = function () {
 
-                    if (!dependencies || !dependencies.length) {
-                        loaded.push(name);
+            var extractHostname = function (url) {
+                var hostname;
 
-                        modules[name] = {
-                            name: name,
-                            callback: module,
-                            module: module(),
-                            loaded: true,
-                            dependencies: []
-                        };
+                if (url.indexOf("://") > -1) {
+                    hostname = url.split('/')[2];
+                }
+                else {
+                    hostname = url.split('/')[0];
+                }
+
+                hostname = hostname.split(':')[0];
+                hostname = hostname.split('?')[0];
+
+                return hostname;
+            }
+
+            var _url = window.location.href.split('/');
+            _url.pop();
+
+            var _s = document.getElementsByTagName('script');
+            var _src = _s[_s.length - 1].src;
+
+            var _domain = extractHostname(_src);
+            var _urlOriginal = _src;
+
+            _src = _src.replaceAll(_url.join('/'), '').split('/');
+            _s = _src.pop();
+            _src.shift();
+            return {
+                name: _s.split('.').shift(),
+                url: _s,
+                path: _src.join('/'),
+                originalUrl: _urlOriginal.split(_s).join(''),
+                host: _domain,
+                locationHost: extractHostname(window.location.href)
+            };
+        }
+
+        var QueryString = {
+            toString: function () {
+                var retorno = '',
+                    sep = '';
+                for (var name in Sinco.QueryString) {
+                    if (typeof Sinco.QueryString[name] !== 'function') {
+                        retorno += sep + name + '=' + Sinco.QueryString[name];
+                        sep = '&';
                     }
-                    else {
-                        modules[name] = {
-                            name: name,
-                            callback: module,
-                            loaded: false,
-                            dependencies: dependencies
-                        };
-                    }
+                }
+                return retorno;
+            },
+            hasProperties: function () {
+                for (var name in Sinco.QueryString)
+                    if (typeof Sinco.QueryString[name] !== 'function')
+                        return true;
+                return false;
+            }
+        };
 
-                    unroll();
+        var hash;
+        var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        if (window.location.href.lastIndexOf(hashes[0]) != 0) {
+            hashes.forEach(function (hash) {
+                hash = hash.split('=');
+                QueryString[hash[0].toLowerCase()] = hash[1].split('#').shift();
+            });
+        }
 
-                    if (require.onModule)
-                        require.onModule(modules[name]);
+        var initialize = function (_plugins, _fn, _src) {
+            var SincoRequire = function (plugins, fn, src) {
 
-                    return modules[name];
-                };
+                //Funcionalidades Require
+                {
 
-                /**
-                 * @name Require
-                 *
-                 * @description Función que realiza el importando de funcionalidades
-                 *              definidas en otros recursos para su utilización.
-                 * @param {*} _dependencies Objeto de tipo Función o Arreglo. Al ser arreglo, son los
-                 *                           módulos que éste necesitará.
-                 * @param {Function} _callback Función que se ejecutará al momento de cargar las dependencias.
-                 */
-                var require = function (_dependencies, _callback) {
-                    var dependencies, callback;
-                    if (typeof _dependencies === 'function')
-                        callback = _dependencies,
-                            dependencies = require.extractDependencies(callback);
-                    else
-                        dependencies = _dependencies,
-                            callback = _callback;
+                    var modules = [],
+                        pending = [],
+                        loaded = [];
 
-                    var module = {
-                        callback: callback,
-                        dependencies: dependencies
+                    /**
+                    * @name Define
+                    *
+                    * @description Función que realiza la creación de un módulo importando funcionalidades
+                    *              definidas en otros recursos
+                    * @param {String} name String con el nombre que identificará el módulo.
+                    * @param {*} _dependencies Objeto de tipo Función o Arreglo. Al ser arreglo, son los
+                    *                           módulos que éste necesitará.
+                    * @param {Function} _module Función que se ejecutará al momento de cargar las dependencias.
+                    */
+                    var define = function (name, _dependencies, _module) {
+                        var dependencies, module;
+                        if (typeof _dependencies === 'function')
+                            module = _dependencies,
+                                dependencies = require.extractDependencies(module);
+                        else
+                            dependencies = _dependencies,
+                                module = _module;
+
+                        if (!dependencies || !dependencies.length) {
+                            loaded.push(name);
+
+                            modules[name] = {
+                                name: name,
+                                callback: module,
+                                module: module(),
+                                loaded: true,
+                                dependencies: []
+                            };
+                        }
+                        else {
+                            modules[name] = {
+                                name: name,
+                                callback: module,
+                                loaded: false,
+                                dependencies: dependencies
+                            };
+                        }
+
+                        unroll();
+
+                        if (require.onModule)
+                            require.onModule(modules[name]);
+
+                        return modules[name];
                     };
 
-                    modules.push(module);
+                    /**
+                    * @name Require
+                    *
+                    * @description Función que realiza el importando de funcionalidades
+                    *              definidas en otros recursos para su utilización.
+                    * @param {*} _dependencies Objeto de tipo Función o Arreglo. Al ser arreglo, son los
+                    *                           módulos que éste necesitará.
+                    * @param {Function} _callback Función que se ejecutará al momento de cargar las dependencias.
+                    */
+                    var require = function (_dependencies, _callback) {
+                        var dependencies, callback;
+                        if (typeof _dependencies === 'function')
+                            callback = _dependencies,
+                                dependencies = require.extractDependencies(callback);
+                        else
+                            dependencies = _dependencies,
+                                callback = _callback;
 
-                    if (require.onModule)
-                        require.onModule(module);
+                        var module = {
+                            callback: callback,
+                            dependencies: dependencies
+                        };
 
-                    unroll();
+                        modules.push(module);
 
-                    return module;
+                        if (require.onModule)
+                            require.onModule(module);
+
+                        unroll();
+
+                        return module;
+                    };
+
+                    /**
+                    * @private
+                    * @name Unroll
+                    *
+                    * @description Función que realiza la carga de submódulos en los módulos.
+                    */
+                    var unroll = function () {
+                        Sinco.map(Object.keys(modules), function (name) {
+                            return modules[name];
+                        })
+                            .concat(modules)
+                            .forEach(function (module) {
+                                if (!module.loaded && module.dependencies.every(function (depn) {
+                                    return loaded.indexOf(depn) !== -1;
+                                })) {
+
+                                    loaded.push(module.name);
+                                    module.loaded = true;
+                                    module.module = module.callback.apply(null, module.dependencies
+                                        .map(function (depn) {
+                                            return modules[depn].module;
+                                        }));
+
+                                    unroll();
+                                }
+                            });
+                    };
+
+                    /**
+                    * @name extractDependencies
+                    *
+                    * @description Función que realiza la extracción de las dependencias que
+                    *              requiere el módulo actual
+                    * @param {Function} fn Función de la cual se tomará su nombre para agregar
+                    *                   la dependencia.
+                    */
+                    require.extractDependencies = function (fn) {
+                        fn = fn.toString();
+
+                        fn = fn.replace(/\/\*[^(?:\*\/)]+\*\//g, '');
+                        fn = fn.match(/function \(([^\)]*)\)/)[1];
+
+                        return fn ? fn.split(',').map(function (dependency) {
+                            return dependency.trim();
+                        }) : [];
+                    };
+
+                    /**
+                    * @name loadScript
+                    *
+                    * @description Función que realiza la carga del script correspondiente al
+                    *              módulo referenciado.
+                    * @param {String} src String correspondiente a la ruta del archivo que contiene
+                    *                 la definición del modulo requerido.
+                    * @param {Function} callback Función que se ejecuta al cargar el archivo.
+                    */
+                    require.loadScript = function (src, callback) {
+                        var script = document.createElement('script');
+                        script.onload = callback;
+                        script.onerror = function () {
+                            Sinco.extend(script)['delete']();
+                        }
+
+                        document.getElementsByTagName('head')[0].appendChild(script);
+                        script.src = src + (window['version-js'] ? '?v=' + window['version-js'] : '');
+                    };
+
+                    require.modules = modules;
+                }
+
+                if (!src) {
+                    var url = window.location.href.split('/');
+                    url.pop();
+                    src = Sinco.map(document.getElementsByTagName('script'), function (s) { return s; }).pop().src.replaceAll(url.join('/'), '').split('/');
+                    src.shift();
+                    src.pop();
+                    src = src.join('/');
+                    if (src.startsWith('/' + window.location.host)) {
+                        src = src.replace('/' + window.location.host, '');
+                    }
+                }
+
+                var modulos, version;
+
+                var getVersion = function () {
+                    var splitted = document.currentScript.src.split('=');
+                    if (splitted.length > 1) {
+                        version = splitted.pop();
+                    }
                 };
 
-                /**
-                 * @private
-                 * @name Unroll
-                 *
-                 * @description Función que realiza la carga de submódulos en los módulos.
-                 */
-                var unroll = function () {
-                    Sinco.map(Object.keys(modules), function (name) {
-                        return modules[name];
-                    })
-                        .concat(modules)
-                        .forEach(function (module) {
-                            if (!module.loaded && module.dependencies.every(function (depn) {
-                                return loaded.indexOf(depn) !== -1;
-                            })) {
+                var addOnModule = function () {
+                    plugins = null;
+                    if (!!modulos && !!modulos.dependencies) {
+                        modulos.dependencies.forEach(function (dependency) {
+                            if (pending.indexOf(dependency) == -1) {
+                                require.loadScript(src + '/' + dependency + '.js', function () {
+                                    //pending.splice(pending.indexOf(dependency), 1);
+                                });
 
-                                loaded.push(module.name);
-                                module.loaded = true;
-                                module.module = module.callback.apply(null, module.dependencies
-                                    .map(function (depn) {
-                                        return modules[depn].module;
-                                    }));
-
-                                unroll();
+                                pending.push(dependency);
                             }
                         });
-                };
-
-                /**
-                 * @name extractDependencies
-                 *
-                 * @description Función que realiza la extracción de las dependencias que
-                 *              requiere el módulo actual
-                 * @param {Function} fn Función de la cual se tomará su nombre para agregar
-                 *                   la dependencia.
-                 */
-                require.extractDependencies = function (fn) {
-                    fn = fn.toString();
-
-                    fn = fn.replace(/\/\*[^(?:\*\/)]+\*\//g, '');
-                    fn = fn.match(/function \(([^\)]*)\)/)[1];
-
-                    return fn ? fn.split(',').map(function (dependency) {
-                        return dependency.trim();
-                    }) : [];
-                };
-
-                /**
-                 * @name loadScript
-                 *
-                 * @description Función que realiza la carga del script correspondiente al
-                 *              módulo referenciado.
-                 * @param {String} src String correspondiente a la ruta del archivo que contiene
-                 *                 la definición del modulo requerido.
-                 * @param {Function} callback Función que se ejecuta al cargar el archivo.
-                 */
-                require.loadScript = function (src, callback) {
-                    var script = document.createElement('script');
-                    script.onload = callback;
-                    script.onerror = function () {
-                        Sinco.extend(script)['delete']();
                     }
-
-                    document.getElementsByTagName('head')[0].appendChild(script);
-                    script.src = src + (window['version-js'] ? '?v=' + window['version-js'] : '');
+                    if (!!fn && typeof fn === "function") {
+                        fn();
+                    }
                 };
 
-                require.modules = modules;
-            }
+                if (plugins) {
+                    var sum = 0;
+                    getVersion();
+                    plugins.forEach(function (script) {
+                        var _url = 's5.' + script + '.js' + (version && !window['version-js'] ? '?v=' + version : '');
 
-            if (!src) {
-                var url = window.location.href.split('/');
-                url.pop();
-                src = Sinco.map(document.getElementsByTagName('script'), function (s) { return s; }).pop().src.replaceAll(url.join('/'), '').split('/');
-                src.shift();
-                src.pop();
-                src = src.join('/');
-                if (src.startsWith('/' + window.location.host)) {
-                    src = src.replace('/' + window.location.host, '');
-                }
-            }
-
-            var modulos, version;
-
-            var getVersion = function () {
-                var splitted = document.currentScript.src.split('=');
-                if (splitted.length > 1) {
-                    version = splitted.pop();
-                }
-            };
-
-            var addOnModule = function () {
-                plugins = null;
-                if (!!modulos && !!modulos.dependencies) {
-                    modulos.dependencies.forEach(function (dependency) {
-                        if (pending.indexOf(dependency) == -1) {
-                            require.loadScript(src + '/' + dependency + '.js', function () {
-                                //pending.splice(pending.indexOf(dependency), 1);
-                            });
-
-                            pending.push(dependency);
+                        if (Sinco.script.locationHost != Sinco.script.host) {
+                            _url = Sinco.script.originalUrl + _url;
                         }
+                        else {
+                            _url = Sinco.script.path + '/' + _url;
+                        }
+
+                        require.loadScript(_url, function () {
+                            sum++;
+                            if (sum == plugins.length) {
+                                addOnModule();
+                            }
+                        });
                     });
                 }
-                if (!!fn && typeof fn === "function") {
-                    fn();
-                }
-            };
 
-            if (plugins) {
-                var sum = 0;
-                getVersion();
-                plugins.forEach(function (script) {
-                    var _url = 's5.' + script + '.js' + (version && !window['version-js'] ? '?v=' + version : '');
-
-                    if (Sinco.script.locationHost != Sinco.script.host) {
-                        _url = Sinco.script.originalUrl + _url;
+                require.onModule = function (module) {
+                    modulos = module;
+                    if (!plugins) {
+                        addOnModule();
                     }
-                    else {
-                        _url = Sinco.script.path + '/' + _url;
-                    }
-
-                    require.loadScript(_url, function () {
-                        sum++;
-                        if (sum == plugins.length) {
-                            addOnModule();
-                        }
-                    });
-                });
-            }
-
-            require.onModule = function (module) {
-                modulos = module;
-                if (!plugins) {
-                    addOnModule();
-                }
-            };
-
-            var components = {
-                'import': function (component) {
-                    var path = 's5_components';
-                    require.loadScript(path + '/' + component + '/' + component + '.js');
-                }
-            };
-
-            this.require = require;
-            this.define = define;
-            this.components = components;
-        }
-
-        return new SincoRequire(_plugins, _fn, _src);
-    }
-
-    var watch = function (obj, prop, callback) {
-        var oldValue = obj[prop]
-          , newValue = oldValue
-          , getter = function () { return newValue; }
-          , setter = function (value) {
-              oldValue = newValue;
-              newValue = value;
-              callback.call(obj, prop, oldValue, newValue);
-          };
-        if (delete obj[prop]) {
-            if (Object.defineProperty) {
-                Object.defineProperty(obj, prop, {
-                    get: getter,
-                    set: setter,
-                    enumerable: true,
-                    configurable: true
-                });
-            } else if (Object.prototype.__defineGetter__ && Object.prototype.__defineSetter__) {
-                Object.prototype.__defineGetter__(obj, prop, getter);
-                Object.prototype.__defineSetter__(obj, prop, setter);
-            }
-        }
-        return this;
-    };
-
-    var model = {
-        define: function (nombreClase, props, functions) {
-            var propiedades_Clase = Object.keys(props);
-            var funciones = Object.keys(functions);
-                
-            window[nombreClase] = (new Function('parametros_NuevaInstancia', 'return function (props_Clase, funcion_Constructor) { return function ' + nombreClase + ' (parametros_NuevaInstancia){ \
-                var obj = this; \
-                props_Clase.forEach(function (key){ \
-				    obj[key] = parametros_NuevaInstancia[key]; \
-				    }); \
-                funcion_Constructor.call(this, parametros_NuevaInstancia); \
-			    return obj; \
-		    }; };')())(propiedades_Clase, functions.constructor);
-
-
-            funciones.forEach(function (key) {
-                window[nombreClase].prototype[key] = functions[key];
-            });
-
-            var extend = function (name, props, functions) {
-
-                var ext = function (el, opt) {
-                    for (var n in opt)
-                        el[n] = opt[n];
-                    return el;
                 };
 
-                functions = functions || {};
+                var components = {
+                    'import': function (component) {
+                        var path = 's5_components';
+                        require.loadScript(path + '/' + component + '/' + component + '.js');
+                    }
+                };
 
-                ext(props, this.props);
-                ext(functions, this.functions);
-
-
-                return model.define(name, props, functions);
+                this.require = require;
+                this.define = define;
+                this.components = components;
             }
 
-
-            window[nombreClase].prototype.validate = function () {
-
-            }
-
-            return {
-                extend: extend,
-                props: props,
-                functions: functions
-            }
-
-        },
-
-        create: function (clase, data) {
-            return new window[clase](data);
+            return new SincoRequire(_plugins, _fn, _src);
         }
-    }
 
-    var interpolate = function (str) {
-        return function interpolate(o) {
-            return str.replace(/{{([^{}]*)}}/g, function (a, b) {
-                var r = typeof o[b] == "function" ? o[b]() : o[b];
-                return typeof r === 'string' || typeof r === 'number' ? r : a;
-            });
+        var watch = function (obj, prop, callback) {
+            var oldValue = obj[prop]
+            , newValue = oldValue
+            , getter = function () { return newValue; }
+            , setter = function (value) {
+                oldValue = newValue;
+                newValue = value;
+                callback.call(obj, prop, oldValue, newValue);
+            };
+            if (delete obj[prop]) {
+                if (Object.defineProperty) {
+                    Object.defineProperty(obj, prop, {
+                        get: getter,
+                        set: setter,
+                        enumerable: true,
+                        configurable: true
+                    });
+                } else if (Object.prototype.__defineGetter__ && Object.prototype.__defineSetter__) {
+                    Object.prototype.__defineGetter__(obj, prop, getter);
+                    Object.prototype.__defineSetter__(obj, prop, setter);
+                }
+            }
+            return this;
+        };
+
+        var model = {
+            define: function (nombreClase, props, functions) {
+                var propiedades_Clase = Object.keys(props);
+                var funciones = Object.keys(functions);
+                    
+                window[nombreClase] = (new Function('parametros_NuevaInstancia', 'return function (props_Clase, funcion_Constructor) { return function ' + nombreClase + ' (parametros_NuevaInstancia){ \
+                    var obj = this; \
+                    props_Clase.forEach(function (key){ \
+                        obj[key] = parametros_NuevaInstancia[key]; \
+                        }); \
+                    funcion_Constructor.call(this, parametros_NuevaInstancia); \
+                    return obj; \
+                }; };')())(propiedades_Clase, functions.constructor);
+
+
+                funciones.forEach(function (key) {
+                    window[nombreClase].prototype[key] = functions[key];
+                });
+
+                var extend = function (name, props, functions) {
+
+                    var ext = function (el, opt) {
+                        for (var n in opt)
+                            el[n] = opt[n];
+                        return el;
+                    };
+
+                    functions = functions || {};
+
+                    ext(props, this.props);
+                    ext(functions, this.functions);
+
+
+                    return model.define(name, props, functions);
+                }
+
+
+                window[nombreClase].prototype.validate = function () {
+
+                }
+
+                return {
+                    extend: extend,
+                    props: props,
+                    functions: functions
+                }
+
+            },
+
+            create: function (clase, data) {
+                return new window[clase](data);
+            }
         }
-    }
 
-    return {
-        extend: extend,
-        get: get,
-        createElem: createElem,
-        'delete': _delete,
-        utilities:
-        {
-            encrypt: encrypt,
-            addStyles: addStyles,
-            parseXml: parseXml,
-            onClickValidations: validacionesOnClick
-        },
-        map: map,
-        filter: filter,
-        reduce: reduce,
-        parallel: parallel,
-        series: series,
-        Request: Request,
-        QueryString: QueryString,
-        script: script(),
-        initialize: initialize,
-        fileToBase64: fileToBase64,
-        watch: watch,
-        model: model,
-        interpolate: interpolate,
-        addEvent: addEvent,
-        removeEvent: removeEvent
+        var interpolate = function (str) {
+            return function interpolate(o) {
+                return str.replace(/{{([^{}]*)}}/g, function (a, b) {
+                    var r = typeof o[b] == "function" ? o[b]() : o[b];
+                    return typeof r === 'string' || typeof r === 'number' ? r : a;
+                });
+            }
+        }
+
+        return {
+            extend: extend,
+            get: get,
+            createElem: createElem,
+            'delete': _delete,
+            utilities:
+            {
+                encrypt: encrypt,
+                addStyles: addStyles,
+                parseXml: parseXml,
+                onClickValidations: validacionesOnClick
+            },
+            map: map,
+            filter: filter,
+            reduce: reduce,
+            parallel: parallel,
+            series: series,
+            Request: Request,
+            QueryString: QueryString,
+            script: script(),
+            initialize: initialize,
+            fileToBase64: fileToBase64,
+            watch: watch,
+            model: model,
+            interpolate: interpolate,
+            addEvent: addEvent,
+            removeEvent: removeEvent
+        };
+    })(window);
+
+    var def = function (n, v, d, c) { 
+        if (!d) d = window;
+        if (typeof c === 'undefined') c = false;
+        var definition = {
+            enumerable: false,
+            configurable: c
+        };
+        if (definition.configurable){
+            definition.value = v;
+        }
+        else{
+            definition.get = function(){ return v; };
+            definition.set = function(){ throw new ReferenceError('¡El elemento "' + n + '" no se puede eliminar ni reasignar!'); };
+        }
+
+        Object.defineProperty(d, n, definition);
     };
-})(window);
 
-window['Sinco'] = Sinco;
-window['s5'] = Sinco;
+    def('s5', s5def.createElem);
+
+    s5def.map(Object.keys(s5def), function(opc){
+        def(opc, s5def[opc], window['s5'], true);
+    });
+    
+    def('Sinco', window['s5']);
+})();
