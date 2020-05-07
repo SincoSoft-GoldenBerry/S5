@@ -1,0 +1,6 @@
+{
+    "files.exclude": {
+        "**/*.min.js": {"when": "$(basename).js"},
+        "**/*.js.map": true
+    }
+}

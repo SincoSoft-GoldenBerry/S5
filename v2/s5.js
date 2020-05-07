@@ -1,9 +1,9 @@
 /**
- * @license S5.js v2.0.18
+ * @license S5.js v2.0.21
  * (c) 2015-2020 Sincosoft, Inc. http://sinco.com.co
  * 
  * Creation date: 27/02/2018
- * Last change: 22/04/2020
+ * Last change: 07/05/2020
  *
  * by GoldenBerry
 **/
@@ -234,18 +234,28 @@
     }
     SincoInitializationError.prototype = Error.prototype;
 
-    const s5 = fac(win, doc, a, o, s, j);
-
-    const def = (n, v) => 
-        o.defineProperty(win, n, {
-            get: _ => v,
-            set: _ => { throw new ReferenceError('¡El elemento no se puede eliminar ni reasignar!') },
+    const def = (n, v, d = win, c = false) => {
+        const definition = {
             enumerable: false,
-            configurable: false
-        });
+            configurable: c
+        };
+        if (definition.configurable){
+            definition.value = v;
+        }
+        else{
+            definition.get = _ => v;
+            definition.set = _ => { throw new ReferenceError(`¡El elemento "${n}" no se puede eliminar ni reasignar!`); };
+        }
+        o.defineProperty(d, n, definition);
+    };
 
-    def('s5', s5);
-    def('Sinco', s5);
+    const s5def = fac(win, doc, a, o, s, j);
+
+    def('s5', s5def.createElem);
+
+    o.keys(s5def).forEach(opc => def(opc, s5def[opc], win['s5'], true));
+
+    def('Sinco', win['s5']);
     def('isIE', isIE);
     def('__lists', __lists);
     def('isMobile', isMobile); 
@@ -334,7 +344,7 @@
             this.insertBefore(e, this.firstChild);
         }
 
-        if (this.listeners['insert']) {
+        if (this.listeners && this.listeners['insert']) {
             _dispatch.call(this, 'insert');
         }
         return this;
@@ -349,6 +359,18 @@
         }
         let index = arr.from(opc.parentNode.childNodes).indexOf(opc);
         return _insert.call(this, e, index+1);
+    };
+
+    const _insertTo = function (e) {
+        if (typeof e === 'undefined' || !e){
+            throw new TypeError('Debe especificar el elemento al que se insertará.');
+        }
+        e.appendChild(this);
+
+        if (this.listeners && this.listeners['insertTo']) {
+            _dispatch.call(this, 'insertTo');
+        }
+        return this;
     };
 
     const _addEvent = function (type, callback) {
@@ -419,6 +441,7 @@
         get: _get,
         attribute: _attribute,
         insert: _insert,
+        insertTo: _insertTo,
         insertAfter: _insertAfter,
         addEvent: _addEvent,
         removeEvent: _removeEvent,
@@ -894,7 +917,7 @@
         '504': 'GatewayTimeout'
     };
 
-    const _Request = (method, url, fn, data, contentType, includeAccept) => {
+    const _Request = (method, url, fn, data, contentType, includeAccept, timeout) => {
         const f = _ => { };
         includeAccept = typeof includeAccept == 'boolean' ? includeAccept : true;
         fn = fn || {};
@@ -1015,6 +1038,10 @@
         };
         http.onabort = errorXmlHttp('El usuario abortó el Request');
         http.onerror = errorXmlHttp('Ocurrió un error en el Request');
+        if (typeof timeout === 'object') {
+            http.timeout = timeout.time;
+            http.ontimeout = timeout.ontimeout;
+        }
         if (data) {
             if (contentType.toUpperCase() == 'DEFAULT') {
                 let params = [];

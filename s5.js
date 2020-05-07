@@ -1,9 +1,9 @@
 /**
- * @license S5.js v1.0.49
+ * @license S5.js v1.0.50
  * (c) 2015-2019 Sincosoft, Inc. http://sinco.com.co
  * 
  * Creation date: 21/07/2015
- * Last change: 20/04/2020
+ * Last change: 07/05/2020
  *
  * by GoldenBerry
  *
@@ -1286,7 +1286,7 @@ if (!document.registerElement) {
             '504': 'GatewayTimeout'
         };
 
-        var Request = function (method, url, fn, data, contentType, includeAccept) {
+        var Request = function (method, url, fn, data, contentType, includeAccept, timeout) {
             var f = function () { };
             var alerta;
 
@@ -1401,6 +1401,10 @@ if (!document.registerElement) {
             };
             http.onabort = errorXmlHttp('El usuario abortó el Request');
             http.onerror = errorXmlHttp('Ocurrió un error en el Request');
+            if (typeof timeout == 'object') {
+                http.timeout = timeout.time;
+                http.ontimeout = timeout.ontimeout;
+            }
             if (data) {
                 if (contentType.toUpperCase() == 'DEFAULT') {
                     var params = [];
