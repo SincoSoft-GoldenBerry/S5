@@ -1,9 +1,9 @@
 /**
- * @license S5.js v2.0.21
+ * @license S5.js v2.0.24
  * (c) 2015-2020 Sincosoft, Inc. http://sinco.com.co
  * 
  * Creation date: 27/02/2018
- * Last change: 07/05/2020
+ * Last change: 14/05/2020
  *
  * by GoldenBerry
 **/
@@ -251,7 +251,22 @@
 
     const s5def = fac(win, doc, a, o, s, j);
 
-    def('s5', s5def.createElem);
+    const fnSwitch = (...[selector, ...params]) => {
+        if (!selector) {
+            throw new ReferenceError('¡Se necesita al menos un argumento no vacío!');
+        }
+        if (typeof selector === 'object') {
+            return win['s5'].extend(selector);
+        }
+        else if (/<.*>$/i.test(selector)) {
+            params.unshift(selector.replace(/<|>/g, ''));
+
+            return win['s5'].createElem.apply(win['s5'], params);
+        }
+        return win['s5'].get(selector);
+    };
+
+    def('s5', fnSwitch);
 
     o.keys(s5def).forEach(opc => def(opc, s5def[opc], win['s5'], true));
 
@@ -295,15 +310,7 @@
 
             return r;
         }
-        else {
-            let el = dis.querySelector('#' + id);
-
-            if ( el ) {
-                el = _extend(el);
-            }
-
-            return el;
-        }
+        return _get.call(dis, `#${id}`).shift();
     };
 
     const _createElem = (type, attr) => {
@@ -957,9 +964,7 @@
         };
 
         const _exec = (prevFn, fn, text, viewContent, responseHeaders) => {
-            if (viewContent) {
-
-                responseHeaders = responseHeaders.split('\n')
+            responseHeaders = responseHeaders.split('\n')
                                         .filter(item => item.split(' ').join('') !== '' && item.split('\r').join('') !== '')
                                         .map(item => {
                                             let splitted = item.split(':');
@@ -968,7 +973,7 @@
                                                 value: splitted[1].trim()
                                             };
                                         });
-
+            if (viewContent) {
                 switch (contentType.toUpperCase()) {
                     case 'JSON':
                     case 'DEFAULT':

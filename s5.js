@@ -1,9 +1,9 @@
 /**
- * @license S5.js v1.0.50
+ * @license S5.js v1.0.55
  * (c) 2015-2019 Sincosoft, Inc. http://sinco.com.co
  * 
  * Creation date: 21/07/2015
- * Last change: 07/05/2020
+ * Last change: 14/05/2020
  *
  * by GoldenBerry
  *
@@ -950,10 +950,11 @@ if (!document.registerElement) {
 
         var get = function (id) {
             id = id.toString();
+            var from = ( this.attribute == __htmlElementsProps.attribute ? this : document );
             if (/[$/:-?{-~!"^`\[\]#.\s]/.test(id)) {
 
-                if (document.querySelectorAll) {
-                    var r = Sinco.map(document.querySelectorAll(id), function (elem) {
+                if (from.querySelectorAll) {
+                    var r = Sinco.map(from.querySelectorAll(id), function (elem) {
                         elem = Sinco.extend(elem);
                         elem.listeners = elem.listeners || {};
                         return elem;
@@ -981,7 +982,7 @@ if (!document.registerElement) {
                 }
                 else {
                     var classes = id.split(' ').join('').split('.').clean('');
-                    var elems = document.body.getElementsByTagName('*');
+                    var elems = from.getElementsByTagName('*');
 
                     var filtrado = Sinco.filter(elems, function (elem) {
                         return elem.classList && classes.filter(function (cl) {
@@ -996,12 +997,7 @@ if (!document.registerElement) {
                     });
                 }
             }
-            else {
-                var el = Sinco.extend(document.getElementById(id));
-                if (el)
-                    el.listeners = el.listeners || {};
-                return el;
-            }
+            return Sinco.get.call(from, '#' + id).shift();
         };
 
         var extend = function (el, opt) {
@@ -1182,7 +1178,7 @@ if (!document.registerElement) {
             attribute: attribute,
             insert: insert,
             insertAfter: insertAfter,
-            insertTo, insertTo,
+            insertTo: insertTo,
             addEvent: addEvent,
             removeEvent: removeEvent,
             styles: styles,
@@ -1328,16 +1324,16 @@ if (!document.registerElement) {
             };
 
             var _exec = function (prevFn, fn, text, viewContent, responseHeaders) {
+                responseHeaders = responseHeaders.split('\n')
+                                        .filter(function (item) { return item.split(' ').join('') !== '' && item.split('\r').join('') !== ''; })
+                                        .map(function (item) {
+                                            var splitted = item.split(':');
+                                            return {
+                                                name: splitted[0],
+                                                value: splitted[1].trim()
+                                            };
+                                        });
                 if (viewContent) {
-
-                    responseHeaders = responseHeaders.split('\n').filter(function (item) { return item.split(' ').join('') !== '' && item.split('\r').join('') !== ''; }).map(function (item) {
-                        var splitted = item.split(':');
-                        return {
-                            name: splitted[0],
-                            value: splitted[1].trim()
-                        };
-                    });
-
                     switch (contentType.toUpperCase()) {
                         case 'JSON':
                         case 'DEFAULT':
@@ -1950,7 +1946,27 @@ if (!document.registerElement) {
         Object.defineProperty(d, n, definition);
     };
 
-    def('s5', s5def.createElem);
+    var fnSwitch = function() {
+        var params = Array.prototype.slice.call(arguments);
+
+        if (params.length === 0) {
+            throw new ReferenceError('¡Se necesita al menos un argumento!');
+        }
+
+        var selector = params.shift();
+
+        if (typeof selector === 'object') {
+            return window['s5'].extend(selector);
+        }
+        else if (/<.*>$/i.test(selector)) {
+            params.unshift(selector.replace(/<|>/g, ''));
+
+            return window['s5'].createElem.apply(window['s5'], params);
+        }
+        return window['s5'].get(selector);
+    };
+
+    def('s5', fnSwitch);
 
     s5def.map(Object.keys(s5def), function(opc){
         def(opc, s5def[opc], window['s5'], true);
