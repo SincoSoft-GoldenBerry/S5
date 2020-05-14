@@ -1,7 +1,8 @@
-﻿*.min.js*
+﻿*.min.*
 react-components/*
 html/*
 *-2.*
 2-*.*
 *.html
 publicar-npm.bat
+.vscode/*
