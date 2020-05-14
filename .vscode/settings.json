@@ -1,7 +1,0 @@
-{
-    "liveServer.settings.port": 5501,
-    "files.exclude": {
-        "**/*.min.js": {"when": "$(basename).js"},
-        "**/*.js.map": true
-    }
-}
