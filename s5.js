@@ -1,9 +1,9 @@
 /**
- * @license S5.js v1.0.55
+ * @license S5.js v1.0.60
  * (c) 2015-2019 Sincosoft, Inc. http://sinco.com.co
  * 
  * Creation date: 21/07/2015
- * Last change: 14/05/2020
+ * Last change: 21/07/2020
  *
  * by GoldenBerry
  *
@@ -661,7 +661,7 @@ if (!document.registerElement) {
 
 (function(){
     //Creación del objeto Sinco
-    var s5def = (function (exports) {
+    var s5def = (function (exports, scriptSrc) {
 
         //Propiedades de ventana
         exports['isIE'] = navigator.appName == 'Microsoft Internet Exporer' ||
@@ -954,29 +954,41 @@ if (!document.registerElement) {
             if (/[$/:-?{-~!"^`\[\]#.\s]/.test(id)) {
 
                 if (from.querySelectorAll) {
-                    var r = Sinco.map(from.querySelectorAll(id), function (elem) {
-                        elem = Sinco.extend(elem);
-                        elem.listeners = elem.listeners || {};
-                        return elem;
-                    });
-
-                    var def = function(p){
-                        Object.defineProperty(r, p, {
-                            get: function() {
-                                return function() {
-                                    var args = Array.prototype.slice.call(arguments);
-                                    this.forEach(function(e){
-                                        e[p].apply(e, args);
-                                    });
-                                }
-                            },
-                            set: function() { throw new ReferenceError('¡El elemento no se puede eliminar ni reasignar!'); },
-                            enumerable: false,
-                            configurable: false
+                    var ext = function(elementos) {
+                        elementos = Sinco.map(elementos, function (elem) {
+                            elem = Sinco.extend(elem);
+                            elem.listeners = elem.listeners || {};
+                            return elem;
                         });
-                    }
+                        Object.keys(__htmlElementsProps).forEach(def(elementos));
+                        return elementos;
+                    };
 
-                    Object.keys(__htmlElementsProps).forEach(def);
+                    var def = function (r) { 
+                        return function(p){
+                            Object.defineProperty(r, p, {
+                                get: function() {
+                                    return function() {
+                                        var args = Array.prototype.slice.call(arguments);
+                                        var results = this.map(function(e){
+                                            return e[p].apply(e, args);
+                                        });
+                                        if (results.some(function(e) {
+                                            return e.tagName !== undefined;
+                                        })) {
+                                            return ext(results);
+                                        }
+                                        return results;
+                                    }
+                                },
+                                set: function() { throw new ReferenceError('¡El elemento no se puede eliminar ni reasignar!'); },
+                                enumerable: false,
+                                configurable: false
+                            });
+                        };
+                    };
+
+                    var r = ext(from.querySelectorAll(id));
         
                     return r;
                 }
@@ -1018,6 +1030,31 @@ if (!document.registerElement) {
             el.listeners = el.listeners || {};
             return el;
         }
+
+        var html = function (content) {
+            if (content === null || content === undefined) {
+                return this.innerHTML;
+            }
+            else {
+                this.innerHTML = content;
+                return this;
+            }
+        };
+
+        var val = function(value) {
+            if (value === null || value === undefined) {
+                return this.value !== undefined ? this.value : this.textContent;
+            }
+            else {
+                if (this.value !== undefined) {
+                    this.value = value;
+                }
+                else {
+                    this.textContent = value;
+                }
+                return this;
+            }
+        };
 
         var createElem = function (type, attr) {
             var ele = Sinco.extend(document.createElement(type));
@@ -1185,7 +1222,9 @@ if (!document.registerElement) {
             on: on,
             off: off,
             dispatch: dispatch,
-            'delete': _delete
+            'delete': _delete,
+            html: html,
+            val: val
         };
 
         var encrypt = function (txt) {
@@ -1499,6 +1538,7 @@ if (!document.registerElement) {
         };
 
         var script = function () {
+            var fullName = /[^\/\\]+$/.exec(scriptSrc)[0];
 
             var extractHostname = function (url) {
                 var hostname;
@@ -1514,26 +1554,21 @@ if (!document.registerElement) {
                 hostname = hostname.split('?')[0];
 
                 return hostname;
-            }
+            };
 
             var _url = window.location.href.split('/');
             _url.pop();
 
-            var _s = document.getElementsByTagName('script');
-            var _src = _s[_s.length - 1].src;
-
-            var _domain = extractHostname(_src);
-            var _urlOriginal = _src;
-
-            _src = _src.replaceAll(_url.join('/'), '').split('/');
-            _s = _src.pop();
+            var _src = scriptSrc.replaceAll(_url.join('/'), '').split('/');
+            _src.pop();
             _src.shift();
+
             return {
-                name: _s.split('.').shift(),
-                url: _s,
-                path: _src.join('/'),
-                originalUrl: _urlOriginal.split(_s).join(''),
-                host: _domain,
+                name: fullName.split('.')[0],
+                url: fullName.split('?')[0],
+                host: extractHostname(scriptSrc),
+                path: _src.join('/'),                
+                originalUrl: scriptSrc.replace(fullName, ''),
                 locationHost: extractHostname(window.location.href)
             };
         }
@@ -1742,7 +1777,7 @@ if (!document.registerElement) {
                 var modulos, version;
 
                 var getVersion = function () {
-                    var splitted = document.currentScript.src.split('=');
+                    var splitted = scriptSrc.split('=');
                     if (splitted.length > 1) {
                         version = splitted.pop();
                     }
@@ -1926,7 +1961,7 @@ if (!document.registerElement) {
             addEvent: addEvent,
             removeEvent: removeEvent
         };
-    })(window);
+    })(window, document.currentScript.src);
 
     var def = function (n, v, d, c) { 
         if (!d) d = window;

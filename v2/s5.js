@@ -1,9 +1,9 @@
 /**
- * @license S5.js v2.0.24
+ * @license S5.js v2.0.27
  * (c) 2015-2020 Sincosoft, Inc. http://sinco.com.co
  * 
  * Creation date: 27/02/2018
- * Last change: 14/05/2020
+ * Last change: 21/07/2020
  *
  * by GoldenBerry
 **/
@@ -249,7 +249,7 @@
         o.defineProperty(d, n, definition);
     };
 
-    const s5def = fac(win, doc, a, o, s, j);
+    const s5def = fac(win, doc, a, o, s, j, (doc.currentScript || { src:'' }).src);
 
     const fnSwitch = (...[selector, ...params]) => {
         if (!selector) {
@@ -278,7 +278,7 @@
     def('versionIE', versionIE);
     def('SincoInitializationError', SincoInitializationError);
 
-})(typeof window !== 'undefined' ? window : this, document, (win, doc, arr, o, s, j) => {
+})(typeof window !== 'undefined' ? window : this, document, (win, doc, arr, o, s, j, scriptSrc) => {
     
     const _isElement = obj => {
         try {
@@ -295,18 +295,27 @@
         id = id.toString();
         let dis = ( this.attribute == __htmlElementsProps.attribute ? this : doc );
         if (/[$/:-?{-~!"^`\[\]#.\s]/.test(id)) {
-            let r = _map(dis.querySelectorAll(id), elem => _extend(elem));
+            const ext = elements => {
+                elements = _map(elements, elem => _extend(elem));
+                o.keys(__htmlElementsProps).forEach(def(elements));
+                return elements;
+            };
 
-            o.keys(__htmlElementsProps).forEach(p =>
+            const def = r => p =>
                 o.defineProperty(r, p, {
                     get: _ => function() {
-                        this.forEach(e => e[p](...arguments));
+                        const results = this.map(e => e[p](...arguments));
+                        if (results.some(e => e.tagName !== undefined)) {
+                            return ext(results);
+                        }
+                        return results;
                     },
                     set: _ => { throw new ReferenceError('¡El elemento no se puede eliminar ni reasignar!') },
                     enumerable: false,
                     configurable: false
-                })
-            );
+                });
+
+            let r = ext(dis.querySelectorAll(id));
 
             return r;
         }
@@ -444,6 +453,31 @@
         }
     };
 
+    const _html = function (content) {
+        if (content === null || content === undefined) {
+            return this.innerHTML;
+        }
+        else {
+            this.innerHTML = content;
+            return this;
+        }
+    };
+
+    const _val = function(value) {
+        if (value === null || value === undefined) {
+            return this.value !== undefined ? this.value : this.textContent;
+        }
+        else {
+            if (this.value !== undefined) {
+                this.value = value;
+            }
+            else {
+                this.textContent = value;
+            }
+            return this;
+        }
+    };
+
     const __htmlElementsProps = {
         get: _get,
         attribute: _attribute,
@@ -456,7 +490,9 @@
         on: _on,
         off: _off,
         dispatch: _dispatch,
-        'delete': _delete
+        'delete': _delete,
+        html: _html,
+        val: _val
     };
 
     const _fileToBase64 = (f, c) => {
@@ -619,6 +655,8 @@
     })();
 
     let _script = (_ => {
+        const fullName = /[^\/\\]+$/.exec(scriptSrc)[0];
+
         const extractHostname = url => {
             let hostname;
 
@@ -633,28 +671,22 @@
             hostname = hostname.split('?')[0];
 
             return hostname;
-        }
+        };
 
-        let _url = win.location.href.split('/');
+        const _url = win.location.href.split('/');
         _url.pop();
 
-        let _s = doc.getElementsByTagName('script');
-        let _src = _s[_s.length - 1].src;
-
-        const _domain = extractHostname(_src);
-        const _urlOriginal = _src;
-
-        _src = _src.replaceAll(_url.join('/'), '').split('/');
-        _s = _src.pop();
+        const _src = scriptSrc.replaceAll(_url.join('/'), '').split('/');
+        _src.pop();
         _src.shift();
 
         return {
-            name: _s.split('.').shift(),
-            url: _s,
-            path: _src.join('/'),
-            originalUrl: _urlOriginal.split(_s).join(''),
-            host: _domain,
-            locationHost: extractHostname(win.location.href)
+            name: fullName.split('.')[0],
+            url: fullName.split('?')[0],
+            host: extractHostname(scriptSrc),
+            path: _src.join('/'),                
+            originalUrl: scriptSrc.replace(fullName, ''),
+            locationHost: extractHostname(window.location.href)
         };
     })();
 
@@ -776,7 +808,7 @@
             let modulos, version;
 
             const getVersion = _ => {
-                const splitted = doc.currentScript.src.split('=');
+                const splitted = scriptSrc.split('=');
                 if (splitted.length > 1) {
                     version = splitted.pop();
                 }
