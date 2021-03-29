@@ -269,7 +269,7 @@
                     _mostrarOpciones(
                         texto == '_' ? _config.dataSource :
                         _config.dataSource.filter(function (o) {
-                            return o[_config.text].toLowerCase().indexOf(texto.toLowerCase()) >= 0 || o[_config.value].toString().indexOf(texto) >= 0;
+                            return o[_config.text].toLowerCase().normalize().indexOf(texto.toLowerCase().normalize()) >= 0 || o[_config.value].toString().normalize().indexOf(texto.normalize()) >= 0;
                         })
                     );
                 }
