@@ -269,7 +269,9 @@
                     _mostrarOpciones(
                         texto == '_' ? _config.dataSource :
                         _config.dataSource.filter(function (o) {
-                            return o[_config.text].toLowerCase().normalize().indexOf(texto.toLowerCase().normalize()) >= 0 || o[_config.value].toString().normalize().indexOf(texto.normalize()) >= 0;
+                            var textoNormalizado = texto.normalize("NFD").replace(/[\u0300-\u0302]/g, '');
+                            return( o[_config.text].toLowerCase().normalize("NFD").replace(/[\u0300-\u0302]/g, '').indexOf(textoNormalizado.toLowerCase()) >= 0 
+                                 || o[_config.value].toString().normalize("NFD").replace(/[\u0300-\u0302]/g, '').indexOf(textoNormalizado) >= 0);
                         })
                     );
                 }
