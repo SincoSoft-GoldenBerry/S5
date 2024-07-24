@@ -1228,7 +1228,7 @@ if (!document.registerElement) {
         };
 
         var encrypt = function (txt) {
-            if (typeof txt === 'String')
+            if (typeof txt === 'string')
                 return txt.toAESEncrypt();
             else if (txt instanceof Sinco.constructor)
                 return txt.value.toAESEncrypt();

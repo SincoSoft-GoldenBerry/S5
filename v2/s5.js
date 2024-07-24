@@ -619,7 +619,7 @@
     };
 
     const _encrypt = txt => {
-        if (typeof txt === 'String')
+        if (typeof txt === 'string')
             return txt.toAESEncrypt();
         else if (txt instanceof s5.constructor)
             return txt.value.toAESEncrypt();
